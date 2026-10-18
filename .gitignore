@@ -1,0 +1,34 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Artefactos de empaquetado / build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Caches de herramientas
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Salidas generadas por el sistema
+reportes/
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/

@@ -1,4 +1,4 @@
-from interfaz.app import ventana
+from interfaz.app import crear_interfaz
 from logica.ontologia import onto
 
 # -------------------------
@@ -75,5 +75,7 @@ for receta in onto.Receta.instances():
 # -------------------------
 # EJECUTAR INTERFAZ
 # -------------------------
+
+ventana = crear_interfaz()
 
 ventana.mainloop()
