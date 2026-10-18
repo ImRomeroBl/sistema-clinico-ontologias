@@ -1,12 +1,11 @@
 from tkinter import messagebox
 
 from interfaz.components.crud_view import VistaCRUD
-
 from logica.pacientes import (
-    listar_pacientes,
-    crear_paciente,
     actualizar_paciente,
-    eliminar_paciente
+    crear_paciente,
+    eliminar_paciente,
+    listar_pacientes,
 )
 
 # -----------------------------

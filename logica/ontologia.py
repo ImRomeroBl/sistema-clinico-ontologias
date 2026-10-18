@@ -8,7 +8,7 @@ consistente y sin depender del directorio de trabajo actual.
 
 import os
 
-from owlready2 import *
+from owlready2 import get_ontology
 
 # -----------------------------
 # RUTA CENTRALIZADA

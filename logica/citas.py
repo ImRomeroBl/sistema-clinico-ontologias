@@ -10,7 +10,7 @@ El identificador de una cita es el nombre del individuo (name).
 
 from owlready2 import destroy_entity
 
-from logica.ontologia import onto, guardar_ontologia
+from logica.ontologia import guardar_ontologia, onto
 
 # -----------------------------
 # HELPERS INTERNOS

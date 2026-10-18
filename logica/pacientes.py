@@ -10,7 +10,7 @@ la función centralizada guardar_ontologia() de logica.ontologia.
 
 from owlready2 import destroy_entity
 
-from logica.ontologia import onto, guardar_ontologia
+from logica.ontologia import guardar_ontologia, onto
 
 # -----------------------------
 # HELPERS INTERNOS

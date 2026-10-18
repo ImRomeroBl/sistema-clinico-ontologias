@@ -15,23 +15,21 @@ Cada vista concreta sólo declara:
 No contiene lógica de negocio ni accede a la ontología: eso vive en logica/.
 """
 
+from tkinter import END, LEFT, ttk
+
 import customtkinter as ctk
-from tkinter import *
-from tkinter import ttk
 
-from interfaz.theme.colors import *
-from interfaz.theme.fonts import *
-
+from interfaz.components.table import crear_tabla
 from interfaz.components.ui import (
-    crear_titulo,
-    crear_card,
-    crear_label,
-    crear_input,
+    crear_boton_danger,
     crear_boton_exito,
     crear_boton_warning,
-    crear_boton_danger
+    crear_card,
+    crear_input,
+    crear_label,
+    crear_titulo,
 )
-from interfaz.components.table import crear_tabla
+from interfaz.theme.colors import BACKGROUND
 
 # -----------------------------
 # COMPONENTE VISTA CRUD

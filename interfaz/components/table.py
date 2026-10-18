@@ -1,7 +1,6 @@
-import tkinter.ttk as ttk
-from tkinter import *
+from tkinter import BOTH, LEFT, RIGHT, Frame, Y, ttk
 
-from interfaz.theme.colors import *
+from interfaz.theme.colors import PRIMARY
 
 # --------------------------------
 # TABLA MODERNA

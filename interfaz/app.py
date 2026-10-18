@@ -1,17 +1,24 @@
 import customtkinter as ctk
 
-from interfaz.theme.colors import *
-from interfaz.theme.fonts import *
-
 # -----------------------------
 # IMPORTAR MODULOS
 # -----------------------------
-
-from interfaz.pacientes import mostrar_pacientes
-from interfaz.medicos import mostrar_medicos
 from interfaz.citas import mostrar_citas
-from interfaz.recetas import mostrar_recetas
 from interfaz.medicamentos import mostrar_medicamentos
+from interfaz.medicos import mostrar_medicos
+from interfaz.pacientes import mostrar_pacientes
+from interfaz.recetas import mostrar_recetas
+from interfaz.theme.colors import (
+    BACKGROUND,
+    BORDER,
+    CARD,
+    PRIMARY,
+    PRIMARY_HOVER,
+    SIDEBAR,
+    TEXT,
+    TEXT_SECONDARY,
+)
+from interfaz.theme.fonts import BUTTON_FONT, SUBTITLE, TEXT_FONT, TITLE
 
 # -----------------------------
 # CREAR INTERFAZ

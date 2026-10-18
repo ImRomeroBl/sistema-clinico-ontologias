@@ -1,7 +1,17 @@
 import customtkinter as ctk
 
-from interfaz.theme.colors import *
-from interfaz.theme.fonts import *
+from interfaz.theme.colors import (
+    BORDER,
+    CARD,
+    DANGER,
+    PRIMARY,
+    PRIMARY_HOVER,
+    SUCCESS,
+    TEXT,
+    TEXT_SECONDARY,
+    WARNING,
+)
+from interfaz.theme.fonts import BUTTON_FONT, SUBTITLE, TEXT_FONT
 
 # -----------------------------------
 # TITULO PRINCIPAL

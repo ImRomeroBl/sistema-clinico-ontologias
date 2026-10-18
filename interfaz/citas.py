@@ -1,15 +1,9 @@
 from tkinter import messagebox
 
 from interfaz.components.crud_view import VistaCRUD
-
-from logica.citas import (
-    listar_citas,
-    crear_cita,
-    actualizar_cita,
-    eliminar_cita
-)
-from logica.pacientes import listar_pacientes
+from logica.citas import actualizar_cita, crear_cita, eliminar_cita, listar_citas
 from logica.medicos import listar_medicos
+from logica.pacientes import listar_pacientes
 
 # -----------------------------
 # FUNCION PRINCIPAL
