@@ -170,14 +170,7 @@
 <owl:NamedIndividual rdf:about="#Amoxicilina">
   <rdf:type rdf:resource="#Medicamento"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amoxicilina</nombre>
-  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">500mg</dosis>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#AnaTorres">
-  <rdf:type rdf:resource="#Paciente"/>
-  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">31</edad>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ana Torres</nombre>
-  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">888777666</telefono>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">600mg</dosis>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Cabramendieta">
@@ -213,14 +206,6 @@
   <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologia</especialidad>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mariana Ruiz</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">555444333</telefono>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Cita_3">
-  <rdf:type rdf:resource="#Cita"/>
-  <tieneMedico rdf:resource="#JoseMedina"/>
-  <tienePaciente rdf:resource="#AnaTorres"/>
-  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-05-21</fecha>
-  <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">4:30 PM</hora>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#JoseMedina">
@@ -324,6 +309,43 @@
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kevin David</nombre>
   <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">17</edad>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">22242850</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paciente_9fa3f07f7dc44d0282d2f93a96651e7d">
+  <rdf:type rdf:resource="#Paciente"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ochoa prime</nombre>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">58</edad>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2122421421</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Medico_55e5b1972a084be2bf4f561930f16916">
+  <rdf:type rdf:resource="#Medico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sergio Ramos</nombre>
+  <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Huesero</especialidad>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2224272023</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Cita_ba59aeb93ac44747aedd75c39d31aea7">
+  <rdf:type rdf:resource="#Cita"/>
+  <tienePaciente rdf:resource="#Paciente_9fa3f07f7dc44d0282d2f93a96651e7d"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-10-18</fecha>
+  <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">12:30 PM</hora>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_9a2aa37494064d28b2303a2359a9990a">
+  <rdf:type rdf:resource="#Receta"/>
+  <tienePaciente rdf:resource="#Paciente_9fa3f07f7dc44d0282d2f93a96651e7d"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <incluyeMedicamento rdf:resource="#Pomada_De_la_campana"/>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Untar en la noche</indicaciones>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2 cajas</dosis>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Insulina">
+  <rdf:type rdf:resource="#Medicamento"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Insulina</nombre>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">300mg</dosis>
 </owl:NamedIndividual>
 
 <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#topDataProperty">

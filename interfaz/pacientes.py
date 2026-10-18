@@ -56,11 +56,14 @@ def mostrar_pacientes(panel):
 
             if filtro.lower() in nombre.lower():
 
-                vista.insertar_fila((
-                    paciente["nombre"],
-                    paciente["edad"],
-                    paciente["telefono"]
-                ))
+                vista.insertar_fila(
+                    (
+                        paciente["nombre"],
+                        paciente["edad"],
+                        paciente["telefono"]
+                    ),
+                    iid=paciente["id"]
+                )
 
     # -----------------------------
     # FILTRAR
@@ -86,9 +89,11 @@ def mostrar_pacientes(panel):
         if not seleccion:
             return
 
-        datos = tabla.item(seleccion[0])["values"]
+        paciente_id = seleccion[0]
 
-        paciente_seleccionado[0] = datos[0]
+        datos = tabla.item(paciente_id)["values"]
+
+        paciente_seleccionado[0] = paciente_id
 
         vista.limpiar_campos()
 
@@ -107,28 +112,22 @@ def mostrar_pacientes(panel):
 
     def on_agregar():
 
-        nombre = entrada_nombre.get()
-        edad = entrada_edad.get()
-        telefono = entrada_telefono.get()
+        try:
 
-        if (
-            nombre == ""
-            or edad == ""
-            or telefono == ""
-        ):
+            crear_paciente(
+                entrada_nombre.get(),
+                entrada_edad.get(),
+                entrada_telefono.get()
+            )
+
+        except ValueError as error:
 
             messagebox.showwarning(
-                "Error",
-                "Complete todos los campos"
+                "Datos inválidos",
+                str(error)
             )
 
             return
-
-        crear_paciente(
-            nombre,
-            edad,
-            telefono
-        )
 
         cargar_pacientes()
 
@@ -145,9 +144,9 @@ def mostrar_pacientes(panel):
 
     def on_modificar():
 
-        nombre_antiguo = paciente_seleccionado[0]
+        paciente_id = paciente_seleccionado[0]
 
-        if nombre_antiguo is None:
+        if paciente_id is None:
 
             messagebox.showwarning(
                 "Error",
@@ -156,14 +155,23 @@ def mostrar_pacientes(panel):
 
             return
 
-        nuevo_nombre = entrada_nombre.get()
+        try:
 
-        actualizado = actualizar_paciente(
-            nombre_antiguo,
-            nuevo_nombre,
-            entrada_edad.get(),
-            entrada_telefono.get()
-        )
+            actualizado = actualizar_paciente(
+                paciente_id,
+                entrada_nombre.get(),
+                entrada_edad.get(),
+                entrada_telefono.get()
+            )
+
+        except ValueError as error:
+
+            messagebox.showwarning(
+                "Datos inválidos",
+                str(error)
+            )
+
+            return
 
         if actualizado is None:
 
@@ -174,7 +182,7 @@ def mostrar_pacientes(panel):
 
             return
 
-        paciente_seleccionado[0] = nuevo_nombre
+        paciente_seleccionado[0] = None
 
         cargar_pacientes()
 
@@ -191,9 +199,9 @@ def mostrar_pacientes(panel):
 
     def on_eliminar():
 
-        nombre = paciente_seleccionado[0]
+        paciente_id = paciente_seleccionado[0]
 
-        if nombre is None:
+        if paciente_id is None:
 
             messagebox.showwarning(
                 "Error",
@@ -202,7 +210,7 @@ def mostrar_pacientes(panel):
 
             return
 
-        eliminar_paciente(nombre)
+        eliminar_paciente(paciente_id)
 
         cargar_pacientes()
 

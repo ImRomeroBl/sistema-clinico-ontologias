@@ -41,8 +41,8 @@ def mostrar_citas(panel):
         campos=[
             {"clave": "paciente", "label": "Paciente", "tipo": "combo", "valores": pacientes},
             {"clave": "medico", "label": "Médico", "tipo": "combo", "valores": medicos},
-            {"clave": "fecha", "label": "Fecha", "placeholder": "Ingrese fecha"},
-            {"clave": "hora", "label": "Hora", "placeholder": "Ingrese hora"}
+            {"clave": "fecha", "label": "Fecha", "placeholder": "Ingrese fecha (AAAA-MM-DD)"},
+            {"clave": "hora", "label": "Hora", "placeholder": "Ingrese hora (HH:MM AM/PM)"}
         ]
     )
 
@@ -109,32 +109,23 @@ def mostrar_citas(panel):
 
     def on_agregar():
 
-        paciente_nombre = combo_paciente.get()
-        medico_nombre = combo_medico.get()
+        try:
 
-        fecha = entrada_fecha.get()
-        hora = entrada_hora.get()
+            crear_cita(
+                combo_paciente.get(),
+                combo_medico.get(),
+                entrada_fecha.get(),
+                entrada_hora.get()
+            )
 
-        if (
-            paciente_nombre == ""
-            or medico_nombre == ""
-            or fecha == ""
-            or hora == ""
-        ):
+        except ValueError as error:
 
             messagebox.showwarning(
-                "Error",
-                "Complete todos los campos"
+                "Datos inválidos",
+                str(error)
             )
 
             return
-
-        crear_cita(
-            paciente_nombre,
-            medico_nombre,
-            fecha,
-            hora
-        )
 
         cargar_citas()
 
@@ -162,13 +153,33 @@ def mostrar_citas(panel):
 
             return
 
-        actualizar_cita(
-            cita_seleccionada[0],
-            combo_paciente.get(),
-            combo_medico.get(),
-            entrada_fecha.get(),
-            entrada_hora.get()
-        )
+        try:
+
+            actualizado = actualizar_cita(
+                cita_seleccionada[0],
+                combo_paciente.get(),
+                combo_medico.get(),
+                entrada_fecha.get(),
+                entrada_hora.get()
+            )
+
+        except ValueError as error:
+
+            messagebox.showwarning(
+                "Datos inválidos",
+                str(error)
+            )
+
+            return
+
+        if actualizado is None:
+
+            messagebox.showwarning(
+                "Error",
+                "No se encontró la cita seleccionada"
+            )
+
+            return
 
         cargar_citas()
 

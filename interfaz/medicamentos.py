@@ -48,11 +48,14 @@ def mostrar_medicamentos(panel):
 
         for medicamento in listar_medicamentos():
 
-            vista.insertar_fila((
-                medicamento["nombre"],
-                medicamento["dosis"],
-                medicamento["descripcion"]
-            ))
+            vista.insertar_fila(
+                (
+                    medicamento["nombre"],
+                    medicamento["dosis"],
+                    medicamento["descripcion"]
+                ),
+                iid=medicamento["id"]
+            )
 
     # -----------------------------
     # SELECCIONAR MEDICAMENTO
@@ -65,9 +68,11 @@ def mostrar_medicamentos(panel):
         if not seleccion:
             return
 
-        datos = tabla.item(seleccion[0])["values"]
+        medicamento_id = seleccion[0]
 
-        medicamento_seleccionado[0] = datos[0]
+        datos = tabla.item(medicamento_id)["values"]
+
+        medicamento_seleccionado[0] = medicamento_id
 
         vista.limpiar_campos()
 
@@ -86,30 +91,19 @@ def mostrar_medicamentos(panel):
 
     def on_agregar():
 
-        nombre = entrada_nombre.get().strip()
-        dosis = entrada_dosis.get().strip()
-        descripcion = entrada_descripcion.get().strip()
+        try:
 
-        if nombre == "" or dosis == "":
-
-            messagebox.showwarning(
-                "Error",
-                "Complete nombre y dosis"
+            crear_medicamento(
+                entrada_nombre.get(),
+                entrada_dosis.get(),
+                entrada_descripcion.get()
             )
 
-            return
-
-        nuevo = crear_medicamento(
-            nombre,
-            dosis,
-            descripcion
-        )
-
-        if nuevo is None:
+        except ValueError as error:
 
             messagebox.showwarning(
-                "Duplicado",
-                "El medicamento ya existe"
+                "Datos inválidos",
+                str(error)
             )
 
             return
@@ -129,9 +123,9 @@ def mostrar_medicamentos(panel):
 
     def on_modificar():
 
-        nombre_actual = medicamento_seleccionado[0]
+        medicamento_id = medicamento_seleccionado[0]
 
-        if nombre_actual is None:
+        if medicamento_id is None:
 
             messagebox.showwarning(
                 "Error",
@@ -140,25 +134,32 @@ def mostrar_medicamentos(panel):
 
             return
 
-        nombre = entrada_nombre.get().strip()
-        dosis = entrada_dosis.get().strip()
-        descripcion = entrada_descripcion.get().strip()
+        try:
 
-        if nombre == "" or dosis == "":
+            actualizado = actualizar_medicamento(
+                medicamento_id,
+                entrada_nombre.get(),
+                entrada_dosis.get(),
+                entrada_descripcion.get()
+            )
+
+        except ValueError as error:
 
             messagebox.showwarning(
-                "Error",
-                "Complete nombre y dosis"
+                "Datos inválidos",
+                str(error)
             )
 
             return
 
-        actualizar_medicamento(
-            nombre_actual,
-            nombre,
-            dosis,
-            descripcion
-        )
+        if actualizado is None:
+
+            messagebox.showwarning(
+                "Error",
+                "No se encontró el medicamento seleccionado"
+            )
+
+            return
 
         cargar_medicamentos()
 
@@ -177,7 +178,9 @@ def mostrar_medicamentos(panel):
 
     def on_eliminar():
 
-        if medicamento_seleccionado[0] is None:
+        medicamento_id = medicamento_seleccionado[0]
+
+        if medicamento_id is None:
 
             messagebox.showwarning(
                 "Error",
@@ -186,9 +189,7 @@ def mostrar_medicamentos(panel):
 
             return
 
-        eliminar_medicamento(
-            medicamento_seleccionado[0]
-        )
+        eliminar_medicamento(medicamento_id)
 
         cargar_medicamentos()
 

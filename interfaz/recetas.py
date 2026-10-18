@@ -152,35 +152,24 @@ def mostrar_recetas(panel):
 
     def on_agregar():
 
-        paciente_nombre = combo_paciente.get()
-        medico_nombre = combo_medico.get()
-        medicamento_nombre = combo_medicamento.get()
+        try:
 
-        dosis = entrada_dosis.get()
-        indicaciones = entrada_indicaciones.get()
+            crear_receta(
+                combo_paciente.get(),
+                combo_medico.get(),
+                combo_medicamento.get(),
+                entrada_dosis.get(),
+                entrada_indicaciones.get()
+            )
 
-        if (
-            paciente_nombre == ""
-            or medico_nombre == ""
-            or medicamento_nombre == ""
-            or dosis == ""
-            or indicaciones == ""
-        ):
+        except ValueError as error:
 
             messagebox.showwarning(
-                "Error",
-                "Complete todos los campos"
+                "Datos inválidos",
+                str(error)
             )
 
             return
-
-        crear_receta(
-            paciente_nombre,
-            medico_nombre,
-            medicamento_nombre,
-            dosis,
-            indicaciones
-        )
 
         cargar_recetas()
 
@@ -206,14 +195,34 @@ def mostrar_recetas(panel):
 
             return
 
-        actualizar_receta(
-            receta_seleccionada[0],
-            combo_paciente.get(),
-            combo_medico.get(),
-            combo_medicamento.get(),
-            entrada_dosis.get(),
-            entrada_indicaciones.get()
-        )
+        try:
+
+            actualizado = actualizar_receta(
+                receta_seleccionada[0],
+                combo_paciente.get(),
+                combo_medico.get(),
+                combo_medicamento.get(),
+                entrada_dosis.get(),
+                entrada_indicaciones.get()
+            )
+
+        except ValueError as error:
+
+            messagebox.showwarning(
+                "Datos inválidos",
+                str(error)
+            )
+
+            return
+
+        if actualizado is None:
+
+            messagebox.showwarning(
+                "Error",
+                "No se encontró la receta seleccionada"
+            )
+
+            return
 
         cargar_recetas()
 
@@ -241,9 +250,7 @@ def mostrar_recetas(panel):
 
             return
 
-        eliminar_receta(
-            receta_seleccionada[0]
-        )
+        eliminar_receta(receta_seleccionada[0])
 
         cargar_recetas()
 

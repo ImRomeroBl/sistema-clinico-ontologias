@@ -56,11 +56,14 @@ def mostrar_medicos(panel):
 
             if filtro.lower() in nombre.lower():
 
-                vista.insertar_fila((
-                    medico["nombre"],
-                    medico["especialidad"],
-                    medico["telefono"]
-                ))
+                vista.insertar_fila(
+                    (
+                        medico["nombre"],
+                        medico["especialidad"],
+                        medico["telefono"]
+                    ),
+                    iid=medico["id"]
+                )
 
     # -----------------------------
     # FILTRAR MEDICOS
@@ -86,9 +89,11 @@ def mostrar_medicos(panel):
         if not seleccion:
             return
 
-        datos = tabla.item(seleccion[0])["values"]
+        medico_id = seleccion[0]
 
-        medico_seleccionado[0] = datos[0]
+        datos = tabla.item(medico_id)["values"]
+
+        medico_seleccionado[0] = medico_id
 
         vista.limpiar_campos()
 
@@ -107,28 +112,22 @@ def mostrar_medicos(panel):
 
     def on_agregar():
 
-        nombre = entrada_nombre.get()
-        especialidad = entrada_especialidad.get()
-        telefono = entrada_telefono.get()
+        try:
 
-        if (
-            nombre == ""
-            or especialidad == ""
-            or telefono == ""
-        ):
+            crear_medico(
+                entrada_nombre.get(),
+                entrada_especialidad.get(),
+                entrada_telefono.get()
+            )
+
+        except ValueError as error:
 
             messagebox.showwarning(
-                "Error",
-                "Complete todos los campos"
+                "Datos inválidos",
+                str(error)
             )
 
             return
-
-        crear_medico(
-            nombre,
-            especialidad,
-            telefono
-        )
 
         cargar_medicos()
 
@@ -145,9 +144,9 @@ def mostrar_medicos(panel):
 
     def on_modificar():
 
-        nombre_antiguo = medico_seleccionado[0]
+        medico_id = medico_seleccionado[0]
 
-        if nombre_antiguo is None:
+        if medico_id is None:
 
             messagebox.showwarning(
                 "Error",
@@ -156,14 +155,23 @@ def mostrar_medicos(panel):
 
             return
 
-        nuevo_nombre = entrada_nombre.get()
+        try:
 
-        actualizado = actualizar_medico(
-            nombre_antiguo,
-            nuevo_nombre,
-            entrada_especialidad.get(),
-            entrada_telefono.get()
-        )
+            actualizado = actualizar_medico(
+                medico_id,
+                entrada_nombre.get(),
+                entrada_especialidad.get(),
+                entrada_telefono.get()
+            )
+
+        except ValueError as error:
+
+            messagebox.showwarning(
+                "Datos inválidos",
+                str(error)
+            )
+
+            return
 
         if actualizado is None:
 
@@ -174,7 +182,7 @@ def mostrar_medicos(panel):
 
             return
 
-        medico_seleccionado[0] = nuevo_nombre
+        medico_seleccionado[0] = None
 
         cargar_medicos()
 
@@ -191,9 +199,9 @@ def mostrar_medicos(panel):
 
     def on_eliminar():
 
-        nombre = medico_seleccionado[0]
+        medico_id = medico_seleccionado[0]
 
-        if nombre is None:
+        if medico_id is None:
 
             messagebox.showwarning(
                 "Error",
@@ -202,7 +210,7 @@ def mostrar_medicos(panel):
 
             return
 
-        eliminar_medico(nombre)
+        eliminar_medico(medico_id)
 
         cargar_medicos()
 

@@ -6,14 +6,18 @@ para que la capa de interfaz no dependa directamente de Owlready2.
 
 Asegura las relaciones con Paciente (tienePaciente), Médico (tieneMedico) y
 Medicamento (incluyeMedicamento), además de dosis e indicaciones.
-El identificador de una receta es el nombre del individuo (name).
+El identificador de una receta es el nombre interno del individuo (name),
+generado con un UUID para evitar colisiones al crear o eliminar registros. Antes
+de modificar la ontología se validan los datos y la existencia de las relaciones.
 """
-
-import uuid
 
 from owlready2 import destroy_entity
 
-from logica.ontologia import guardar_ontologia, onto
+from logica.medicamentos import obtener_medicamento
+from logica.medicos import obtener_medico
+from logica.ontologia import generar_identificador, guardar_ontologia, onto
+from logica.pacientes import obtener_paciente
+from logica.validaciones import texto_obligatorio, validar_dosis
 
 # -----------------------------
 # HELPERS INTERNOS
@@ -30,9 +34,31 @@ def _buscar_receta(receta_id):
 def _primer_valor(entidad, propiedad, defecto=""):
     """Devuelve el primer valor de una propiedad de datos, o un valor por defecto."""
     valores = getattr(entidad, propiedad, None)
+
     if valores:
         return valores[0]
+
     return defecto
+
+
+def _resolver_relaciones(paciente_ref, medico_ref, medicamento_ref):
+    """Resuelve y valida paciente, médico y medicamento (lanza ValueError)."""
+    paciente = obtener_paciente(paciente_ref)
+
+    if paciente is None:
+        raise ValueError("El paciente seleccionado no existe.")
+
+    medico = obtener_medico(medico_ref)
+
+    if medico is None:
+        raise ValueError("El médico seleccionado no existe.")
+
+    medicamento = obtener_medicamento(medicamento_ref)
+
+    if medicamento is None:
+        raise ValueError("El medicamento seleccionado no existe.")
+
+    return paciente, medico, medicamento
 
 # -----------------------------
 # OPERACIONES CRUD
@@ -63,15 +89,20 @@ def listar_recetas():
     return recetas
 
 def crear_receta(paciente_nombre, medico_nombre, medicamento_nombre, dosis, indicaciones):
-    """Crea una receta relacionando paciente, médico y medicamento."""
+    """Valida datos y relaciones, crea la receta con id único y persiste."""
 
-    paciente = onto.search_one(nombre=paciente_nombre)
-    medico = onto.search_one(nombre=medico_nombre)
-    medicamento = onto.search_one(iri="*" + medicamento_nombre)
+    paciente, medico, medicamento = _resolver_relaciones(
+        paciente_nombre,
+        medico_nombre,
+        medicamento_nombre
+    )
 
-    id_receta = f"RECETA_{uuid.uuid4().hex[:8]}"
+    dosis = validar_dosis(dosis)
+    indicaciones = texto_obligatorio(indicaciones, "indicaciones")
 
-    nueva = onto.Receta(id_receta)
+    nueva = onto.Receta(
+        generar_identificador("Receta", onto.Receta)
+    )
 
     nueva.tienePaciente = [paciente]
     nueva.tieneMedico = [medico]
@@ -84,17 +115,29 @@ def crear_receta(paciente_nombre, medico_nombre, medicamento_nombre, dosis, indi
 
     return nueva
 
-def actualizar_receta(receta_id, paciente_nombre, medico_nombre, medicamento_nombre, dosis, indicaciones):
-    """Actualiza una receta existente. Devuelve el individuo o None."""
+def actualizar_receta(
+    receta_id,
+    paciente_nombre,
+    medico_nombre,
+    medicamento_nombre,
+    dosis,
+    indicaciones
+):
+    """Actualiza una receta existente (por nombre interno). Devuelve el individuo o None."""
 
     receta = _buscar_receta(receta_id)
 
     if receta is None:
         return None
 
-    paciente = onto.search_one(nombre=paciente_nombre)
-    medico = onto.search_one(nombre=medico_nombre)
-    medicamento = onto.search_one(iri="*" + medicamento_nombre)
+    paciente, medico, medicamento = _resolver_relaciones(
+        paciente_nombre,
+        medico_nombre,
+        medicamento_nombre
+    )
+
+    dosis = validar_dosis(dosis)
+    indicaciones = texto_obligatorio(indicaciones, "indicaciones")
 
     receta.tienePaciente = [paciente]
     receta.tieneMedico = [medico]
