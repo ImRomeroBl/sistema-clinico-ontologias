@@ -1,12 +1,6 @@
-import customtkinter as ctk
-from tkinter import *
 from tkinter import messagebox
 
-from interfaz.theme.colors import *
-from interfaz.theme.fonts import *
-
-from interfaz.components.ui import *
-from interfaz.components.table import crear_tabla
+from interfaz.components.crud_view import VistaCRUD
 
 from logica.medicos import (
     listar_medicos,
@@ -24,212 +18,62 @@ def mostrar_medicos(panel):
     medico_seleccionado = [None]
 
     # -----------------------------
-    # LIMPIAR PANEL
+    # ESTRUCTURA BASE
     # -----------------------------
 
-    for widget in panel.winfo_children():
-        widget.destroy()
-
-    panel.configure(fg_color=BACKGROUND)
-
-    # -----------------------------
-    # CONTENEDOR PRINCIPAL
-    # -----------------------------
-
-    contenedor = ctk.CTkFrame(
+    vista = VistaCRUD(
         panel,
-        fg_color="transparent"
+        titulo="Gestión de Médicos",
+        columnas=["Nombre", "Especialidad", "Teléfono"],
+        altura=6,
+        buscador={
+            "label": "Buscar Médico",
+            "placeholder": "Buscar médico..."
+        },
+        campos=[
+            {"clave": "nombre", "label": "Nombre", "placeholder": "Ingrese nombre"},
+            {"clave": "especialidad", "label": "Especialidad", "placeholder": "Ingrese especialidad"},
+            {"clave": "telefono", "label": "Teléfono", "placeholder": "Ingrese teléfono"}
+        ]
     )
 
-    contenedor.pack(
-        fill="both",
-        expand=True,
-        padx=30,
-        pady=30
-    )
+    tabla = vista.tabla
+
+    entrada_nombre = vista.widgets["nombre"]
+    entrada_especialidad = vista.widgets["especialidad"]
+    entrada_telefono = vista.widgets["telefono"]
 
     # -----------------------------
-    # TITULO
+    # CARGAR MEDICOS
     # -----------------------------
 
-    titulo = crear_titulo(
-        contenedor,
-        "Gestión de Médicos"
-    )
+    def cargar_medicos(filtro=""):
 
-    titulo.pack(
-        anchor="w",
-        pady=(0, 25)
-    )
+        vista.limpiar_tabla()
 
-    # -----------------------------
-    # CARD PRINCIPAL
-    # -----------------------------
+        for medico in listar_medicos():
 
-    card = crear_card(contenedor)
+            nombre = medico["nombre"]
 
-    card.pack(
-        fill="both",
-        expand=True
-    )
+            if filtro.lower() in nombre.lower():
+
+                vista.insertar_fila((
+                    medico["nombre"],
+                    medico["especialidad"],
+                    medico["telefono"]
+                ))
 
     # -----------------------------
-    # FORMULARIO
+    # FILTRAR MEDICOS
     # -----------------------------
 
-    form = ctk.CTkFrame(
-        card,
-        fg_color="transparent"
-    )
+    def buscar_medico(event):
 
-    form.pack(
-        fill="x",
-        padx=30,
-        pady=(30, 10)
-    )
+        cargar_medicos(vista.buscador.get())
 
-    # -----------------------------
-    # NOMBRE
-    # -----------------------------
-
-    label_nombre = crear_label(
-        form,
-        "Nombre"
-    )
-
-    label_nombre.grid(
-        row=0,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_nombre = crear_input(
-        form,
-        "Ingrese nombre"
-    )
-
-    entrada_nombre.grid(
-        row=0,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # ESPECIALIDAD
-    # -----------------------------
-
-    label_especialidad = crear_label(
-        form,
-        "Especialidad"
-    )
-
-    label_especialidad.grid(
-        row=1,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_especialidad = crear_input(
-        form,
-        "Ingrese especialidad"
-    )
-
-    entrada_especialidad.grid(
-        row=1,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # TELEFONO
-    # -----------------------------
-
-    label_telefono = crear_label(
-        form,
-        "Teléfono"
-    )
-
-    label_telefono.grid(
-        row=2,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_telefono = crear_input(
-        form,
-        "Ingrese teléfono"
-    )
-
-    entrada_telefono.grid(
-        row=2,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # BUSCADOR
-    # -----------------------------
-
-    buscador_frame = ctk.CTkFrame(
-        card,
-        fg_color="transparent"
-    )
-
-    buscador_frame.pack(
-        fill="x",
-        padx=30,
-        pady=(10, 10)
-    )
-
-    buscador_label = crear_label(
-        buscador_frame,
-        "Buscar Médico"
-    )
-
-    buscador_label.pack(
-        anchor="w",
-        pady=(0, 10)
-    )
-
-    buscador = crear_input(
-        buscador_frame,
-        "Buscar médico..."
-    )
-
-    buscador.pack(
-        fill="x"
-    )
-
-    # -----------------------------
-    # TABLA
-    # -----------------------------
-
-    tabla_frame, tabla = crear_tabla(
-
-        parent=card,
-
-        columnas=[
-            "Nombre",
-            "Especialidad",
-            "Teléfono"
-        ],
-
-        altura=6
-    )
-
-    tabla_frame.pack(
-        fill="x",
-        padx=20,
-        pady=10
+    vista.buscador.bind(
+        "<KeyRelease>",
+        buscar_medico
     )
 
     # -----------------------------
@@ -243,85 +87,20 @@ def mostrar_medicos(panel):
         if not seleccion:
             return
 
-        item = tabla.item(seleccion)
-
-        datos = item["values"]
+        datos = tabla.item(seleccion[0])["values"]
 
         medico_seleccionado[0] = datos[0]
 
-        entrada_nombre.delete(0, END)
-        entrada_especialidad.delete(0, END)
-        entrada_telefono.delete(0, END)
+        vista.limpiar_campos()
 
-        entrada_nombre.insert(
-            0,
-            datos[0]
-        )
-
-        entrada_especialidad.insert(
-            0,
-            datos[1]
-        )
-
-        entrada_telefono.insert(
-            0,
-            datos[2]
-        )
+        entrada_nombre.insert(0, datos[0])
+        entrada_especialidad.insert(0, datos[1])
+        entrada_telefono.insert(0, datos[2])
 
     tabla.bind(
         "<<TreeviewSelect>>",
         seleccionar_medico
     )
-
-    # -----------------------------
-    # CARGAR MEDICOS
-    # -----------------------------
-
-    def cargar_medicos(filtro=""):
-
-        for item in tabla.get_children():
-            tabla.delete(item)
-
-        for medico in listar_medicos():
-
-            nombre = medico["nombre"]
-
-            if filtro.lower() in nombre.lower():
-
-                tabla.insert(
-                    "",
-                    END,
-                    values=(
-                        medico["nombre"],
-                        medico["especialidad"],
-                        medico["telefono"]
-                    )
-                )
-
-    # -----------------------------
-    # FILTRAR MEDICOS
-    # -----------------------------
-
-    def buscar_medico(event):
-
-        texto = buscador.get()
-
-        cargar_medicos(texto)
-
-    buscador.bind(
-        "<KeyRelease>",
-        buscar_medico
-    )
-
-    # -----------------------------
-    # LIMPIAR CAMPOS
-    # -----------------------------
-
-    def limpiar_campos():
-
-        entrada_nombre.delete(0, END)
-        entrada_especialidad.delete(0, END)
-        entrada_telefono.delete(0, END)
 
     # -----------------------------
     # AGREGAR MEDICO
@@ -354,7 +133,7 @@ def mostrar_medicos(panel):
 
         cargar_medicos()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         messagebox.showinfo(
             "Éxito",
@@ -400,7 +179,7 @@ def mostrar_medicos(panel):
 
         cargar_medicos()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         messagebox.showinfo(
             "Éxito",
@@ -428,7 +207,7 @@ def mostrar_medicos(panel):
 
         cargar_medicos()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         medico_seleccionado[0] = None
 
@@ -438,61 +217,16 @@ def mostrar_medicos(panel):
         )
 
     # -----------------------------
-    # FRAME BOTONES
+    # PANEL DE BOTONES
     # -----------------------------
 
-    frame_botones = ctk.CTkFrame(
-        card,
-        fg_color="transparent"
-    )
-
-    frame_botones.pack(
-        pady=(0, 30)
-    )
-
-    # -----------------------------
-    # BOTON AGREGAR
-    # -----------------------------
-
-    boton_agregar = crear_boton_exito(
-        frame_botones,
-        "Agregar Médico",
-        on_agregar
-    )
-
-    boton_agregar.pack(
-        side=LEFT,
-        padx=10
-    )
-
-    # -----------------------------
-    # BOTON MODIFICAR
-    # -----------------------------
-
-    boton_modificar = crear_boton_warning(
-        frame_botones,
-        "Modificar Médico",
-        on_modificar
-    )
-
-    boton_modificar.pack(
-        side=LEFT,
-        padx=10
-    )
-
-    # -----------------------------
-    # BOTON ELIMINAR
-    # -----------------------------
-
-    boton_eliminar = crear_boton_danger(
-        frame_botones,
-        "Eliminar Médico",
-        on_eliminar
-    )
-
-    boton_eliminar.pack(
-        side=LEFT,
-        padx=10
+    vista.crear_botones(
+        on_agregar,
+        on_modificar,
+        on_eliminar,
+        etiqueta_agregar="Agregar Médico",
+        etiqueta_modificar="Modificar Médico",
+        etiqueta_eliminar="Eliminar Médico"
     )
 
     # -----------------------------

@@ -1,12 +1,6 @@
-import customtkinter as ctk
-from tkinter import *
 from tkinter import messagebox
 
-from interfaz.theme.colors import *
-from interfaz.theme.fonts import *
-
-from interfaz.components.ui import *
-from interfaz.components.table import crear_tabla
+from interfaz.components.crud_view import VistaCRUD
 
 from logica.medicamentos import (
     listar_medicamentos,
@@ -24,191 +18,26 @@ def mostrar_medicamentos(panel):
     medicamento_seleccionado = [None]
 
     # -----------------------------
-    # LIMPIAR PANEL
+    # ESTRUCTURA BASE
     # -----------------------------
 
-    for widget in panel.winfo_children():
-        widget.destroy()
-
-    panel.configure(
-        fg_color=BACKGROUND
-    )
-
-    # -----------------------------
-    # CONTENEDOR PRINCIPAL
-    # -----------------------------
-
-    contenedor = ctk.CTkFrame(
+    vista = VistaCRUD(
         panel,
-        fg_color="transparent"
+        titulo="Gestión de Medicamentos",
+        columnas=["Nombre", "Dosis Base", "Descripción"],
+        altura=7,
+        campos=[
+            {"clave": "nombre", "label": "Nombre", "placeholder": "Ingrese nombre del medicamento"},
+            {"clave": "dosis", "label": "Dosis Base", "placeholder": "Ingrese dosis recomendada"},
+            {"clave": "descripcion", "label": "Descripción", "placeholder": "Descripción del medicamento"}
+        ]
     )
 
-    contenedor.pack(
-        fill="both",
-        expand=True,
-        padx=30,
-        pady=30
-    )
+    tabla = vista.tabla
 
-    # -----------------------------
-    # TITULO
-    # -----------------------------
-
-    titulo = crear_titulo(
-        contenedor,
-        "Gestión de Medicamentos"
-    )
-
-    titulo.pack(
-        anchor="w",
-        pady=(0, 25)
-    )
-
-    # -----------------------------
-    # CARD PRINCIPAL
-    # -----------------------------
-
-    card = crear_card(contenedor)
-
-    card.pack(
-        fill="both",
-        expand=True
-    )
-
-    # -----------------------------
-    # FORMULARIO
-    # -----------------------------
-
-    form = ctk.CTkFrame(
-        card,
-        fg_color="transparent"
-    )
-
-    form.pack(
-        fill="x",
-        padx=30,
-        pady=(30, 10)
-    )
-
-    # -----------------------------
-    # NOMBRE
-    # -----------------------------
-
-    label_nombre = crear_label(
-        form,
-        "Nombre"
-    )
-
-    label_nombre.grid(
-        row=0,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_nombre = crear_input(
-        form,
-        "Ingrese nombre del medicamento"
-    )
-
-    entrada_nombre.grid(
-        row=0,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # DOSIS
-    # -----------------------------
-
-    label_dosis = crear_label(
-        form,
-        "Dosis Base"
-    )
-
-    label_dosis.grid(
-        row=1,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_dosis = crear_input(
-        form,
-        "Ingrese dosis recomendada"
-    )
-
-    entrada_dosis.grid(
-        row=1,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # DESCRIPCION
-    # -----------------------------
-
-    label_descripcion = crear_label(
-        form,
-        "Descripción"
-    )
-
-    label_descripcion.grid(
-        row=2,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_descripcion = crear_input(
-        form,
-        "Descripción del medicamento"
-    )
-
-    entrada_descripcion.grid(
-        row=2,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # TABLA
-    # -----------------------------
-
-    tabla_frame, tabla = crear_tabla(
-
-        parent=card,
-
-        columnas=[
-            "Nombre",
-            "Dosis Base",
-            "Descripción"
-        ],
-
-        altura=7
-    )
-
-    tabla_frame.pack(
-        fill="x",
-        padx=20,
-        pady=10
-    )
-
-    # -----------------------------
-    # LIMPIAR CAMPOS
-    # -----------------------------
-
-    def limpiar_campos():
-
-        entrada_nombre.delete(0, END)
-        entrada_dosis.delete(0, END)
-        entrada_descripcion.delete(0, END)
+    entrada_nombre = vista.widgets["nombre"]
+    entrada_dosis = vista.widgets["dosis"]
+    entrada_descripcion = vista.widgets["descripcion"]
 
     # -----------------------------
     # CARGAR MEDICAMENTOS
@@ -216,20 +45,15 @@ def mostrar_medicamentos(panel):
 
     def cargar_medicamentos():
 
-        for item in tabla.get_children():
-            tabla.delete(item)
+        vista.limpiar_tabla()
 
         for medicamento in listar_medicamentos():
 
-            tabla.insert(
-                "",
-                END,
-                values=(
-                    medicamento["nombre"],
-                    medicamento["dosis"],
-                    medicamento["descripcion"]
-                )
-            )
+            vista.insertar_fila((
+                medicamento["nombre"],
+                medicamento["dosis"],
+                medicamento["descripcion"]
+            ))
 
     # -----------------------------
     # SELECCIONAR MEDICAMENTO
@@ -242,28 +66,15 @@ def mostrar_medicamentos(panel):
         if not seleccion:
             return
 
-        item = tabla.item(seleccion)
-
-        datos = item["values"]
+        datos = tabla.item(seleccion[0])["values"]
 
         medicamento_seleccionado[0] = datos[0]
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
-        entrada_nombre.insert(
-            0,
-            datos[0]
-        )
-
-        entrada_dosis.insert(
-            0,
-            datos[1]
-        )
-
-        entrada_descripcion.insert(
-            0,
-            datos[2]
-        )
+        entrada_nombre.insert(0, datos[0])
+        entrada_dosis.insert(0, datos[1])
+        entrada_descripcion.insert(0, datos[2])
 
     tabla.bind(
         "<<TreeviewSelect>>",
@@ -306,7 +117,7 @@ def mostrar_medicamentos(panel):
 
         cargar_medicamentos()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         messagebox.showinfo(
             "Correcto",
@@ -352,7 +163,7 @@ def mostrar_medicamentos(panel):
 
         cargar_medicamentos()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         medicamento_seleccionado[0] = None
 
@@ -382,7 +193,7 @@ def mostrar_medicamentos(panel):
 
         cargar_medicamentos()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         medicamento_seleccionado[0] = None
 
@@ -392,61 +203,16 @@ def mostrar_medicamentos(panel):
         )
 
     # -----------------------------
-    # FRAME BOTONES
+    # PANEL DE BOTONES
     # -----------------------------
 
-    frame_botones = ctk.CTkFrame(
-        card,
-        fg_color="transparent"
-    )
-
-    frame_botones.pack(
-        pady=(0, 30)
-    )
-
-    # -----------------------------
-    # BOTON AGREGAR
-    # -----------------------------
-
-    boton_agregar = crear_boton_exito(
-        frame_botones,
-        "Agregar Medicamento",
-        on_agregar
-    )
-
-    boton_agregar.pack(
-        side=LEFT,
-        padx=10
-    )
-
-    # -----------------------------
-    # BOTON MODIFICAR
-    # -----------------------------
-
-    boton_modificar = crear_boton_warning(
-        frame_botones,
-        "Modificar Medicamento",
-        on_modificar
-    )
-
-    boton_modificar.pack(
-        side=LEFT,
-        padx=10
-    )
-
-    # -----------------------------
-    # BOTON ELIMINAR
-    # -----------------------------
-
-    boton_eliminar = crear_boton_danger(
-        frame_botones,
-        "Eliminar Medicamento",
-        on_eliminar
-    )
-
-    boton_eliminar.pack(
-        side=LEFT,
-        padx=10
+    vista.crear_botones(
+        on_agregar,
+        on_modificar,
+        on_eliminar,
+        etiqueta_agregar="Agregar Medicamento",
+        etiqueta_modificar="Modificar Medicamento",
+        etiqueta_eliminar="Eliminar Medicamento"
     )
 
     # -----------------------------

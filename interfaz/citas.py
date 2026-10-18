@@ -1,13 +1,6 @@
-import customtkinter as ctk
-from tkinter import *
-from tkinter import ttk
 from tkinter import messagebox
 
-from interfaz.theme.colors import *
-from interfaz.theme.fonts import *
-
-from interfaz.components.ui import *
-from interfaz.components.table import crear_tabla
+from interfaz.components.crud_view import VistaCRUD
 
 from logica.citas import (
     listar_citas,
@@ -27,239 +20,44 @@ def mostrar_citas(panel):
     cita_seleccionada = [None]
 
     # -----------------------------
-    # LIMPIAR PANEL
-    # -----------------------------
-
-    for widget in panel.winfo_children():
-        widget.destroy()
-
-    panel.configure(fg_color=BACKGROUND)
-
-    # -----------------------------
-    # CONTENEDOR PRINCIPAL
-    # -----------------------------
-
-    contenedor = ctk.CTkFrame(
-        panel,
-        fg_color="transparent"
-    )
-
-    contenedor.pack(
-        fill="both",
-        expand=True,
-        padx=30,
-        pady=30
-    )
-
-    # -----------------------------
-    # TITULO
-    # -----------------------------
-
-    titulo = crear_titulo(
-        contenedor,
-        "Gestión de Citas"
-    )
-
-    titulo.pack(
-        anchor="w",
-        pady=(0, 25)
-    )
-
-    # -----------------------------
-    # CARD PRINCIPAL
-    # -----------------------------
-
-    card = crear_card(contenedor)
-
-    card.pack(
-        fill="both",
-        expand=True
-    )
-
-    # -----------------------------
-    # FORMULARIO
-    # -----------------------------
-
-    form = ctk.CTkFrame(
-        card,
-        fg_color="transparent"
-    )
-
-    form.pack(
-        fill="x",
-        padx=30,
-        pady=(30, 10)
-    )
-
-    # -----------------------------
-    # PACIENTE
-    # -----------------------------
-
-    label_paciente = crear_label(
-        form,
-        "Paciente"
-    )
-
-    label_paciente.grid(
-        row=0,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    combo_paciente = ttk.Combobox(
-        form,
-        font=("Inter", 13),
-        width=32
-    )
-
-    combo_paciente.grid(
-        row=0,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # MEDICO
-    # -----------------------------
-
-    label_medico = crear_label(
-        form,
-        "Médico"
-    )
-
-    label_medico.grid(
-        row=1,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    combo_medico = ttk.Combobox(
-        form,
-        font=("Inter", 13),
-        width=32
-    )
-
-    combo_medico.grid(
-        row=1,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # FECHA
-    # -----------------------------
-
-    label_fecha = crear_label(
-        form,
-        "Fecha"
-    )
-
-    label_fecha.grid(
-        row=2,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_fecha = crear_input(
-        form,
-        "Ingrese fecha"
-    )
-
-    entrada_fecha.grid(
-        row=2,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # HORA
-    # -----------------------------
-
-    label_hora = crear_label(
-        form,
-        "Hora"
-    )
-
-    label_hora.grid(
-        row=3,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_hora = crear_input(
-        form,
-        "Ingrese hora"
-    )
-
-    entrada_hora.grid(
-        row=3,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # TABLA
-    # -----------------------------
-
-    tabla_frame, tabla = crear_tabla(
-
-        parent=card,
-
-        columnas=[
-            "Paciente",
-            "Médico",
-            "Fecha",
-            "Hora"
-        ],
-
-        altura=7
-    )
-
-    tabla_frame.pack(
-        fill="x",
-        padx=20,
-        pady=10
-    )
-
-    # -----------------------------
-    # CARGAR PACIENTES
+    # OPCIONES DE LOS COMBOS
     # -----------------------------
 
     pacientes = []
 
     for paciente in listar_pacientes():
 
-        pacientes.append(
-            paciente["nombre"]
-        )
-
-    combo_paciente["values"] = pacientes
-
-    # -----------------------------
-    # CARGAR MEDICOS
-    # -----------------------------
+        pacientes.append(paciente["nombre"])
 
     medicos = []
 
     for medico in listar_medicos():
 
-        medicos.append(
-            medico["nombre"]
-        )
+        medicos.append(medico["nombre"])
 
-    combo_medico["values"] = medicos
+    # -----------------------------
+    # ESTRUCTURA BASE
+    # -----------------------------
+
+    vista = VistaCRUD(
+        panel,
+        titulo="Gestión de Citas",
+        columnas=["Paciente", "Médico", "Fecha", "Hora"],
+        altura=7,
+        campos=[
+            {"clave": "paciente", "label": "Paciente", "tipo": "combo", "valores": pacientes},
+            {"clave": "medico", "label": "Médico", "tipo": "combo", "valores": medicos},
+            {"clave": "fecha", "label": "Fecha", "placeholder": "Ingrese fecha"},
+            {"clave": "hora", "label": "Hora", "placeholder": "Ingrese hora"}
+        ]
+    )
+
+    tabla = vista.tabla
+
+    combo_paciente = vista.widgets["paciente"]
+    combo_medico = vista.widgets["medico"]
+    entrada_fecha = vista.widgets["fecha"]
+    entrada_hora = vista.widgets["hora"]
 
     # -----------------------------
     # CARGAR CITAS
@@ -267,21 +65,18 @@ def mostrar_citas(panel):
 
     def cargar_citas():
 
-        for item in tabla.get_children():
-            tabla.delete(item)
+        vista.limpiar_tabla()
 
         for cita in listar_citas():
 
-            tabla.insert(
-                "",
-                END,
-                iid=cita["id"],
-                values=(
+            vista.insertar_fila(
+                (
                     cita["paciente"],
                     cita["medico"],
                     cita["fecha"],
                     cita["hora"]
-                )
+                ),
+                iid=cita["id"]
             )
 
     # -----------------------------
@@ -297,44 +92,22 @@ def mostrar_citas(panel):
 
         cita_id = seleccion[0]
 
-        item = tabla.item(cita_id)
-
-        datos = item["values"]
+        datos = tabla.item(cita_id)["values"]
 
         cita_seleccionada[0] = cita_id
+
+        vista.limpiar_campos()
 
         combo_paciente.set(datos[0])
         combo_medico.set(datos[1])
 
-        entrada_fecha.delete(0, END)
-        entrada_hora.delete(0, END)
-
-        entrada_fecha.insert(
-            0,
-            datos[2]
-        )
-
-        entrada_hora.insert(
-            0,
-            datos[3]
-        )
+        entrada_fecha.insert(0, datos[2])
+        entrada_hora.insert(0, datos[3])
 
     tabla.bind(
         "<<TreeviewSelect>>",
         seleccionar_cita
     )
-
-    # -----------------------------
-    # LIMPIAR CAMPOS
-    # -----------------------------
-
-    def limpiar_campos():
-
-        combo_paciente.set("")
-        combo_medico.set("")
-
-        entrada_fecha.delete(0, END)
-        entrada_hora.delete(0, END)
 
     # -----------------------------
     # AGREGAR CITA
@@ -371,7 +144,7 @@ def mostrar_citas(panel):
 
         cargar_citas()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         cita_seleccionada[0] = None
 
@@ -405,7 +178,7 @@ def mostrar_citas(panel):
 
         cargar_citas()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         cita_seleccionada[0] = None
 
@@ -433,7 +206,7 @@ def mostrar_citas(panel):
 
         cargar_citas()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         cita_seleccionada[0] = None
 
@@ -443,61 +216,16 @@ def mostrar_citas(panel):
         )
 
     # -----------------------------
-    # FRAME BOTONES
+    # PANEL DE BOTONES
     # -----------------------------
 
-    frame_botones = ctk.CTkFrame(
-        card,
-        fg_color="transparent"
-    )
-
-    frame_botones.pack(
-        pady=(0, 30)
-    )
-
-    # -----------------------------
-    # BOTON AGREGAR
-    # -----------------------------
-
-    boton_agregar = crear_boton_exito(
-        frame_botones,
-        "Agregar Cita",
-        on_agregar
-    )
-
-    boton_agregar.pack(
-        side=LEFT,
-        padx=10
-    )
-
-    # -----------------------------
-    # BOTON MODIFICAR
-    # -----------------------------
-
-    boton_modificar = crear_boton_warning(
-        frame_botones,
-        "Modificar Cita",
-        on_modificar
-    )
-
-    boton_modificar.pack(
-        side=LEFT,
-        padx=10
-    )
-
-    # -----------------------------
-    # BOTON ELIMINAR
-    # -----------------------------
-
-    boton_eliminar = crear_boton_danger(
-        frame_botones,
-        "Eliminar Cita",
-        on_eliminar
-    )
-
-    boton_eliminar.pack(
-        side=LEFT,
-        padx=10
+    vista.crear_botones(
+        on_agregar,
+        on_modificar,
+        on_eliminar,
+        etiqueta_agregar="Agregar Cita",
+        etiqueta_modificar="Modificar Cita",
+        etiqueta_eliminar="Eliminar Cita"
     )
 
     # -----------------------------

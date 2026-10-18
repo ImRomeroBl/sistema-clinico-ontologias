@@ -1,13 +1,6 @@
-import customtkinter as ctk
-from tkinter import *
-from tkinter import ttk
 from tkinter import messagebox
 
-from interfaz.theme.colors import *
-from interfaz.theme.fonts import *
-
-from interfaz.components.ui import *
-from interfaz.components.table import crear_tabla
+from interfaz.components.crud_view import VistaCRUD
 
 from logica.recetas import (
     listar_recetas,
@@ -31,226 +24,34 @@ def mostrar_recetas(panel):
     receta_seleccionada = [None]
 
     # -----------------------------
-    # LIMPIAR PANEL
+    # OPCIONES DE LOS COMBOS
     # -----------------------------
 
-    for widget in panel.winfo_children():
-        widget.destroy()
+    pacientes = []
 
-    panel.configure(fg_color=BACKGROUND)
+    for paciente in listar_pacientes():
+
+        pacientes.append(paciente["nombre"])
+
+    medicos = []
+
+    for medico in listar_medicos():
+
+        medicos.append(medico["nombre"])
+
+    medicamentos = []
+
+    for medicamento in listar_medicamentos():
+
+        medicamentos.append(medicamento["nombre"])
 
     # -----------------------------
-    # CONTENEDOR PRINCIPAL
+    # ESTRUCTURA BASE
     # -----------------------------
 
-    contenedor = ctk.CTkFrame(
+    vista = VistaCRUD(
         panel,
-        fg_color="transparent"
-    )
-
-    contenedor.pack(
-        fill="both",
-        expand=True,
-        padx=30,
-        pady=30
-    )
-
-    # -----------------------------
-    # TITULO
-    # -----------------------------
-
-    titulo = crear_titulo(
-        contenedor,
-        "Gestión de Recetas"
-    )
-
-    titulo.pack(
-        anchor="w",
-        pady=(0, 25)
-    )
-
-    # -----------------------------
-    # CARD PRINCIPAL
-    # -----------------------------
-
-    card = crear_card(contenedor)
-
-    card.pack(
-        fill="both",
-        expand=True
-    )
-
-    # -----------------------------
-    # FORMULARIO
-    # -----------------------------
-
-    form = ctk.CTkFrame(
-        card,
-        fg_color="transparent"
-    )
-
-    form.pack(
-        fill="x",
-        padx=30,
-        pady=(30, 10)
-    )
-
-    # -----------------------------
-    # PACIENTE
-    # -----------------------------
-
-    label_paciente = crear_label(
-        form,
-        "Paciente"
-    )
-
-    label_paciente.grid(
-        row=0,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    combo_paciente = ttk.Combobox(
-        form,
-        font=("Inter", 13),
-        width=32
-    )
-
-    combo_paciente.grid(
-        row=0,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # MEDICO
-    # -----------------------------
-
-    label_medico = crear_label(
-        form,
-        "Médico"
-    )
-
-    label_medico.grid(
-        row=1,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    combo_medico = ttk.Combobox(
-        form,
-        font=("Inter", 13),
-        width=32
-    )
-
-    combo_medico.grid(
-        row=1,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # MEDICAMENTO
-    # -----------------------------
-
-    label_medicamento = crear_label(
-        form,
-        "Medicamento"
-    )
-
-    label_medicamento.grid(
-        row=2,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    combo_medicamento = ttk.Combobox(
-        form,
-        font=("Inter", 13),
-        width=32
-    )
-
-    combo_medicamento.grid(
-        row=2,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # DOSIS
-    # -----------------------------
-
-    label_dosis = crear_label(
-        form,
-        "Dosis"
-    )
-
-    label_dosis.grid(
-        row=3,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_dosis = crear_input(
-        form,
-        "Dosis personalizada"
-    )
-
-    entrada_dosis.grid(
-        row=3,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # INDICACIONES
-    # -----------------------------
-
-    label_indicaciones = crear_label(
-        form,
-        "Indicaciones"
-    )
-
-    label_indicaciones.grid(
-        row=4,
-        column=0,
-        padx=15,
-        pady=15,
-        sticky="w"
-    )
-
-    entrada_indicaciones = crear_input(
-        form,
-        "Ingrese indicaciones"
-    )
-
-    entrada_indicaciones.grid(
-        row=4,
-        column=1,
-        padx=15,
-        pady=15
-    )
-
-    # -----------------------------
-    # TABLA
-    # -----------------------------
-
-    tabla_frame, tabla = crear_tabla(
-
-        parent=card,
-
+        titulo="Gestión de Recetas",
         columnas=[
             "Paciente",
             "Médico",
@@ -258,57 +59,23 @@ def mostrar_recetas(panel):
             "Dosis",
             "Indicaciones"
         ],
-
-        altura=6
+        altura=6,
+        campos=[
+            {"clave": "paciente", "label": "Paciente", "tipo": "combo", "valores": pacientes},
+            {"clave": "medico", "label": "Médico", "tipo": "combo", "valores": medicos},
+            {"clave": "medicamento", "label": "Medicamento", "tipo": "combo", "valores": medicamentos},
+            {"clave": "dosis", "label": "Dosis", "placeholder": "Dosis personalizada"},
+            {"clave": "indicaciones", "label": "Indicaciones", "placeholder": "Ingrese indicaciones"}
+        ]
     )
 
-    tabla_frame.pack(
-        fill="x",
-        padx=20,
-        pady=10
-    )
+    tabla = vista.tabla
 
-    # -----------------------------
-    # CARGAR PACIENTES
-    # -----------------------------
-
-    pacientes = []
-
-    for paciente in listar_pacientes():
-
-        pacientes.append(
-            paciente["nombre"]
-        )
-
-    combo_paciente["values"] = pacientes
-
-    # -----------------------------
-    # CARGAR MEDICOS
-    # -----------------------------
-
-    medicos = []
-
-    for medico in listar_medicos():
-
-        medicos.append(
-            medico["nombre"]
-        )
-
-    combo_medico["values"] = medicos
-
-    # -----------------------------
-    # CARGAR MEDICAMENTOS
-    # -----------------------------
-
-    medicamentos = []
-
-    for medicamento in listar_medicamentos():
-
-        medicamentos.append(
-            medicamento["nombre"]
-        )
-
-    combo_medicamento["values"] = medicamentos
+    combo_paciente = vista.widgets["paciente"]
+    combo_medico = vista.widgets["medico"]
+    combo_medicamento = vista.widgets["medicamento"]
+    entrada_dosis = vista.widgets["dosis"]
+    entrada_indicaciones = vista.widgets["indicaciones"]
 
     # -----------------------------
     # AUTOCOMPLETAR DOSIS
@@ -316,18 +83,13 @@ def mostrar_recetas(panel):
 
     def actualizar_dosis(event):
 
-        nombre = combo_medicamento.get()
+        vista.limpiar_campo("dosis")
 
-        entrada_dosis.delete(0, END)
-
-        dosis = obtener_dosis_base(nombre)
+        dosis = obtener_dosis_base(combo_medicamento.get())
 
         if dosis:
 
-            entrada_dosis.insert(
-                0,
-                dosis
-            )
+            entrada_dosis.insert(0, dosis)
 
     combo_medicamento.bind(
         "<<ComboboxSelected>>",
@@ -340,24 +102,21 @@ def mostrar_recetas(panel):
 
     def cargar_recetas():
 
-        for item in tabla.get_children():
-            tabla.delete(item)
+        vista.limpiar_tabla()
 
         receta_seleccionada[0] = None
 
         for receta in listar_recetas():
 
-            tabla.insert(
-                "",
-                END,
-                iid=receta["id"],
-                values=(
+            vista.insertar_fila(
+                (
                     receta["paciente"],
                     receta["medico"],
                     receta["medicamento"],
                     receta["dosis"],
                     receta["indicaciones"]
-                )
+                ),
+                iid=receta["id"]
             )
 
     # -----------------------------
@@ -373,46 +132,23 @@ def mostrar_recetas(panel):
 
         receta_id = seleccion[0]
 
-        item = tabla.item(receta_id)
-
-        datos = item["values"]
+        datos = tabla.item(receta_id)["values"]
 
         receta_seleccionada[0] = receta_id
+
+        vista.limpiar_campos()
 
         combo_paciente.set(datos[0])
         combo_medico.set(datos[1])
         combo_medicamento.set(datos[2])
 
-        entrada_dosis.delete(0, END)
-        entrada_indicaciones.delete(0, END)
-
-        entrada_dosis.insert(
-            0,
-            datos[3]
-        )
-
-        entrada_indicaciones.insert(
-            0,
-            datos[4]
-        )
+        entrada_dosis.insert(0, datos[3])
+        entrada_indicaciones.insert(0, datos[4])
 
     tabla.bind(
         "<<TreeviewSelect>>",
         seleccionar_receta
     )
-
-    # -----------------------------
-    # LIMPIAR CAMPOS
-    # -----------------------------
-
-    def limpiar_campos():
-
-        combo_paciente.set("")
-        combo_medico.set("")
-        combo_medicamento.set("")
-
-        entrada_dosis.delete(0, END)
-        entrada_indicaciones.delete(0, END)
 
     # -----------------------------
     # AGREGAR RECETA
@@ -452,7 +188,7 @@ def mostrar_recetas(panel):
 
         cargar_recetas()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         messagebox.showinfo(
             "Correcto",
@@ -485,7 +221,7 @@ def mostrar_recetas(panel):
 
         cargar_recetas()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         receta_seleccionada[0] = None
 
@@ -515,7 +251,7 @@ def mostrar_recetas(panel):
 
         cargar_recetas()
 
-        limpiar_campos()
+        vista.limpiar_campos()
 
         receta_seleccionada[0] = None
 
@@ -525,61 +261,16 @@ def mostrar_recetas(panel):
         )
 
     # -----------------------------
-    # FRAME BOTONES
+    # PANEL DE BOTONES
     # -----------------------------
 
-    frame_botones = ctk.CTkFrame(
-        card,
-        fg_color="transparent"
-    )
-
-    frame_botones.pack(
-        pady=(0, 30)
-    )
-
-    # -----------------------------
-    # BOTON AGREGAR
-    # -----------------------------
-
-    boton_agregar = crear_boton_exito(
-        frame_botones,
-        "Agregar Receta",
-        on_agregar
-    )
-
-    boton_agregar.pack(
-        side=LEFT,
-        padx=10
-    )
-
-    # -----------------------------
-    # BOTON MODIFICAR
-    # -----------------------------
-
-    boton_modificar = crear_boton_warning(
-        frame_botones,
-        "Modificar Receta",
-        on_modificar
-    )
-
-    boton_modificar.pack(
-        side=LEFT,
-        padx=10
-    )
-
-    # -----------------------------
-    # BOTON ELIMINAR
-    # -----------------------------
-
-    boton_eliminar = crear_boton_danger(
-        frame_botones,
-        "Eliminar Receta",
-        on_eliminar
-    )
-
-    boton_eliminar.pack(
-        side=LEFT,
-        padx=10
+    vista.crear_botones(
+        on_agregar,
+        on_modificar,
+        on_eliminar,
+        etiqueta_agregar="Agregar Receta",
+        etiqueta_modificar="Modificar Receta",
+        etiqueta_eliminar="Eliminar Receta"
     )
 
     # -----------------------------
