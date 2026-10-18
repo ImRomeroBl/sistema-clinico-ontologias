@@ -8,8 +8,12 @@ from interfaz.theme.fonts import *
 from interfaz.components.ui import *
 from interfaz.components.table import crear_tabla
 
-from logica.ontologia import onto
-from owlready2 import *
+from logica.medicos import (
+    listar_medicos,
+    crear_medico,
+    actualizar_medico,
+    eliminar_medico
+)
 
 # -----------------------------
 # FUNCION PRINCIPAL
@@ -243,38 +247,26 @@ def mostrar_medicos(panel):
 
         datos = item["values"]
 
-        nombre = datos[0]
+        medico_seleccionado[0] = datos[0]
 
-        medico = onto.search_one(
-            nombre=nombre
+        entrada_nombre.delete(0, END)
+        entrada_especialidad.delete(0, END)
+        entrada_telefono.delete(0, END)
+
+        entrada_nombre.insert(
+            0,
+            datos[0]
         )
 
-        if medico:
+        entrada_especialidad.insert(
+            0,
+            datos[1]
+        )
 
-            medico_seleccionado[0] = medico
-
-            entrada_nombre.delete(0, END)
-            entrada_especialidad.delete(0, END)
-            entrada_telefono.delete(0, END)
-
-            entrada_nombre.insert(
-                0,
-                medico.nombre[0]
-            )
-
-            if medico.especialidad:
-
-                entrada_especialidad.insert(
-                    0,
-                    medico.especialidad[0]
-                )
-
-            if medico.telefono:
-
-                entrada_telefono.insert(
-                    0,
-                    medico.telefono[0]
-                )
+        entrada_telefono.insert(
+            0,
+            datos[2]
+        )
 
     tabla.bind(
         "<<TreeviewSelect>>",
@@ -290,29 +282,19 @@ def mostrar_medicos(panel):
         for item in tabla.get_children():
             tabla.delete(item)
 
-        for medico in onto.Medico.instances():
+        for medico in listar_medicos():
 
-            nombre = medico.nombre[0]
+            nombre = medico["nombre"]
 
             if filtro.lower() in nombre.lower():
-
-                especialidad = ""
-
-                telefono = ""
-
-                if medico.especialidad:
-                    especialidad = medico.especialidad[0]
-
-                if medico.telefono:
-                    telefono = medico.telefono[0]
 
                 tabla.insert(
                     "",
                     END,
                     values=(
-                        nombre,
-                        especialidad,
-                        telefono
+                        medico["nombre"],
+                        medico["especialidad"],
+                        medico["telefono"]
                     )
                 )
 
@@ -345,7 +327,7 @@ def mostrar_medicos(panel):
     # AGREGAR MEDICO
     # -----------------------------
 
-    def agregar_medico():
+    def on_agregar():
 
         nombre = entrada_nombre.get()
         especialidad = entrada_especialidad.get()
@@ -364,17 +346,11 @@ def mostrar_medicos(panel):
 
             return
 
-        with onto:
-
-            nuevo_medico = onto.Medico(
-                nombre.replace(" ", "")
-            )
-
-            nuevo_medico.nombre = [nombre]
-            nuevo_medico.especialidad = [especialidad]
-            nuevo_medico.telefono = [telefono]
-
-        onto.save(file="clinica.owl")
+        crear_medico(
+            nombre,
+            especialidad,
+            telefono
+        )
 
         cargar_medicos()
 
@@ -389,11 +365,11 @@ def mostrar_medicos(panel):
     # MODIFICAR MEDICO
     # -----------------------------
 
-    def modificar_medico():
+    def on_modificar():
 
-        medico = medico_seleccionado[0]
+        nombre_antiguo = medico_seleccionado[0]
 
-        if medico is None:
+        if nombre_antiguo is None:
 
             messagebox.showwarning(
                 "Error",
@@ -402,19 +378,25 @@ def mostrar_medicos(panel):
 
             return
 
-        medico.nombre = [
-            entrada_nombre.get()
-        ]
+        nuevo_nombre = entrada_nombre.get()
 
-        medico.especialidad = [
-            entrada_especialidad.get()
-        ]
-
-        medico.telefono = [
+        actualizado = actualizar_medico(
+            nombre_antiguo,
+            nuevo_nombre,
+            entrada_especialidad.get(),
             entrada_telefono.get()
-        ]
+        )
 
-        onto.save(file="clinica.owl")
+        if actualizado is None:
+
+            messagebox.showwarning(
+                "Error",
+                "No se encontró el médico seleccionado"
+            )
+
+            return
+
+        medico_seleccionado[0] = nuevo_nombre
 
         cargar_medicos()
 
@@ -429,11 +411,11 @@ def mostrar_medicos(panel):
     # ELIMINAR MEDICO
     # -----------------------------
 
-    def eliminar_medico():
+    def on_eliminar():
 
-        medico = medico_seleccionado[0]
+        nombre = medico_seleccionado[0]
 
-        if medico is None:
+        if nombre is None:
 
             messagebox.showwarning(
                 "Error",
@@ -442,9 +424,7 @@ def mostrar_medicos(panel):
 
             return
 
-        destroy_entity(medico)
-
-        onto.save(file="clinica.owl")
+        eliminar_medico(nombre)
 
         cargar_medicos()
 
@@ -477,7 +457,7 @@ def mostrar_medicos(panel):
     boton_agregar = crear_boton_exito(
         frame_botones,
         "Agregar Médico",
-        agregar_medico
+        on_agregar
     )
 
     boton_agregar.pack(
@@ -492,7 +472,7 @@ def mostrar_medicos(panel):
     boton_modificar = crear_boton_warning(
         frame_botones,
         "Modificar Médico",
-        modificar_medico
+        on_modificar
     )
 
     boton_modificar.pack(
@@ -507,7 +487,7 @@ def mostrar_medicos(panel):
     boton_eliminar = crear_boton_danger(
         frame_botones,
         "Eliminar Médico",
-        eliminar_medico
+        on_eliminar
     )
 
     boton_eliminar.pack(

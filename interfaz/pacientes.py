@@ -8,8 +8,12 @@ from interfaz.theme.fonts import *
 from interfaz.components.ui import *
 from interfaz.components.table import crear_tabla
 
-from logica.ontologia import onto
-from owlready2 import *
+from logica.pacientes import (
+    listar_pacientes,
+    crear_paciente,
+    actualizar_paciente,
+    eliminar_paciente
+)
 
 # -----------------------------
 # FUNCION PRINCIPAL
@@ -243,34 +247,26 @@ def mostrar_pacientes(panel):
 
         datos = item["values"]
 
-        nombre = datos[0]
+        paciente_seleccionado[0] = datos[0]
 
-        paciente = onto.search_one(
-            nombre=nombre
+        entrada_nombre.delete(0, END)
+        entrada_edad.delete(0, END)
+        entrada_telefono.delete(0, END)
+
+        entrada_nombre.insert(
+            0,
+            datos[0]
         )
 
-        if paciente:
+        entrada_edad.insert(
+            0,
+            str(datos[1])
+        )
 
-            paciente_seleccionado[0] = paciente
-
-            entrada_nombre.delete(0, END)
-            entrada_edad.delete(0, END)
-            entrada_telefono.delete(0, END)
-
-            entrada_nombre.insert(
-                0,
-                paciente.nombre[0]
-            )
-
-            entrada_edad.insert(
-                0,
-                str(paciente.edad[0])
-            )
-
-            entrada_telefono.insert(
-                0,
-                paciente.telefono[0]
-            )
+        entrada_telefono.insert(
+            0,
+            datos[2]
+        )
 
     tabla.bind(
         "<<TreeviewSelect>>",
@@ -286,23 +282,19 @@ def mostrar_pacientes(panel):
         for item in tabla.get_children():
             tabla.delete(item)
 
-        for paciente in onto.Paciente.instances():
+        for paciente in listar_pacientes():
 
-            nombre = paciente.nombre[0]
+            nombre = paciente["nombre"]
 
             if filtro.lower() in nombre.lower():
-
-                edad = paciente.edad[0]
-
-                telefono = paciente.telefono[0]
 
                 tabla.insert(
                     "",
                     END,
                     values=(
-                        nombre,
-                        edad,
-                        telefono
+                        paciente["nombre"],
+                        paciente["edad"],
+                        paciente["telefono"]
                     )
                 )
 
@@ -335,7 +327,7 @@ def mostrar_pacientes(panel):
     # AGREGAR PACIENTE
     # -----------------------------
 
-    def agregar_paciente():
+    def on_agregar():
 
         nombre = entrada_nombre.get()
         edad = entrada_edad.get()
@@ -354,17 +346,11 @@ def mostrar_pacientes(panel):
 
             return
 
-        with onto:
-
-            nuevo = onto.Paciente(
-                nombre.replace(" ", "")
-            )
-
-            nuevo.nombre = [nombre]
-            nuevo.edad = [int(edad)]
-            nuevo.telefono = [telefono]
-
-        onto.save(file="clinica.owl")
+        crear_paciente(
+            nombre,
+            edad,
+            telefono
+        )
 
         cargar_pacientes()
 
@@ -379,11 +365,11 @@ def mostrar_pacientes(panel):
     # MODIFICAR PACIENTE
     # -----------------------------
 
-    def modificar_paciente():
+    def on_modificar():
 
-        paciente = paciente_seleccionado[0]
+        nombre_antiguo = paciente_seleccionado[0]
 
-        if paciente is None:
+        if nombre_antiguo is None:
 
             messagebox.showwarning(
                 "Error",
@@ -392,19 +378,25 @@ def mostrar_pacientes(panel):
 
             return
 
-        paciente.nombre = [
-            entrada_nombre.get()
-        ]
+        nuevo_nombre = entrada_nombre.get()
 
-        paciente.edad = [
-            int(entrada_edad.get())
-        ]
-
-        paciente.telefono = [
+        actualizado = actualizar_paciente(
+            nombre_antiguo,
+            nuevo_nombre,
+            entrada_edad.get(),
             entrada_telefono.get()
-        ]
+        )
 
-        onto.save(file="clinica.owl")
+        if actualizado is None:
+
+            messagebox.showwarning(
+                "Error",
+                "No se encontró el paciente seleccionado"
+            )
+
+            return
+
+        paciente_seleccionado[0] = nuevo_nombre
 
         cargar_pacientes()
 
@@ -419,11 +411,11 @@ def mostrar_pacientes(panel):
     # ELIMINAR PACIENTE
     # -----------------------------
 
-    def eliminar_paciente():
+    def on_eliminar():
 
-        paciente = paciente_seleccionado[0]
+        nombre = paciente_seleccionado[0]
 
-        if paciente is None:
+        if nombre is None:
 
             messagebox.showwarning(
                 "Error",
@@ -432,39 +424,7 @@ def mostrar_pacientes(panel):
 
             return
 
-        # -----------------------------
-        # ELIMINAR RECETAS
-        # -----------------------------
-
-        for receta in list(onto.Receta.instances()):
-
-            if (
-                receta.tienePaciente
-                and receta.tienePaciente[0] == paciente
-            ):
-
-                destroy_entity(receta)
-
-        # -----------------------------
-        # ELIMINAR CITAS
-        # -----------------------------
-
-        for cita in list(onto.Cita.instances()):
-
-            if (
-                cita.tienePaciente
-                and cita.tienePaciente[0] == paciente
-            ):
-
-                destroy_entity(cita)
-
-        # -----------------------------
-        # ELIMINAR PACIENTE
-        # -----------------------------
-
-        destroy_entity(paciente)
-
-        onto.save(file="clinica.owl")
+        eliminar_paciente(nombre)
 
         cargar_pacientes()
 
@@ -497,7 +457,7 @@ def mostrar_pacientes(panel):
     boton_agregar = crear_boton_exito(
         frame_botones,
         "Agregar Paciente",
-        agregar_paciente
+        on_agregar
     )
 
     boton_agregar.pack(
@@ -512,7 +472,7 @@ def mostrar_pacientes(panel):
     boton_modificar = crear_boton_warning(
         frame_botones,
         "Modificar Paciente",
-        modificar_paciente
+        on_modificar
     )
 
     boton_modificar.pack(
@@ -527,7 +487,7 @@ def mostrar_pacientes(panel):
     boton_eliminar = crear_boton_danger(
         frame_botones,
         "Eliminar Paciente",
-        eliminar_paciente
+        on_eliminar
     )
 
     boton_eliminar.pack(

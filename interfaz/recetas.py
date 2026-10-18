@@ -9,10 +9,18 @@ from interfaz.theme.fonts import *
 from interfaz.components.ui import *
 from interfaz.components.table import crear_tabla
 
-from logica.ontologia import onto
-from owlready2 import *
-
-import uuid
+from logica.recetas import (
+    listar_recetas,
+    crear_receta,
+    actualizar_receta,
+    eliminar_receta
+)
+from logica.pacientes import listar_pacientes
+from logica.medicos import listar_medicos
+from logica.medicamentos import (
+    listar_medicamentos,
+    obtener_dosis_base
+)
 
 # -----------------------------
 # FUNCION PRINCIPAL
@@ -266,10 +274,10 @@ def mostrar_recetas(panel):
 
     pacientes = []
 
-    for paciente in onto.Paciente.instances():
+    for paciente in listar_pacientes():
 
         pacientes.append(
-            paciente.nombre[0]
+            paciente["nombre"]
         )
 
     combo_paciente["values"] = pacientes
@@ -280,10 +288,10 @@ def mostrar_recetas(panel):
 
     medicos = []
 
-    for medico in onto.Medico.instances():
+    for medico in listar_medicos():
 
         medicos.append(
-            medico.nombre[0]
+            medico["nombre"]
         )
 
     combo_medico["values"] = medicos
@@ -294,10 +302,10 @@ def mostrar_recetas(panel):
 
     medicamentos = []
 
-    for medicamento in onto.Medicamento.instances():
+    for medicamento in listar_medicamentos():
 
         medicamentos.append(
-            medicamento.name
+            medicamento["nombre"]
         )
 
     combo_medicamento["values"] = medicamentos
@@ -310,21 +318,15 @@ def mostrar_recetas(panel):
 
         nombre = combo_medicamento.get()
 
-        medicamento = onto.search_one(
-            iri="*" + nombre
-        )
-
         entrada_dosis.delete(0, END)
 
-        if (
-            medicamento
-            and hasattr(medicamento, "dosis")
-            and medicamento.dosis
-        ):
+        dosis = obtener_dosis_base(nombre)
+
+        if dosis:
 
             entrada_dosis.insert(
                 0,
-                medicamento.dosis[0]
+                dosis
             )
 
     combo_medicamento.bind(
@@ -343,48 +345,18 @@ def mostrar_recetas(panel):
 
         receta_seleccionada[0] = None
 
-        for receta in onto.Receta.instances():
-
-            if (
-                not receta.tienePaciente
-                or not receta.tieneMedico
-                or not receta.incluyeMedicamento
-            ):
-                continue
-
-            paciente = receta.tienePaciente[0].nombre[0]
-
-            medico = receta.tieneMedico[0].nombre[0]
-
-            medicamento = receta.incluyeMedicamento[0].name
-
-            dosis = ""
-
-            if (
-                hasattr(receta, "dosis")
-                and receta.dosis
-            ):
-
-                dosis = receta.dosis[0]
-
-            indicaciones = ""
-
-            if (
-                hasattr(receta, "indicaciones")
-                and receta.indicaciones
-            ):
-
-                indicaciones = receta.indicaciones[0]
+        for receta in listar_recetas():
 
             tabla.insert(
                 "",
                 END,
+                iid=receta["id"],
                 values=(
-                    paciente,
-                    medico,
-                    medicamento,
-                    dosis,
-                    indicaciones
+                    receta["paciente"],
+                    receta["medico"],
+                    receta["medicamento"],
+                    receta["dosis"],
+                    receta["indicaciones"]
                 )
             )
 
@@ -399,65 +371,30 @@ def mostrar_recetas(panel):
         if not seleccion:
             return
 
-        item = tabla.item(seleccion)
+        receta_id = seleccion[0]
+
+        item = tabla.item(receta_id)
 
         datos = item["values"]
 
-        paciente_nombre = datos[0]
-        medico_nombre = datos[1]
-        medicamento_nombre = datos[2]
-        dosis = datos[3]
-        indicaciones = datos[4]
+        receta_seleccionada[0] = receta_id
 
-        for receta in onto.Receta.instances():
+        combo_paciente.set(datos[0])
+        combo_medico.set(datos[1])
+        combo_medicamento.set(datos[2])
 
-            if (
-                not receta.tienePaciente
-                or not receta.tieneMedico
-                or not receta.incluyeMedicamento
-            ):
-                continue
+        entrada_dosis.delete(0, END)
+        entrada_indicaciones.delete(0, END)
 
-            paciente = receta.tienePaciente[0].nombre[0]
+        entrada_dosis.insert(
+            0,
+            datos[3]
+        )
 
-            medico = receta.tieneMedico[0].nombre[0]
-
-            medicamento = receta.incluyeMedicamento[0].name
-
-            if (
-                paciente == paciente_nombre
-                and medico == medico_nombre
-                and medicamento == medicamento_nombre
-            ):
-
-                receta_seleccionada[0] = receta
-
-                combo_paciente.set(
-                    paciente
-                )
-
-                combo_medico.set(
-                    medico
-                )
-
-                combo_medicamento.set(
-                    medicamento
-                )
-
-                entrada_dosis.delete(0, END)
-                entrada_indicaciones.delete(0, END)
-
-                entrada_dosis.insert(
-                    0,
-                    dosis
-                )
-
-                entrada_indicaciones.insert(
-                    0,
-                    indicaciones
-                )
-
-                break
+        entrada_indicaciones.insert(
+            0,
+            datos[4]
+        )
 
     tabla.bind(
         "<<TreeviewSelect>>",
@@ -481,7 +418,7 @@ def mostrar_recetas(panel):
     # AGREGAR RECETA
     # -----------------------------
 
-    def agregar_receta():
+    def on_agregar():
 
         paciente_nombre = combo_paciente.get()
         medico_nombre = combo_medico.get()
@@ -505,30 +442,13 @@ def mostrar_recetas(panel):
 
             return
 
-        paciente = onto.search_one(
-            nombre=paciente_nombre
+        crear_receta(
+            paciente_nombre,
+            medico_nombre,
+            medicamento_nombre,
+            dosis,
+            indicaciones
         )
-
-        medico = onto.search_one(
-            nombre=medico_nombre
-        )
-
-        medicamento = onto.search_one(
-            iri="*" + medicamento_nombre
-        )
-
-        id_receta = f"RECETA_{uuid.uuid4().hex[:8]}"
-
-        nueva_receta = onto.Receta(id_receta)
-
-        nueva_receta.tienePaciente = [paciente]
-        nueva_receta.tieneMedico = [medico]
-        nueva_receta.incluyeMedicamento = [medicamento]
-
-        nueva_receta.dosis = [dosis]
-        nueva_receta.indicaciones = [indicaciones]
-
-        onto.save(file="clinica.owl")
 
         cargar_recetas()
 
@@ -543,11 +463,9 @@ def mostrar_recetas(panel):
     # MODIFICAR RECETA
     # -----------------------------
 
-    def modificar_receta():
+    def on_modificar():
 
-        receta = receta_seleccionada[0]
-
-        if receta is None:
+        if receta_seleccionada[0] is None:
 
             messagebox.showwarning(
                 "Error",
@@ -556,33 +474,14 @@ def mostrar_recetas(panel):
 
             return
 
-        paciente_nombre = combo_paciente.get()
-        medico_nombre = combo_medico.get()
-        medicamento_nombre = combo_medicamento.get()
-
-        dosis = entrada_dosis.get()
-        indicaciones = entrada_indicaciones.get()
-
-        paciente = onto.search_one(
-            nombre=paciente_nombre
+        actualizar_receta(
+            receta_seleccionada[0],
+            combo_paciente.get(),
+            combo_medico.get(),
+            combo_medicamento.get(),
+            entrada_dosis.get(),
+            entrada_indicaciones.get()
         )
-
-        medico = onto.search_one(
-            nombre=medico_nombre
-        )
-
-        medicamento = onto.search_one(
-            iri="*" + medicamento_nombre
-        )
-
-        receta.tienePaciente = [paciente]
-        receta.tieneMedico = [medico]
-        receta.incluyeMedicamento = [medicamento]
-
-        receta.dosis = [dosis]
-        receta.indicaciones = [indicaciones]
-
-        onto.save(file="clinica.owl")
 
         cargar_recetas()
 
@@ -599,7 +498,7 @@ def mostrar_recetas(panel):
     # ELIMINAR RECETA
     # -----------------------------
 
-    def eliminar_receta():
+    def on_eliminar():
 
         if receta_seleccionada[0] is None:
 
@@ -610,11 +509,9 @@ def mostrar_recetas(panel):
 
             return
 
-        destroy_entity(
+        eliminar_receta(
             receta_seleccionada[0]
         )
-
-        onto.save(file="clinica.owl")
 
         cargar_recetas()
 
@@ -647,7 +544,7 @@ def mostrar_recetas(panel):
     boton_agregar = crear_boton_exito(
         frame_botones,
         "Agregar Receta",
-        agregar_receta
+        on_agregar
     )
 
     boton_agregar.pack(
@@ -662,7 +559,7 @@ def mostrar_recetas(panel):
     boton_modificar = crear_boton_warning(
         frame_botones,
         "Modificar Receta",
-        modificar_receta
+        on_modificar
     )
 
     boton_modificar.pack(
@@ -677,7 +574,7 @@ def mostrar_recetas(panel):
     boton_eliminar = crear_boton_danger(
         frame_botones,
         "Eliminar Receta",
-        eliminar_receta
+        on_eliminar
     )
 
     boton_eliminar.pack(

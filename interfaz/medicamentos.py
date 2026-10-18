@@ -2,15 +2,18 @@ import customtkinter as ctk
 from tkinter import *
 from tkinter import messagebox
 
-from owlready2 import destroy_entity
-
-from logica.ontologia import onto
-
 from interfaz.theme.colors import *
 from interfaz.theme.fonts import *
 
 from interfaz.components.ui import *
 from interfaz.components.table import crear_tabla
+
+from logica.medicamentos import (
+    listar_medicamentos,
+    crear_medicamento,
+    actualizar_medicamento,
+    eliminar_medicamento
+)
 
 # --------------------------------
 # MOSTRAR MEDICAMENTOS
@@ -216,35 +219,15 @@ def mostrar_medicamentos(panel):
         for item in tabla.get_children():
             tabla.delete(item)
 
-        for medicamento in onto.Medicamento.instances():
-
-            nombre = medicamento.name
-
-            dosis = ""
-
-            if (
-                hasattr(medicamento, "dosis")
-                and medicamento.dosis
-            ):
-
-                dosis = medicamento.dosis[0]
-
-            descripcion = ""
-
-            if (
-                hasattr(medicamento, "descripcion")
-                and medicamento.descripcion
-            ):
-
-                descripcion = medicamento.descripcion[0]
+        for medicamento in listar_medicamentos():
 
             tabla.insert(
                 "",
                 END,
                 values=(
-                    nombre,
-                    dosis,
-                    descripcion
+                    medicamento["nombre"],
+                    medicamento["dosis"],
+                    medicamento["descripcion"]
                 )
             )
 
@@ -263,42 +246,24 @@ def mostrar_medicamentos(panel):
 
         datos = item["values"]
 
-        nombre = datos[0]
+        medicamento_seleccionado[0] = datos[0]
 
-        medicamento = onto.search_one(
-            iri="*" + nombre
+        limpiar_campos()
+
+        entrada_nombre.insert(
+            0,
+            datos[0]
         )
 
-        if medicamento:
+        entrada_dosis.insert(
+            0,
+            datos[1]
+        )
 
-            medicamento_seleccionado[0] = medicamento
-
-            limpiar_campos()
-
-            entrada_nombre.insert(
-                0,
-                medicamento.name
-            )
-
-            if (
-                hasattr(medicamento, "dosis")
-                and medicamento.dosis
-            ):
-
-                entrada_dosis.insert(
-                    0,
-                    medicamento.dosis[0]
-                )
-
-            if (
-                hasattr(medicamento, "descripcion")
-                and medicamento.descripcion
-            ):
-
-                entrada_descripcion.insert(
-                    0,
-                    medicamento.descripcion[0]
-                )
+        entrada_descripcion.insert(
+            0,
+            datos[2]
+        )
 
     tabla.bind(
         "<<TreeviewSelect>>",
@@ -309,7 +274,7 @@ def mostrar_medicamentos(panel):
     # AGREGAR MEDICAMENTO
     # -----------------------------
 
-    def agregar_medicamento():
+    def on_agregar():
 
         nombre = entrada_nombre.get().strip()
         dosis = entrada_dosis.get().strip()
@@ -324,11 +289,13 @@ def mostrar_medicamentos(panel):
 
             return
 
-        existe = onto.search_one(
-            iri="*" + nombre.replace(" ", "_")
+        nuevo = crear_medicamento(
+            nombre,
+            dosis,
+            descripcion
         )
 
-        if existe:
+        if nuevo is None:
 
             messagebox.showwarning(
                 "Duplicado",
@@ -336,19 +303,6 @@ def mostrar_medicamentos(panel):
             )
 
             return
-
-        nuevo = onto.Medicamento(
-            nombre.replace(" ", "_")
-        )
-
-        nuevo.nombre = [nombre]
-        nuevo.dosis = [dosis]
-
-        if descripcion != "":
-
-            nuevo.descripcion = [descripcion]
-
-        onto.save(file="clinica.owl")
 
         cargar_medicamentos()
 
@@ -363,11 +317,11 @@ def mostrar_medicamentos(panel):
     # MODIFICAR MEDICAMENTO
     # -----------------------------
 
-    def modificar_medicamento():
+    def on_modificar():
 
-        medicamento = medicamento_seleccionado[0]
+        nombre_actual = medicamento_seleccionado[0]
 
-        if medicamento is None:
+        if nombre_actual is None:
 
             messagebox.showwarning(
                 "Error",
@@ -389,18 +343,12 @@ def mostrar_medicamentos(panel):
 
             return
 
-        medicamento.nombre = [nombre]
-        medicamento.dosis = [dosis]
-
-        if descripcion != "":
-
-            medicamento.descripcion = [descripcion]
-
-        else:
-
-            medicamento.descripcion = []
-
-        onto.save(file="clinica.owl")
+        actualizar_medicamento(
+            nombre_actual,
+            nombre,
+            dosis,
+            descripcion
+        )
 
         cargar_medicamentos()
 
@@ -417,7 +365,7 @@ def mostrar_medicamentos(panel):
     # ELIMINAR MEDICAMENTO
     # -----------------------------
 
-    def eliminar_medicamento():
+    def on_eliminar():
 
         if medicamento_seleccionado[0] is None:
 
@@ -428,11 +376,9 @@ def mostrar_medicamentos(panel):
 
             return
 
-        destroy_entity(
+        eliminar_medicamento(
             medicamento_seleccionado[0]
         )
-
-        onto.save(file="clinica.owl")
 
         cargar_medicamentos()
 
@@ -465,7 +411,7 @@ def mostrar_medicamentos(panel):
     boton_agregar = crear_boton_exito(
         frame_botones,
         "Agregar Medicamento",
-        agregar_medicamento
+        on_agregar
     )
 
     boton_agregar.pack(
@@ -480,7 +426,7 @@ def mostrar_medicamentos(panel):
     boton_modificar = crear_boton_warning(
         frame_botones,
         "Modificar Medicamento",
-        modificar_medicamento
+        on_modificar
     )
 
     boton_modificar.pack(
@@ -495,7 +441,7 @@ def mostrar_medicamentos(panel):
     boton_eliminar = crear_boton_danger(
         frame_botones,
         "Eliminar Medicamento",
-        eliminar_medicamento
+        on_eliminar
     )
 
     boton_eliminar.pack(

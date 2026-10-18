@@ -319,6 +319,13 @@
   <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Comer bien</indicaciones>
 </owl:NamedIndividual>
 
+<owl:NamedIndividual rdf:about="#KevinDavid">
+  <rdf:type rdf:resource="#Paciente"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kevin David</nombre>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">17</edad>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">22242850</telefono>
+</owl:NamedIndividual>
+
 <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#topDataProperty">
   <rdfs:domain rdf:resource="#Medico"/>
   <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>

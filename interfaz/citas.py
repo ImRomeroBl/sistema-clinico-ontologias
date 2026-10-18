@@ -9,8 +9,14 @@ from interfaz.theme.fonts import *
 from interfaz.components.ui import *
 from interfaz.components.table import crear_tabla
 
-from logica.ontologia import onto
-from owlready2 import *
+from logica.citas import (
+    listar_citas,
+    crear_cita,
+    actualizar_cita,
+    eliminar_cita
+)
+from logica.pacientes import listar_pacientes
+from logica.medicos import listar_medicos
 
 # -----------------------------
 # FUNCION PRINCIPAL
@@ -233,10 +239,10 @@ def mostrar_citas(panel):
 
     pacientes = []
 
-    for paciente in onto.Paciente.instances():
+    for paciente in listar_pacientes():
 
         pacientes.append(
-            paciente.nombre[0]
+            paciente["nombre"]
         )
 
     combo_paciente["values"] = pacientes
@@ -247,10 +253,10 @@ def mostrar_citas(panel):
 
     medicos = []
 
-    for medico in onto.Medico.instances():
+    for medico in listar_medicos():
 
         medicos.append(
-            medico.nombre[0]
+            medico["nombre"]
         )
 
     combo_medico["values"] = medicos
@@ -264,36 +270,17 @@ def mostrar_citas(panel):
         for item in tabla.get_children():
             tabla.delete(item)
 
-        for cita in onto.Cita.instances():
-
-            if (
-                not cita.tienePaciente
-                or not cita.tieneMedico
-            ):
-                continue
-
-            paciente = cita.tienePaciente[0].nombre[0]
-
-            medico = cita.tieneMedico[0].nombre[0]
-
-            fecha = ""
-
-            hora = ""
-
-            if cita.fecha:
-                fecha = cita.fecha[0]
-
-            if cita.hora:
-                hora = cita.hora[0]
+        for cita in listar_citas():
 
             tabla.insert(
                 "",
                 END,
+                iid=cita["id"],
                 values=(
-                    paciente,
-                    medico,
-                    fecha,
-                    hora
+                    cita["paciente"],
+                    cita["medico"],
+                    cita["fecha"],
+                    cita["hora"]
                 )
             )
 
@@ -308,61 +295,29 @@ def mostrar_citas(panel):
         if not seleccion:
             return
 
-        item = tabla.item(seleccion)
+        cita_id = seleccion[0]
+
+        item = tabla.item(cita_id)
 
         datos = item["values"]
 
-        paciente_nombre = datos[0]
-        medico_nombre = datos[1]
-        fecha = datos[2]
-        hora = datos[3]
+        cita_seleccionada[0] = cita_id
 
-        for cita in onto.Cita.instances():
+        combo_paciente.set(datos[0])
+        combo_medico.set(datos[1])
 
-            if (
-                not cita.tienePaciente
-                or not cita.tieneMedico
-            ):
-                continue
+        entrada_fecha.delete(0, END)
+        entrada_hora.delete(0, END)
 
-            paciente = cita.tienePaciente[0].nombre[0]
-            medico = cita.tieneMedico[0].nombre[0]
+        entrada_fecha.insert(
+            0,
+            datos[2]
+        )
 
-            fecha_cita = ""
-            hora_cita = ""
-
-            if cita.fecha:
-                fecha_cita = cita.fecha[0]
-
-            if cita.hora:
-                hora_cita = cita.hora[0]
-
-            if (
-                paciente == paciente_nombre
-                and medico == medico_nombre
-                and fecha == fecha_cita
-                and hora == hora_cita
-            ):
-
-                cita_seleccionada[0] = cita
-
-                combo_paciente.set(paciente)
-                combo_medico.set(medico)
-
-                entrada_fecha.delete(0, END)
-                entrada_hora.delete(0, END)
-
-                entrada_fecha.insert(
-                    0,
-                    fecha
-                )
-
-                entrada_hora.insert(
-                    0,
-                    hora
-                )
-
-                break
+        entrada_hora.insert(
+            0,
+            datos[3]
+        )
 
     tabla.bind(
         "<<TreeviewSelect>>",
@@ -385,7 +340,7 @@ def mostrar_citas(panel):
     # AGREGAR CITA
     # -----------------------------
 
-    def agregar_cita():
+    def on_agregar():
 
         paciente_nombre = combo_paciente.get()
         medico_nombre = combo_medico.get()
@@ -407,25 +362,12 @@ def mostrar_citas(panel):
 
             return
 
-        paciente = onto.search_one(
-            nombre=paciente_nombre
+        crear_cita(
+            paciente_nombre,
+            medico_nombre,
+            fecha,
+            hora
         )
-
-        medico = onto.search_one(
-            nombre=medico_nombre
-        )
-
-        nueva_cita = onto.Cita(
-            f"Cita_{len(onto.Cita.instances()) + 1}"
-        )
-
-        nueva_cita.fecha = [fecha]
-        nueva_cita.hora = [hora]
-
-        nueva_cita.tienePaciente = [paciente]
-        nueva_cita.tieneMedico = [medico]
-
-        onto.save(file="clinica.owl")
 
         cargar_citas()
 
@@ -442,7 +384,7 @@ def mostrar_citas(panel):
     # MODIFICAR CITA
     # -----------------------------
 
-    def modificar_cita():
+    def on_modificar():
 
         if not cita_seleccionada[0]:
 
@@ -453,27 +395,13 @@ def mostrar_citas(panel):
 
             return
 
-        paciente_nombre = combo_paciente.get()
-        medico_nombre = combo_medico.get()
-
-        fecha = entrada_fecha.get()
-        hora = entrada_hora.get()
-
-        paciente = onto.search_one(
-            nombre=paciente_nombre
+        actualizar_cita(
+            cita_seleccionada[0],
+            combo_paciente.get(),
+            combo_medico.get(),
+            entrada_fecha.get(),
+            entrada_hora.get()
         )
-
-        medico = onto.search_one(
-            nombre=medico_nombre
-        )
-
-        cita_seleccionada[0].fecha = [fecha]
-        cita_seleccionada[0].hora = [hora]
-
-        cita_seleccionada[0].tienePaciente = [paciente]
-        cita_seleccionada[0].tieneMedico = [medico]
-
-        onto.save(file="clinica.owl")
 
         cargar_citas()
 
@@ -490,7 +418,7 @@ def mostrar_citas(panel):
     # ELIMINAR CITA
     # -----------------------------
 
-    def eliminar_cita():
+    def on_eliminar():
 
         if not cita_seleccionada[0]:
 
@@ -501,9 +429,7 @@ def mostrar_citas(panel):
 
             return
 
-        destroy_entity(cita_seleccionada[0])
-
-        onto.save(file="clinica.owl")
+        eliminar_cita(cita_seleccionada[0])
 
         cargar_citas()
 
@@ -536,7 +462,7 @@ def mostrar_citas(panel):
     boton_agregar = crear_boton_exito(
         frame_botones,
         "Agregar Cita",
-        agregar_cita
+        on_agregar
     )
 
     boton_agregar.pack(
@@ -551,7 +477,7 @@ def mostrar_citas(panel):
     boton_modificar = crear_boton_warning(
         frame_botones,
         "Modificar Cita",
-        modificar_cita
+        on_modificar
     )
 
     boton_modificar.pack(
@@ -566,7 +492,7 @@ def mostrar_citas(panel):
     boton_eliminar = crear_boton_danger(
         frame_botones,
         "Eliminar Cita",
-        eliminar_cita
+        on_eliminar
     )
 
     boton_eliminar.pack(
