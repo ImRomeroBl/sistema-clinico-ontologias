@@ -72,7 +72,9 @@ def listar_citas():
         citas.append({
             "id": cita.name,
             "paciente": _primer_valor(cita.tienePaciente[0], "nombre"),
+            "paciente_id": cita.tienePaciente[0].name,
             "medico": _primer_valor(cita.tieneMedico[0], "nombre"),
+            "medico_id": cita.tieneMedico[0].name,
             "fecha": _primer_valor(cita, "fecha"),
             "hora": _primer_valor(cita, "hora"),
         })
