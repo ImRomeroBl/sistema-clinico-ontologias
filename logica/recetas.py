@@ -80,13 +80,63 @@ def listar_recetas():
         recetas.append({
             "id": receta.name,
             "paciente": _primer_valor(receta.tienePaciente[0], "nombre"),
+            "paciente_id": receta.tienePaciente[0].name,
             "medico": _primer_valor(receta.tieneMedico[0], "nombre"),
+            "medico_id": receta.tieneMedico[0].name,
             "medicamento": receta.incluyeMedicamento[0].name,
+            "medicamento_id": receta.incluyeMedicamento[0].name,
             "dosis": _primer_valor(receta, "dosis"),
             "indicaciones": _primer_valor(receta, "indicaciones"),
         })
 
     return recetas
+
+def obtener_receta(receta_id):
+    """Devuelve los datos de una receta por su nombre interno, o None."""
+    for receta in listar_recetas():
+        if receta["id"] == receta_id:
+            return receta
+
+    return None
+
+def listar_recetas_por_paciente(paciente_ref):
+    """Devuelve las recetas de un paciente (por id o nombre mostrado)."""
+    paciente = obtener_paciente(paciente_ref)
+
+    if paciente is None:
+        return []
+
+    return [
+        receta
+        for receta in listar_recetas()
+        if receta["paciente_id"] == paciente.name
+    ]
+
+def listar_recetas_por_medico(medico_ref):
+    """Devuelve las recetas emitidas por un médico (por id o nombre mostrado)."""
+    medico = obtener_medico(medico_ref)
+
+    if medico is None:
+        return []
+
+    return [
+        receta
+        for receta in listar_recetas()
+        if receta["medico_id"] == medico.name
+    ]
+
+def listar_recetas_por_medicamento(medicamento_ref):
+    """Devuelve las recetas que incluyen un medicamento."""
+    medicamento = obtener_medicamento(medicamento_ref)
+
+    if medicamento is None:
+        return []
+
+    return [
+        receta
+        for receta in listar_recetas()
+        if receta["medicamento_id"] == medicamento.name
+    ]
 
 def crear_receta(paciente_nombre, medico_nombre, medicamento_nombre, dosis, indicaciones):
     """Valida datos y relaciones, crea la receta con id único y persiste."""
