@@ -4,6 +4,7 @@ import customtkinter as ctk
 # IMPORTAR MODULOS
 # -----------------------------
 from interfaz.citas import mostrar_citas
+from interfaz.estudios import mostrar_estudios
 from interfaz.historial import mostrar_historial
 from interfaz.medicamentos import mostrar_medicamentos
 from interfaz.medicos import mostrar_medicos
@@ -130,7 +131,7 @@ def crear_interfaz():
         boton.pack(
             fill="x",
             padx=20,
-            pady=8
+            pady=7
         )
 
     # -----------------------------
@@ -160,6 +161,11 @@ def crear_interfaz():
     crear_boton_menu(
         "💊  Medicamentos",
         lambda: mostrar_medicamentos(panel_principal)
+    )
+
+    crear_boton_menu(
+        "🧪  Estudios Médicos",
+        lambda: mostrar_estudios(panel_principal)
     )
 
     crear_boton_menu(
@@ -196,7 +202,7 @@ def crear_interfaz():
 
     footer.pack(
         side="bottom",
-        pady=20
+        pady=15
     )
 
     # -----------------------------

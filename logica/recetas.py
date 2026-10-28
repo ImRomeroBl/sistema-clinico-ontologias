@@ -83,7 +83,11 @@ def listar_recetas():
             "paciente_id": receta.tienePaciente[0].name,
             "medico": _primer_valor(receta.tieneMedico[0], "nombre"),
             "medico_id": receta.tieneMedico[0].name,
-            "medicamento": receta.incluyeMedicamento[0].name,
+            "medicamento": _primer_valor(
+                receta.incluyeMedicamento[0],
+                "nombre",
+                receta.incluyeMedicamento[0].name
+            ),
             "medicamento_id": receta.incluyeMedicamento[0].name,
             "dosis": _primer_valor(receta, "dosis"),
             "indicaciones": _primer_valor(receta, "indicaciones"),

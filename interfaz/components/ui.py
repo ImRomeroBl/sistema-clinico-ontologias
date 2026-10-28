@@ -79,6 +79,27 @@ def crear_input(parent, placeholder=""):
     return entry
 
 # -----------------------------------
+# TEXTBOX MULTILINEA
+# -----------------------------------
+
+def crear_textbox(parent, height=90, width=320):
+
+    textbox = ctk.CTkTextbox(
+        parent,
+        height=height,
+        width=width,
+        corner_radius=10,
+        border_width=1,
+        border_color=BORDER,
+        fg_color="#0F172A",
+        text_color=TEXT,
+        font=TEXT_FONT,
+        wrap="word"
+    )
+
+    return textbox
+
+# -----------------------------------
 # LABEL FORMULARIO
 # -----------------------------------
 

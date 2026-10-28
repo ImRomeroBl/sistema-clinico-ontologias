@@ -1,7 +1,7 @@
 from tkinter import messagebox
 
 from interfaz.components.crud_view import VistaCRUD
-from logica.medicamentos import listar_medicamentos, obtener_dosis_base
+from logica.medicamentos import listar_medicamentos
 from logica.medicos import listar_medicos
 from logica.pacientes import listar_pacientes
 from logica.recetas import (
@@ -60,7 +60,7 @@ def mostrar_recetas(panel):
             {"clave": "paciente", "label": "Paciente", "tipo": "combo", "valores": pacientes},
             {"clave": "medico", "label": "Médico", "tipo": "combo", "valores": medicos},
             {"clave": "medicamento", "label": "Medicamento", "tipo": "combo", "valores": medicamentos},
-            {"clave": "dosis", "label": "Dosis", "placeholder": "Dosis personalizada"},
+            {"clave": "dosis", "label": "Dosis", "placeholder": "Ingrese la dosis manualmente"},
             {"clave": "indicaciones", "label": "Indicaciones", "placeholder": "Ingrese indicaciones"}
         ]
     )
@@ -72,25 +72,6 @@ def mostrar_recetas(panel):
     combo_medicamento = vista.widgets["medicamento"]
     entrada_dosis = vista.widgets["dosis"]
     entrada_indicaciones = vista.widgets["indicaciones"]
-
-    # -----------------------------
-    # AUTOCOMPLETAR DOSIS
-    # -----------------------------
-
-    def actualizar_dosis(event):
-
-        vista.limpiar_campo("dosis")
-
-        dosis = obtener_dosis_base(combo_medicamento.get())
-
-        if dosis:
-
-            entrada_dosis.insert(0, dosis)
-
-    combo_medicamento.bind(
-        "<<ComboboxSelected>>",
-        actualizar_dosis
-    )
 
     # -----------------------------
     # CARGAR RECETAS

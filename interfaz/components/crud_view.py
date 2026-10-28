@@ -27,9 +27,10 @@ from interfaz.components.ui import (
     crear_card,
     crear_input,
     crear_label,
+    crear_textbox,
     crear_titulo,
 )
-from interfaz.theme.colors import BACKGROUND
+from interfaz.theme.colors import BACKGROUND, BORDER, PRIMARY
 
 # -----------------------------
 # COMPONENTE VISTA CRUD
@@ -144,6 +145,12 @@ class VistaCRUD:
         )
 
         # -----------------------------
+        # ESTILO DE COMBOS
+        # -----------------------------
+
+        self._estilizar_combos()
+
+        # -----------------------------
         # PANEL DE BOTONES (se empaqueta al final)
         # -----------------------------
 
@@ -158,7 +165,23 @@ class VistaCRUD:
 
     def _crear_campos(self):
 
-        for indice, campo in enumerate(self.campos):
+        usa_grupos = any(
+            campo.get("grupo", 0) > 0
+            for campo in self.campos
+        )
+
+        if usa_grupos:
+
+            self.form.grid_columnconfigure(1, weight=1)
+            self.form.grid_columnconfigure(3, weight=1)
+
+        filas = {}
+
+        for campo in self.campos:
+
+            grupo = campo.get("grupo", 0)
+            fila = filas.get(grupo, 0)
+            filas[grupo] = fila + 1
 
             etiqueta = crear_label(
                 self.form,
@@ -166,14 +189,16 @@ class VistaCRUD:
             )
 
             etiqueta.grid(
-                row=indice,
-                column=0,
+                row=fila,
+                column=grupo * 2,
                 padx=15,
                 pady=15,
                 sticky="w"
             )
 
-            if campo.get("tipo", "input") == "combo":
+            tipo = campo.get("tipo", "input")
+
+            if tipo == "combo":
 
                 widget = ttk.Combobox(
                     self.form,
@@ -185,6 +210,14 @@ class VistaCRUD:
 
                     widget["values"] = campo["valores"]
 
+            elif tipo == "texto":
+
+                widget = crear_textbox(
+                    self.form,
+                    height=campo.get("altura", 90),
+                    width=campo.get("ancho", 320)
+                )
+
             else:
 
                 widget = crear_input(
@@ -192,14 +225,70 @@ class VistaCRUD:
                     campo.get("placeholder", "")
                 )
 
+            sticky = campo.get("sticky")
+
+            if sticky is None:
+                sticky = "ew" if (usa_grupos or tipo == "texto") else ""
+
             widget.grid(
-                row=indice,
-                column=1,
+                row=fila,
+                column=grupo * 2 + 1,
                 padx=15,
-                pady=15
+                pady=15,
+                sticky=sticky
             )
 
             self.widgets[campo["clave"]] = widget
+
+    # -----------------------------
+    # ESTILO DE COMBOS
+    # -----------------------------
+
+    def _estilizar_combos(self):
+
+        style = ttk.Style()
+
+        style.configure(
+            "Dark.TCombobox",
+            fieldbackground="#0F172A",
+            background="#0F172A",
+            foreground="#F8FAFC",
+            arrowcolor="#F8FAFC",
+            bordercolor=BORDER,
+            lightcolor=BORDER,
+            darkcolor=BORDER,
+            padding=6
+        )
+
+        style.map(
+            "Dark.TCombobox",
+            fieldbackground=[
+                ("readonly", "#0F172A"),
+                ("disabled", "#0F172A")
+            ],
+            foreground=[
+                ("readonly", "#F8FAFC"),
+                ("disabled", "#94A3B8")
+            ],
+            background=[("active", "#0F172A")],
+            selectbackground=[("readonly", PRIMARY)],
+            selectforeground=[("readonly", "#F8FAFC")]
+        )
+
+        root = self.form.winfo_toplevel()
+
+        root.option_add("*TCombobox*Listbox.background", "#0F172A")
+        root.option_add("*TCombobox*Listbox.foreground", "#F8FAFC")
+        root.option_add("*TCombobox*Listbox.selectBackground", PRIMARY)
+        root.option_add("*TCombobox*Listbox.selectForeground", "#F8FAFC")
+
+        for campo in self.campos:
+
+            if campo.get("tipo", "input") == "combo":
+
+                self.widgets[campo["clave"]].configure(
+                    style="Dark.TCombobox"
+                )
 
     # -----------------------------
     # BUSCADOR
@@ -299,28 +388,20 @@ class VistaCRUD:
     # UTILIDADES DE CAMPOS
     # -----------------------------
 
-    def _limpiar_widget(self, clave):
-
-        campo = None
+    def _campo(self, clave):
+        """Devuelve la definición de un campo por su clave."""
 
         for item in self.campos:
 
             if item["clave"] == clave:
-                campo = item
-                break
+                return item
 
-        if campo is None:
-            return
+        return None
 
-        widget = self.widgets[clave]
+    def _limpiar_widget(self, clave):
+        """Limpia un campo delegando en su tipo."""
 
-        if campo.get("tipo", "input") == "combo":
-
-            widget.set("")
-
-        else:
-
-            widget.delete(0, END)
+        self.set_valor_campo(clave, "")
 
     def limpiar_campo(self, clave):
         """Limpia un único campo del formulario."""
@@ -330,6 +411,47 @@ class VistaCRUD:
         """Limpia todos los campos del formulario."""
         for campo in self.campos:
             self._limpiar_widget(campo["clave"])
+
+    def valor_campo(self, clave):
+        """Devuelve el valor actual de una entrada, combo o textbox."""
+
+        campo = self._campo(clave)
+
+        if campo is None:
+            return ""
+
+        widget = self.widgets[clave]
+
+        if campo.get("tipo", "input") == "texto":
+            return widget.get("1.0", "end-1c")
+
+        return widget.get()
+
+    def set_valor_campo(self, clave, valor):
+        """Asigna un valor a un campo según su tipo."""
+
+        campo = self._campo(clave)
+
+        if campo is None:
+            return
+
+        widget = self.widgets[clave]
+        valor = "" if valor is None else str(valor)
+        tipo = campo.get("tipo", "input")
+
+        if tipo == "combo":
+
+            widget.set(valor)
+
+        elif tipo == "texto":
+
+            widget.delete("1.0", END)
+            widget.insert("1.0", valor)
+
+        else:
+
+            widget.delete(0, END)
+            widget.insert(0, valor)
 
     # -----------------------------
     # UTILIDADES DE TABLA

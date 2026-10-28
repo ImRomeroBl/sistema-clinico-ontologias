@@ -2,11 +2,25 @@ from tkinter import messagebox
 
 from interfaz.components.crud_view import VistaCRUD
 from logica.medicamentos import (
+    TIPOS_MEDICAMENTO,
     actualizar_medicamento,
     crear_medicamento,
     eliminar_medicamento,
     listar_medicamentos,
 )
+
+# --------------------------------
+# HELPERS
+# --------------------------------
+
+def _resumen(texto, limite=90):
+    """Convierte un texto multilínea en una vista previa de una sola línea."""
+    texto = " ".join(str(texto or "").split())
+
+    if len(texto) <= limite:
+        return texto
+
+    return texto[:limite].rstrip() + "..."
 
 # --------------------------------
 # MOSTRAR MEDICAMENTOS
@@ -15,6 +29,13 @@ from logica.medicamentos import (
 def mostrar_medicamentos(panel):
 
     medicamento_seleccionado = [None]
+    medicamentos_por_id = {}
+
+    tipos = [etiqueta for _, etiqueta in TIPOS_MEDICAMENTO]
+    tipo_por_etiqueta = {
+        etiqueta: clave
+        for clave, etiqueta in TIPOS_MEDICAMENTO
+    }
 
     # -----------------------------
     # ESTRUCTURA BASE
@@ -23,20 +44,64 @@ def mostrar_medicamentos(panel):
     vista = VistaCRUD(
         panel,
         titulo="Gestión de Medicamentos",
-        columnas=["Nombre", "Dosis Base", "Descripción"],
+        columnas=[
+            "Nombre",
+            "Tipo",
+            "Contraindicaciones",
+            "Efectos Secundarios"
+        ],
         altura=7,
         campos=[
-            {"clave": "nombre", "label": "Nombre", "placeholder": "Ingrese nombre del medicamento"},
-            {"clave": "dosis", "label": "Dosis Base", "placeholder": "Ingrese dosis recomendada"},
-            {"clave": "descripcion", "label": "Descripción", "placeholder": "Descripción del medicamento"}
+            {
+                "clave": "nombre",
+                "label": "Nombre",
+                "placeholder": "Ingrese nombre del medicamento",
+                "grupo": 0
+            },
+            {
+                "clave": "tipo",
+                "label": "Tipo",
+                "tipo": "combo",
+                "valores": tipos,
+                "grupo": 1
+            },
+            {
+                "clave": "contraindicaciones",
+                "label": "Contraindicaciones",
+                "tipo": "texto",
+                "altura": 90,
+                "grupo": 0
+            },
+            {
+                "clave": "efectos_secundarios",
+                "label": "Efectos secundarios",
+                "tipo": "texto",
+                "altura": 90,
+                "grupo": 1
+            }
         ]
     )
 
     tabla = vista.tabla
 
-    entrada_nombre = vista.widgets["nombre"]
-    entrada_dosis = vista.widgets["dosis"]
-    entrada_descripcion = vista.widgets["descripcion"]
+    tabla.column("Nombre", width=200, anchor="w")
+    tabla.column("Tipo", width=140, anchor="center")
+    tabla.column("Contraindicaciones", width=330, anchor="w")
+    tabla.column("Efectos Secundarios", width=330, anchor="w")
+
+    combo_tipo = vista.widgets["tipo"]
+    combo_tipo.configure(state="readonly")
+
+    # -----------------------------
+    # HELPERS DEL FORMULARIO
+    # -----------------------------
+
+    def tipo_seleccionado():
+        return tipo_por_etiqueta.get(combo_tipo.get(), "generico")
+
+    def limpiar_formulario():
+        vista.limpiar_campos()
+        combo_tipo.set("Genérico")
 
     # -----------------------------
     # CARGAR MEDICAMENTOS
@@ -44,15 +109,19 @@ def mostrar_medicamentos(panel):
 
     def cargar_medicamentos():
 
+        medicamentos_por_id.clear()
         vista.limpiar_tabla()
 
         for medicamento in listar_medicamentos():
 
+            medicamentos_por_id[medicamento["id"]] = medicamento
+
             vista.insertar_fila(
                 (
                     medicamento["nombre"],
-                    medicamento["dosis"],
-                    medicamento["descripcion"]
+                    medicamento["tipo_label"],
+                    _resumen(medicamento["contraindicaciones"]),
+                    _resumen(medicamento["efectos_secundarios"])
                 ),
                 iid=medicamento["id"]
             )
@@ -69,16 +138,25 @@ def mostrar_medicamentos(panel):
             return
 
         medicamento_id = seleccion[0]
+        medicamento = medicamentos_por_id.get(medicamento_id)
 
-        datos = tabla.item(medicamento_id)["values"]
+        if medicamento is None:
+            return
 
         medicamento_seleccionado[0] = medicamento_id
 
         vista.limpiar_campos()
 
-        entrada_nombre.insert(0, datos[0])
-        entrada_dosis.insert(0, datos[1])
-        entrada_descripcion.insert(0, datos[2])
+        vista.set_valor_campo("nombre", medicamento["nombre"])
+        vista.set_valor_campo("tipo", medicamento["tipo_label"])
+        vista.set_valor_campo(
+            "contraindicaciones",
+            medicamento["contraindicaciones"]
+        )
+        vista.set_valor_campo(
+            "efectos_secundarios",
+            medicamento["efectos_secundarios"]
+        )
 
     tabla.bind(
         "<<TreeviewSelect>>",
@@ -94,9 +172,10 @@ def mostrar_medicamentos(panel):
         try:
 
             crear_medicamento(
-                entrada_nombre.get(),
-                entrada_dosis.get(),
-                entrada_descripcion.get()
+                vista.valor_campo("nombre"),
+                vista.valor_campo("contraindicaciones"),
+                vista.valor_campo("efectos_secundarios"),
+                tipo_seleccionado()
             )
 
         except ValueError as error:
@@ -109,8 +188,9 @@ def mostrar_medicamentos(panel):
             return
 
         cargar_medicamentos()
+        limpiar_formulario()
 
-        vista.limpiar_campos()
+        medicamento_seleccionado[0] = None
 
         messagebox.showinfo(
             "Correcto",
@@ -138,9 +218,10 @@ def mostrar_medicamentos(panel):
 
             actualizado = actualizar_medicamento(
                 medicamento_id,
-                entrada_nombre.get(),
-                entrada_dosis.get(),
-                entrada_descripcion.get()
+                vista.valor_campo("nombre"),
+                vista.valor_campo("contraindicaciones"),
+                vista.valor_campo("efectos_secundarios"),
+                tipo_seleccionado()
             )
 
         except ValueError as error:
@@ -162,8 +243,7 @@ def mostrar_medicamentos(panel):
             return
 
         cargar_medicamentos()
-
-        vista.limpiar_campos()
+        limpiar_formulario()
 
         medicamento_seleccionado[0] = None
 
@@ -189,11 +269,30 @@ def mostrar_medicamentos(panel):
 
             return
 
-        eliminar_medicamento(medicamento_id)
+        try:
+
+            eliminado = eliminar_medicamento(medicamento_id)
+
+        except ValueError as error:
+
+            messagebox.showwarning(
+                "No se puede eliminar",
+                str(error)
+            )
+
+            return
+
+        if not eliminado:
+
+            messagebox.showwarning(
+                "Error",
+                "No se encontró el medicamento seleccionado"
+            )
+
+            return
 
         cargar_medicamentos()
-
-        vista.limpiar_campos()
+        limpiar_formulario()
 
         medicamento_seleccionado[0] = None
 
@@ -219,4 +318,5 @@ def mostrar_medicamentos(panel):
     # CARGAR DATOS
     # -----------------------------
 
+    limpiar_formulario()
     cargar_medicamentos()
