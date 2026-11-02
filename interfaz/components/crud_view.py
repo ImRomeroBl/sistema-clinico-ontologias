@@ -8,7 +8,7 @@ panel de botones Agregar / Modificar / Eliminar.
 Cada vista concreta sólo declara:
   - el título,
   - las columnas y la altura de la tabla,
-  - la lista de campos del formulario (inputs y/o combos),
+  - la lista de campos del formulario (inputs, combos y combos buscables),
   - opcionalmente un buscador,
   - y, tras construir el componente, sus manejadores de eventos.
 
@@ -19,6 +19,7 @@ from tkinter import END, LEFT, ttk
 
 import customtkinter as ctk
 
+from interfaz.components.searchable_combobox import ComboBuscable
 from interfaz.components.table import crear_tabla
 from interfaz.components.ui import (
     crear_boton_danger,
@@ -30,7 +31,8 @@ from interfaz.components.ui import (
     crear_textbox,
     crear_titulo,
 )
-from interfaz.theme.colors import BACKGROUND, BORDER, PRIMARY
+from interfaz.theme.colors import BACKGROUND
+from interfaz.theme.combobox import configurar_estilo_combobox
 
 # -----------------------------
 # COMPONENTE VISTA CRUD
@@ -198,7 +200,16 @@ class VistaCRUD:
 
             tipo = campo.get("tipo", "input")
 
-            if tipo == "combo":
+            if tipo == "combo_buscable":
+
+                widget = ComboBuscable(
+                    self.form,
+                    valores=campo.get("valores", []),
+                    font=("Inter", 13),
+                    width=32
+                )
+
+            elif tipo == "combo":
 
                 widget = ttk.Combobox(
                     self.form,
@@ -246,45 +257,16 @@ class VistaCRUD:
 
     def _estilizar_combos(self):
 
-        style = ttk.Style()
-
-        style.configure(
-            "Dark.TCombobox",
-            fieldbackground="#0F172A",
-            background="#0F172A",
-            foreground="#F8FAFC",
-            arrowcolor="#F8FAFC",
-            bordercolor=BORDER,
-            lightcolor=BORDER,
-            darkcolor=BORDER,
-            padding=6
+        configurar_estilo_combobox(
+            self.form.winfo_toplevel()
         )
-
-        style.map(
-            "Dark.TCombobox",
-            fieldbackground=[
-                ("readonly", "#0F172A"),
-                ("disabled", "#0F172A")
-            ],
-            foreground=[
-                ("readonly", "#F8FAFC"),
-                ("disabled", "#94A3B8")
-            ],
-            background=[("active", "#0F172A")],
-            selectbackground=[("readonly", PRIMARY)],
-            selectforeground=[("readonly", "#F8FAFC")]
-        )
-
-        root = self.form.winfo_toplevel()
-
-        root.option_add("*TCombobox*Listbox.background", "#0F172A")
-        root.option_add("*TCombobox*Listbox.foreground", "#F8FAFC")
-        root.option_add("*TCombobox*Listbox.selectBackground", PRIMARY)
-        root.option_add("*TCombobox*Listbox.selectForeground", "#F8FAFC")
 
         for campo in self.campos:
 
-            if campo.get("tipo", "input") == "combo":
+            if campo.get("tipo", "input") in (
+                "combo",
+                "combo_buscable"
+            ):
 
                 self.widgets[campo["clave"]].configure(
                     style="Dark.TCombobox"
@@ -403,10 +385,6 @@ class VistaCRUD:
 
         self.set_valor_campo(clave, "")
 
-    def limpiar_campo(self, clave):
-        """Limpia un único campo del formulario."""
-        self._limpiar_widget(clave)
-
     def limpiar_campos(self):
         """Limpia todos los campos del formulario."""
         for campo in self.campos:
@@ -439,7 +417,7 @@ class VistaCRUD:
         valor = "" if valor is None else str(valor)
         tipo = campo.get("tipo", "input")
 
-        if tipo == "combo":
+        if tipo in ("combo", "combo_buscable"):
 
             widget.set(valor)
 

@@ -13,8 +13,8 @@ from logica.medicamentos import (
 # HELPERS
 # --------------------------------
 
-def _resumen(texto, limite=90):
-    """Convierte un texto multilínea en una vista previa de una sola línea."""
+def _resumen(texto, limite=35):
+    """Convierte un texto multilínea en una vista previa breve de una línea."""
     texto = " ".join(str(texto or "").split())
 
     if len(texto) <= limite:

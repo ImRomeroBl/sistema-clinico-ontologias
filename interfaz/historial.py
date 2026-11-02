@@ -14,6 +14,7 @@ from tkinter import messagebox, ttk
 
 import customtkinter as ctk
 
+from interfaz.components.searchable_combobox import ComboBuscable
 from interfaz.components.table import crear_tabla
 from interfaz.components.ui import (
     crear_card,
@@ -109,7 +110,7 @@ def mostrar_historial(panel):
 
     etiqueta_paciente = crear_label(
         frame_selector,
-        "Paciente"
+        "Paciente (escriba para filtrar)"
     )
 
     etiqueta_paciente.pack(
@@ -117,11 +118,11 @@ def mostrar_historial(panel):
         padx=(0, 15)
     )
 
-    combo_paciente = ttk.Combobox(
+    combo_paciente = ComboBuscable(
         frame_selector,
+        valores=[],
         font=("Inter", 13),
-        width=52,
-        state="readonly"
+        width=52
     )
 
     combo_paciente.pack(
@@ -507,7 +508,7 @@ def mostrar_historial(panel):
         opciones.append(opcion)
         pacientes_por_opcion[opcion] = paciente.get("id")
 
-    combo_paciente["values"] = opciones
+    combo_paciente.establecer_valores(opciones)
 
     if error_pacientes is not None:
 
@@ -740,6 +741,14 @@ def mostrar_historial(panel):
         paciente_id = pacientes_por_opcion.get(opcion)
 
         if not paciente_id:
+
+            if opcion:
+
+                messagebox.showwarning(
+                    "Paciente no válido",
+                    "Seleccione un paciente de la lista."
+                )
+
             return
 
         try:

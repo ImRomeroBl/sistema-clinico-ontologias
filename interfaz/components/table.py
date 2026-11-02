@@ -1,6 +1,7 @@
 from tkinter import BOTH, LEFT, RIGHT, Frame, Y, ttk
 
 from interfaz.theme.colors import PRIMARY
+from interfaz.theme.combobox import configurar_estilo_combobox
 
 # --------------------------------
 # TABLA MODERNA
@@ -19,6 +20,10 @@ def crear_tabla(
     style = ttk.Style()
 
     style.theme_use("default")
+
+    configurar_estilo_combobox(
+        parent.winfo_toplevel()
+    )
 
     # -----------------------------
     # TREEVIEW GENERAL

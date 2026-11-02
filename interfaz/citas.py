@@ -39,7 +39,12 @@ def mostrar_citas(panel):
         columnas=["Paciente", "Médico", "Fecha", "Hora"],
         altura=7,
         campos=[
-            {"clave": "paciente", "label": "Paciente", "tipo": "combo", "valores": pacientes},
+            {
+                "clave": "paciente",
+                "label": "Paciente (escriba para filtrar)",
+                "tipo": "combo_buscable",
+                "valores": pacientes
+            },
             {"clave": "medico", "label": "Médico", "tipo": "combo", "valores": medicos},
             {"clave": "fecha", "label": "Fecha", "placeholder": "Ingrese fecha (AAAA-MM-DD)"},
             {"clave": "hora", "label": "Hora", "placeholder": "Ingrese hora (HH:MM AM/PM)"}

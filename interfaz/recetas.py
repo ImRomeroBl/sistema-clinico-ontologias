@@ -57,7 +57,12 @@ def mostrar_recetas(panel):
         ],
         altura=6,
         campos=[
-            {"clave": "paciente", "label": "Paciente", "tipo": "combo", "valores": pacientes},
+            {
+                "clave": "paciente",
+                "label": "Paciente (escriba para filtrar)",
+                "tipo": "combo_buscable",
+                "valores": pacientes
+            },
             {"clave": "medico", "label": "Médico", "tipo": "combo", "valores": medicos},
             {"clave": "medicamento", "label": "Medicamento", "tipo": "combo", "valores": medicamentos},
             {"clave": "dosis", "label": "Dosis", "placeholder": "Ingrese la dosis manualmente"},

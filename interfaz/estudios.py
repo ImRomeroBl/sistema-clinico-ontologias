@@ -114,8 +114,8 @@ def mostrar_estudios(panel):
             },
             {
                 "clave": "paciente",
-                "label": "Paciente (filtro)",
-                "tipo": "combo",
+                "label": "Paciente (escriba para filtrar)",
+                "tipo": "combo_buscable",
                 "valores": opciones_pacientes,
                 "sticky": "w"
             },
@@ -141,12 +141,12 @@ def mostrar_estudios(panel):
     combo_paciente = vista.widgets["paciente"]
     combo_consulta = vista.widgets["consulta"]
 
-    combo_paciente.configure(width=38, state="readonly")
+    combo_paciente.configure(width=38)
     combo_consulta.configure(width=70, state="readonly")
 
     ayuda = crear_label(
         vista.form,
-        "La asociación con el paciente se realiza a través de la consulta seleccionada."
+        "Escriba para filtrar pacientes. La asociación se realiza a través de la consulta seleccionada."
     )
 
     ayuda.configure(text_color=TEXT_SECONDARY)
