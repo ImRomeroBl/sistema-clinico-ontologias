@@ -1,269 +1,343 @@
-from tkinter import messagebox
+"""Visor histórico de Recetas (estrictamente solo lectura).
 
-from interfaz.components.crud_view import VistaCRUD
-from logica.medicamentos import listar_medicamentos
-from logica.medicos import listar_medicos
-from logica.pacientes import listar_pacientes
-from logica.recetas import (
-    actualizar_receta,
-    crear_receta,
-    eliminar_receta,
-    listar_recetas,
+Este módulo funciona como registro global de auditoría clínica: muestra las
+recetas existentes y, al seleccionar una fila, presenta el detalle de la
+prescripción junto con las alertas semánticas del medicamento asociado.
+
+No expone formularios ni acciones de creación, modificación o eliminación. Toda
+la lectura de datos se delega en logica/recetas.py y logica/medicamentos.py.
+"""
+
+from tkinter import END
+
+import customtkinter as ctk
+
+from interfaz.components.alert_panel import PanelAlertasMedicamento
+from interfaz.components.table import crear_tabla
+from interfaz.components.ui import (
+    crear_card,
+    crear_label,
+    crear_subtitulo,
+    crear_textbox,
+    crear_titulo,
+)
+from interfaz.theme.colors import BACKGROUND, TEXT
+from logica.medicamentos import (
+    obtener_alertas_medicamento,
+    obtener_medicamento,
+)
+from logica.recetas import listar_recetas
+
+COLUMNAS = (
+    "Paciente",
+    "Médico",
+    "Medicamento",
+    "Dosis",
+    "Indicaciones",
+)
+
+ANCHOS_COLUMNA = {
+    "Paciente": 130,
+    "Médico": 130,
+    "Medicamento": 130,
+    "Dosis": 100,
+    "Indicaciones": 220,
+}
+
+MENSAJE_SIN_RECETA = (
+    "Seleccione una receta del historial para ver su detalle."
+)
+
+MENSAJE_ALERTA_SIN_RECETA = (
+    "Seleccione una receta para auditar el medicamento."
 )
 
 # -----------------------------
-# FUNCION PRINCIPAL
+# HELPERS DE PRESENTACIÓN
+# -----------------------------
+
+def _formatear_detalle_receta(receta):
+    """Devuelve el detalle legible de una receta."""
+    return (
+        f"Paciente: {receta['paciente'] or 'Sin paciente'}\n"
+        f"Médico: {receta['medico'] or 'Sin médico'}\n"
+        f"Medicamento: {receta['medicamento'] or 'Sin medicamento'}\n"
+        f"Dosis: {receta['dosis'] or 'Sin dosis'}\n"
+        f"Indicaciones: {receta['indicaciones'] or 'Sin indicaciones'}"
+    )
+
+# -----------------------------
+# FUNCIÓN PRINCIPAL
 # -----------------------------
 
 def mostrar_recetas(panel):
+    """Muestra el historial de recetas en modo auditoría de solo lectura."""
 
-    receta_seleccionada = [None]
+    for widget in panel.winfo_children():
+        widget.destroy()
 
-    # -----------------------------
-    # OPCIONES DE LOS COMBOS
-    # -----------------------------
+    panel.configure(fg_color=BACKGROUND)
 
-    pacientes = []
-
-    for paciente in listar_pacientes():
-
-        pacientes.append(paciente["nombre"])
-
-    medicos = []
-
-    for medico in listar_medicos():
-
-        medicos.append(medico["nombre"])
-
-    medicamentos = []
-
-    for medicamento in listar_medicamentos():
-
-        medicamentos.append(medicamento["nombre"])
+    recetas_por_id = {}
 
     # -----------------------------
-    # ESTRUCTURA BASE
+    # CONTENEDOR
     # -----------------------------
 
-    vista = VistaCRUD(
+    contenedor = ctk.CTkFrame(
         panel,
-        titulo="Gestión de Recetas",
-        columnas=[
-            "Paciente",
-            "Médico",
-            "Medicamento",
-            "Dosis",
-            "Indicaciones"
-        ],
-        altura=6,
-        campos=[
-            {
-                "clave": "paciente",
-                "label": "Paciente (escriba para filtrar)",
-                "tipo": "combo_buscable",
-                "valores": pacientes
-            },
-            {"clave": "medico", "label": "Médico", "tipo": "combo", "valores": medicos},
-            {"clave": "medicamento", "label": "Medicamento", "tipo": "combo", "valores": medicamentos},
-            {"clave": "dosis", "label": "Dosis", "placeholder": "Ingrese la dosis manualmente"},
-            {"clave": "indicaciones", "label": "Indicaciones", "placeholder": "Ingrese indicaciones"}
-        ]
+        fg_color="transparent"
+    )
+    contenedor.pack(
+        fill="both",
+        expand=True,
+        padx=30,
+        pady=30
     )
 
-    tabla = vista.tabla
+    titulo = crear_titulo(
+        contenedor,
+        "Auditoría de Recetas"
+    )
+    titulo.pack(anchor="w")
 
-    combo_paciente = vista.widgets["paciente"]
-    combo_medico = vista.widgets["medico"]
-    combo_medicamento = vista.widgets["medicamento"]
-    entrada_dosis = vista.widgets["dosis"]
-    entrada_indicaciones = vista.widgets["indicaciones"]
+    subtitulo = crear_subtitulo(
+        contenedor,
+        "Visor histórico de solo lectura. Seleccione una receta para "
+        "consultar las alertas semánticas de su medicamento."
+    )
+    subtitulo.pack(
+        anchor="w",
+        pady=(4, 18)
+    )
+
+    card = crear_card(contenedor)
+    card.pack(
+        fill="both",
+        expand=True
+    )
+
+    cuerpo = ctk.CTkFrame(
+        card,
+        fg_color="transparent"
+    )
+    cuerpo.pack(
+        fill="both",
+        expand=True,
+        padx=25,
+        pady=25
+    )
+    cuerpo.grid_rowconfigure(0, weight=1)
+    cuerpo.grid_columnconfigure(0, weight=3, minsize=640)
+    cuerpo.grid_columnconfigure(1, weight=2, minsize=330)
 
     # -----------------------------
-    # CARGAR RECETAS
+    # HISTORIAL DE RECETAS
     # -----------------------------
 
-    def cargar_recetas():
+    panel_izq = ctk.CTkFrame(
+        cuerpo,
+        fg_color="transparent"
+    )
+    panel_izq.grid(
+        row=0,
+        column=0,
+        sticky="nsew",
+        padx=(0, 18)
+    )
+    panel_izq.grid_rowconfigure(1, weight=1)
+    panel_izq.grid_columnconfigure(0, weight=1)
 
-        vista.limpiar_tabla()
+    etiqueta_historial = crear_label(
+        panel_izq,
+        "Historial global de recetas"
+    )
+    etiqueta_historial.configure(
+        font=("Inter", 16, "bold"),
+        text_color=TEXT
+    )
+    etiqueta_historial.grid(
+        row=0,
+        column=0,
+        sticky="w",
+        pady=(0, 10)
+    )
 
-        receta_seleccionada[0] = None
+    tabla_frame, tabla = crear_tabla(
+        panel_izq,
+        list(COLUMNAS),
+        altura=14
+    )
+    tabla_frame.grid(
+        row=1,
+        column=0,
+        sticky="nsew"
+    )
 
-        for receta in listar_recetas():
+    for columna, ancho in ANCHOS_COLUMNA.items():
 
-            vista.insertar_fila(
-                (
-                    receta["paciente"],
-                    receta["medico"],
-                    receta["medicamento"],
-                    receta["dosis"],
-                    receta["indicaciones"]
-                ),
-                iid=receta["id"]
-            )
+        tabla.column(
+            columna,
+            width=ancho,
+            anchor="center" if columna == "Dosis" else "w"
+        )
 
     # -----------------------------
-    # SELECCIONAR RECETA
+    # AUDITORÍA DE LA RECETA SELECCIONADA
     # -----------------------------
 
-    def seleccionar_receta(event):
+    panel_der = ctk.CTkFrame(
+        cuerpo,
+        fg_color="transparent"
+    )
+    panel_der.grid(
+        row=0,
+        column=1,
+        sticky="nsew"
+    )
+    panel_der.grid_rowconfigure(3, weight=1)
+    panel_der.grid_columnconfigure(0, weight=1)
+
+    etiqueta_auditoria = crear_label(
+        panel_der,
+        "Auditoría de la receta seleccionada"
+    )
+    etiqueta_auditoria.configure(
+        font=("Inter", 16, "bold"),
+        text_color=TEXT
+    )
+    etiqueta_auditoria.grid(
+        row=0,
+        column=0,
+        sticky="w",
+        pady=(0, 10)
+    )
+
+    panel_alerta = PanelAlertasMedicamento(
+        panel_der,
+        mensaje_sin_seleccion=MENSAJE_ALERTA_SIN_RECETA
+    )
+    panel_alerta.grid(
+        row=1,
+        column=0,
+        sticky="ew",
+        pady=(0, 12)
+    )
+
+    etiqueta_detalle = crear_label(
+        panel_der,
+        "Datos de la prescripción"
+    )
+    etiqueta_detalle.configure(
+        font=("Inter", 13, "bold"),
+        text_color=TEXT
+    )
+    etiqueta_detalle.grid(
+        row=2,
+        column=0,
+        sticky="w",
+        pady=(0, 6)
+    )
+
+    detalle = crear_textbox(
+        panel_der,
+        height=150,
+        width=320
+    )
+    detalle.grid(
+        row=3,
+        column=0,
+        sticky="nsew"
+    )
+    detalle.configure(state="disabled")
+
+    # -----------------------------
+    # EVENTOS
+    # -----------------------------
+
+    def mostrar_detalle(texto):
+        """Escribe texto en el visor de detalle sin permitir edición."""
+
+        detalle.configure(state="normal")
+        detalle.delete("1.0", END)
+
+        if texto:
+            detalle.insert("1.0", texto)
+
+        detalle.configure(state="disabled")
+
+    def limpiar_seleccion():
+        """Restablece el detalle y el panel de alertas."""
+
+        mostrar_detalle(MENSAJE_SIN_RECETA)
+        panel_alerta.limpiar()
+
+    def seleccionar_receta(event=None):
+        """Actualiza el detalle y las alertas al seleccionar una fila."""
 
         seleccion = tabla.selection()
 
         if not seleccion:
+
+            limpiar_seleccion()
+
             return
 
-        receta_id = seleccion[0]
+        receta = recetas_por_id.get(seleccion[0])
 
-        datos = tabla.item(receta_id)["values"]
+        if receta is None:
 
-        receta_seleccionada[0] = receta_id
+            limpiar_seleccion()
 
-        vista.limpiar_campos()
+            return
 
-        combo_paciente.set(datos[0])
-        combo_medico.set(datos[1])
-        combo_medicamento.set(datos[2])
+        mostrar_detalle(
+            _formatear_detalle_receta(receta)
+        )
 
-        entrada_dosis.insert(0, datos[3])
-        entrada_indicaciones.insert(0, datos[4])
+        medicamento = obtener_medicamento(
+            receta.get("medicamento_id")
+            or receta.get("medicamento")
+        )
+
+        panel_alerta.mostrar(
+            obtener_alertas_medicamento(medicamento)
+        )
 
     tabla.bind(
         "<<TreeviewSelect>>",
         seleccionar_receta
     )
 
-    # -----------------------------
-    # AGREGAR RECETA
-    # -----------------------------
+    def cargar_recetas():
+        """Carga el historial completo y limpia la selección anterior."""
 
-    def on_agregar():
+        for item in tabla.get_children():
+            tabla.delete(item)
 
-        try:
+        recetas_por_id.clear()
 
-            crear_receta(
-                combo_paciente.get(),
-                combo_medico.get(),
-                combo_medicamento.get(),
-                entrada_dosis.get(),
-                entrada_indicaciones.get()
+        for receta in listar_recetas():
+
+            recetas_por_id[receta["id"]] = receta
+
+            tabla.insert(
+                "",
+                END,
+                iid=receta["id"],
+                values=(
+                    receta["paciente"],
+                    receta["medico"],
+                    receta["medicamento"],
+                    receta["dosis"],
+                    receta["indicaciones"]
+                )
             )
 
-        except ValueError as error:
-
-            messagebox.showwarning(
-                "Datos inválidos",
-                str(error)
-            )
-
-            return
-
-        cargar_recetas()
-
-        vista.limpiar_campos()
-
-        messagebox.showinfo(
-            "Correcto",
-            "Receta agregada correctamente"
-        )
+        limpiar_seleccion()
 
     # -----------------------------
-    # MODIFICAR RECETA
-    # -----------------------------
-
-    def on_modificar():
-
-        if receta_seleccionada[0] is None:
-
-            messagebox.showwarning(
-                "Error",
-                "Seleccione una receta"
-            )
-
-            return
-
-        try:
-
-            actualizado = actualizar_receta(
-                receta_seleccionada[0],
-                combo_paciente.get(),
-                combo_medico.get(),
-                combo_medicamento.get(),
-                entrada_dosis.get(),
-                entrada_indicaciones.get()
-            )
-
-        except ValueError as error:
-
-            messagebox.showwarning(
-                "Datos inválidos",
-                str(error)
-            )
-
-            return
-
-        if actualizado is None:
-
-            messagebox.showwarning(
-                "Error",
-                "No se encontró la receta seleccionada"
-            )
-
-            return
-
-        cargar_recetas()
-
-        vista.limpiar_campos()
-
-        receta_seleccionada[0] = None
-
-        messagebox.showinfo(
-            "Correcto",
-            "Receta modificada correctamente"
-        )
-
-    # -----------------------------
-    # ELIMINAR RECETA
-    # -----------------------------
-
-    def on_eliminar():
-
-        if receta_seleccionada[0] is None:
-
-            messagebox.showwarning(
-                "Error",
-                "Seleccione una receta"
-            )
-
-            return
-
-        eliminar_receta(receta_seleccionada[0])
-
-        cargar_recetas()
-
-        vista.limpiar_campos()
-
-        receta_seleccionada[0] = None
-
-        messagebox.showinfo(
-            "Correcto",
-            "Receta eliminada correctamente"
-        )
-
-    # -----------------------------
-    # PANEL DE BOTONES
-    # -----------------------------
-
-    vista.crear_botones(
-        on_agregar,
-        on_modificar,
-        on_eliminar,
-        etiqueta_agregar="Agregar Receta",
-        etiqueta_modificar="Modificar Receta",
-        etiqueta_eliminar="Eliminar Receta"
-    )
-
-    # -----------------------------
-    # CARGAR DATOS
+    # CARGA INICIAL
     # -----------------------------
 
     cargar_recetas()

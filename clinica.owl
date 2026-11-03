@@ -1,836 +1,499 @@
 <?xml version="1.0"?>
-<rdf:RDF xmlns="http://www.clinica.com/ontologia#"
-     xml:base="http://www.clinica.com/ontologia"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:xml="http://www.w3.org/XML/1998/namespace"
-     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-    <owl:Ontology rdf:about="http://www.clinica.com/ontologia"/>
-    
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://www.clinica.com/ontologia"
+         xmlns="http://www.clinica.com/ontologia#">
+
+<owl:Ontology rdf:about="http://www.clinica.com/ontologia"/>
+
+<owl:ObjectProperty rdf:about="#atiende">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:domain rdf:resource="#Medico"/>
+  <rdfs:range rdf:resource="#Paciente"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#esPacienteDe">
+  <owl:inverseOf rdf:resource="#tienePaciente"/>
+  <rdfs:domain rdf:resource="#Paciente"/>
+  <rdfs:range rdf:resource="#Medico"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#tienePaciente">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:range rdf:resource="#Paciente"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#generaReceta">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:domain rdf:resource="#Medico"/>
+  <rdfs:range rdf:resource="#Receta"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#incluyeMedicamento">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:domain rdf:resource="#Receta"/>
+  <rdfs:range rdf:resource="#Medicamento"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#solicitaEstudio">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:domain rdf:resource="#Consulta"/>
+  <rdfs:range rdf:resource="#EstudioMedico"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#tieneCita">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:domain rdf:resource="#Paciente"/>
+  <rdfs:range rdf:resource="#Cita"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#tieneConsulta">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:domain rdf:resource="#Paciente"/>
+  <rdfs:range rdf:resource="#Consulta"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#tieneContraindicacion">
+  <rdfs:domain rdf:resource="#Medicamento"/>
+  <rdfs:range rdf:resource="#Contraindicacion"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#tieneDiagnostico">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:domain rdf:resource="#Consulta"/>
+  <rdfs:range rdf:resource="#Diagnostico"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#tieneEfectoSecundario">
+  <rdfs:domain rdf:resource="#Medicamento"/>
+  <rdfs:range rdf:resource="#EfectoSecundario"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#tieneEspecialidad">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:domain rdf:resource="#Medico"/>
+  <rdfs:range rdf:resource="#Especialidad"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#tieneMedico">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  <rdfs:range rdf:resource="#Medico"/>
+</owl:ObjectProperty>
+
+<owl:DatatypeProperty rdf:about="#contraindicaciones">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+  <rdfs:domain rdf:resource="#Medicamento"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#dosis">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+  <rdfs:domain rdf:resource="#Receta"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#edad">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+  <rdfs:domain rdf:resource="#Paciente"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#efectosSecundarios">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+  <rdfs:domain rdf:resource="#Medicamento"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
 
+<owl:DatatypeProperty rdf:about="#especialidad">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+</owl:DatatypeProperty>
 
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Object Properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
+<owl:DatatypeProperty rdf:about="#fecha">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+  <rdfs:domain rdf:resource="#Cita"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
 
-    
+<owl:DatatypeProperty rdf:about="#hora">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+  <rdfs:domain rdf:resource="#Cita"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
 
+<owl:DatatypeProperty rdf:about="#indicaciones">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+  <rdfs:domain rdf:resource="#Receta"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
 
-    <!-- http://www.clinica.com/ontologia#atiende -->
+<owl:DatatypeProperty rdf:about="#nombre">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+  <rdfs:domain rdf:resource="#Persona"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
 
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#atiende">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Medico"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-    </owl:ObjectProperty>
-    
+<owl:DatatypeProperty rdf:about="#notasClinicas">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+</owl:DatatypeProperty>
 
+<owl:DatatypeProperty rdf:about="#telefono">
+  <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+  <rdfs:domain rdf:resource="#Persona"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
 
-    <!-- http://www.clinica.com/ontologia#esPacienteDe -->
+<owl:Class rdf:about="#Medico">
+  <rdfs:subClassOf rdf:resource="#Persona"/>
+</owl:Class>
 
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#esPacienteDe">
-        <owl:inverseOf rdf:resource="http://www.clinica.com/ontologia#tienePaciente"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Medico"/>
-    </owl:ObjectProperty>
-    
+<owl:Class rdf:about="#Paciente">
+  <rdfs:subClassOf rdf:resource="#Persona"/>
+</owl:Class>
 
+<owl:Class rdf:about="#Receta"/>
 
-    <!-- http://www.clinica.com/ontologia#generaReceta -->
+<owl:Class rdf:about="#Medicamento"/>
 
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#generaReceta">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Medico"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-    </owl:ObjectProperty>
-    
+<owl:Class rdf:about="#Consulta"/>
 
+<owl:Class rdf:about="#EstudioMedico"/>
 
-    <!-- http://www.clinica.com/ontologia#incluyeMedicamento -->
+<owl:Class rdf:about="#Cita"/>
 
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#incluyeMedicamento">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-    </owl:ObjectProperty>
-    
+<owl:Class rdf:about="#Contraindicacion"/>
 
+<owl:Class rdf:about="#Diagnostico"/>
 
-    <!-- http://www.clinica.com/ontologia#solicitaEstudio -->
+<owl:Class rdf:about="#EfectoSecundario"/>
 
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#solicitaEstudio">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Consulta"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#EstudioMedico"/>
-    </owl:ObjectProperty>
-    
+<owl:Class rdf:about="#Especialidad"/>
 
+<owl:Class rdf:about="#Persona"/>
 
-    <!-- http://www.clinica.com/ontologia#tieneCita -->
+<owl:Class rdf:about="#Analgesico">
+  <rdfs:subClassOf rdf:resource="#Medicamento"/>
+</owl:Class>
 
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#tieneCita">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Cita"/>
-    </owl:ObjectProperty>
-    
+<owl:Class rdf:about="#Antibiotico">
+  <rdfs:subClassOf rdf:resource="#Medicamento"/>
+</owl:Class>
 
+<owl:Class rdf:about="#Antiinflamatorio">
+  <rdfs:subClassOf rdf:resource="#Medicamento"/>
+</owl:Class>
 
-    <!-- http://www.clinica.com/ontologia#tieneConsulta -->
+<owl:NamedIndividual rdf:about="#Alergia_Penicilina">
+  <rdf:type rdf:resource="#Contraindicacion"/>
+</owl:NamedIndividual>
 
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#tieneConsulta">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Consulta"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#tieneContraindicacion -->
-
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#tieneContraindicacion">
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Contraindicacion"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#tieneDiagnostico -->
-
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#tieneDiagnostico">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Consulta"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Diagnostico"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#tieneEfectoSecundario -->
-
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#tieneEfectoSecundario">
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#EfectoSecundario"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#tieneEspecialidad -->
-
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#tieneEspecialidad">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Medico"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Especialidad"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#tieneMedico -->
-
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#tieneMedico">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Medico"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#tienePaciente -->
-
-    <owl:ObjectProperty rdf:about="http://www.clinica.com/ontologia#tienePaciente">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:range rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Data properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://www.clinica.com/ontologia#contraindicaciones -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#contraindicaciones">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#dosis -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#dosis">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#edad -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#edad">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#efectosSecundarios -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#efectosSecundarios">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#especialidad -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#especialidad">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#fecha -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#fecha">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Cita"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#hora -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#hora">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Cita"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#indicaciones -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#indicaciones">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#nombre -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#nombre">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Persona"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#notasClinicas -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#notasClinicas">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#telefono -->
-
-    <owl:DatatypeProperty rdf:about="http://www.clinica.com/ontologia#telefono">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Persona"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.w3.org/2002/07/owl#topDataProperty -->
-
-    <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#topDataProperty">
-        <rdfs:domain rdf:resource="http://www.clinica.com/ontologia#Medico"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </rdf:Description>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Classes
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Analgesico -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Analgesico">
-        <rdfs:subClassOf rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Antibiotico -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Antibiotico">
-        <rdfs:subClassOf rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Antiinflamatorio -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Antiinflamatorio">
-        <rdfs:subClassOf rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Cita -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Cita"/>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Consulta -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Consulta"/>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Contraindicacion -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Contraindicacion"/>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Diagnostico -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Diagnostico"/>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#EfectoSecundario -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#EfectoSecundario"/>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Especialidad -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Especialidad"/>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#EstudioMedico -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#EstudioMedico"/>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Medicamento -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Medicamento"/>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Medico -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Medico">
-        <rdfs:subClassOf rdf:resource="http://www.clinica.com/ontologia#Persona"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Paciente -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Paciente">
-        <rdfs:subClassOf rdf:resource="http://www.clinica.com/ontologia#Persona"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Persona -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Persona"/>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Receta -->
-
-    <owl:Class rdf:about="http://www.clinica.com/ontologia#Receta"/>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Individuals
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Alergia_Penicilina -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Alergia_Penicilina">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Contraindicacion"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Amoxicilina -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Amoxicilina">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Antibiotico"/>
-        <contraindicaciones>Reacciones alergicas
+<owl:NamedIndividual rdf:about="#Amoxicilina">
+  <rdf:type rdf:resource="#Antibiotico"/>
+  <tieneContraindicacion rdf:resource="#Insuficiencia_Renal"/>
+  <tieneEfectoSecundario rdf:resource="#Mareo"/>
+  <contraindicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Reacciones alergicas
 Insuficiencia renal grave
 Embarazadas</contraindicaciones>
-        <dosis>600mg</dosis>
-        <efectosSecundarios>Reacciones en la piel</efectosSecundarios>
-        <nombre>Amoxicilina</nombre>
-    </owl:NamedIndividual>
-    
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">600mg</dosis>
+  <efectosSecundarios rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Reacciones en la piel</efectosSecundarios>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amoxicilina</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Insuficiencia_Renal">
+  <rdf:type rdf:resource="#Contraindicacion"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Mareo">
+  <rdf:type rdf:resource="#EfectoSecundario"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Cefalea">
+  <rdf:type rdf:resource="#EfectoSecundario"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Cita001">
+  <rdf:type rdf:resource="#Cita"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-05-20</fecha>
+  <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">10:30 AM</hora>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Cita_0d298b1dfb154a6099e90ab69e80d8f7">
+  <rdf:type rdf:resource="#Cita"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <tienePaciente rdf:resource="#ImanolRomeroBlanco"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-10-28</fecha>
+  <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">10:00 AM</hora>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Medico_55e5b1972a084be2bf4f561930f16916">
+  <rdf:type rdf:resource="#Medico"/>
+  <generaReceta rdf:resource="#Receta_Consulta_3b906d498ee54484b3b144f7ab65bccb"/>
+  <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Huesero</especialidad>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sergio Ramos</nombre>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2224272023</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#ImanolRomeroBlanco">
+  <rdf:type rdf:resource="#Paciente"/>
+  <tieneConsulta rdf:resource="#Consulta_0fea9c6e9a3145f8b62b30e01aa26e11"/>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">21</edad>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Imanol Romero Blanco</nombre>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2221079236</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_Consulta_3b906d498ee54484b3b144f7ab65bccb">
+  <rdf:type rdf:resource="#Receta"/>
+  <incluyeMedicamento rdf:resource="#fluoxetina"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <tienePaciente rdf:resource="#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">500 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">10 pastillas al dia</indicaciones>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Consulta_0fea9c6e9a3145f8b62b30e01aa26e11">
+  <rdf:type rdf:resource="#Consulta"/>
+  <solicitaEstudio rdf:resource="#Estudio_861c499bd32144dd88ff70a14bc90223"/>
+  <solicitaEstudio rdf:resource="#Estudio_8719418e26d24a8a84a8262ea1bc6ee7"/>
+  <tieneDiagnostico rdf:resource="#Diagnostico_918608e4fbac4ef4ba3f10d7acb6b831"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <tienePaciente rdf:resource="#ImanolRomeroBlanco"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-02</fecha>
+  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente viene con fiebre, presenta dolor de garganta</notasClinicas>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#fluoxetina">
+  <rdf:type rdf:resource="#Medicamento"/>
+  <tieneEfectoSecundario rdf:resource="#Somnolencia"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">60 mg</dosis>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fluoxetina</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paciente_53b7747155c5406cb89e987aa4d30b43">
+  <rdf:type rdf:resource="#Paciente"/>
+  <tieneConsulta rdf:resource="#Consulta_3b906d498ee54484b3b144f7ab65bccb"/>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">21</edad>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rafael Vargas Alcazar</nombre>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">21 32 45 65 6729</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Estudio_861c499bd32144dd88ff70a14bc90223">
+  <rdf:type rdf:resource="#EstudioMedico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Examen de la vista</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Estudio_8719418e26d24a8a84a8262ea1bc6ee7">
+  <rdf:type rdf:resource="#EstudioMedico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Radiografia</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diagnostico_918608e4fbac4ef4ba3f10d7acb6b831">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tiene covid</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#MarianaRuiz">
+  <rdf:type rdf:resource="#Medico"/>
+  <generaReceta rdf:resource="#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11"/>
+  <generaReceta rdf:resource="#Receta_Consulta_6b645b8f6ed54ab7b4d28a5c32046cea"/>
+  <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologia</especialidad>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mariana Ruiz</nombre>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">555444333</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Somnolencia">
+  <rdf:type rdf:resource="#EfectoSecundario"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Consulta_3b906d498ee54484b3b144f7ab65bccb">
+  <rdf:type rdf:resource="#Consulta"/>
+  <tieneDiagnostico rdf:resource="#Diagnostico_1e504806f66d448c8dd22419a59a0621"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <tienePaciente rdf:resource="#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-02</fecha>
+  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente esta con fiebre y se siente seco</notasClinicas>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11">
+  <rdf:type rdf:resource="#Receta"/>
+  <incluyeMedicamento rdf:resource="#Amoxicilina"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <tienePaciente rdf:resource="#ImanolRomeroBlanco"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">400 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tomar en la mañana</indicaciones>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Cita_bab05c7e9acb4a11bcb80188f8e23160">
+  <rdf:type rdf:resource="#Cita"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <tienePaciente rdf:resource="#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-02</fecha>
+  <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">3:00 am</hora>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diagnostico_1e504806f66d448c8dd22419a59a0621">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tiene moquillo</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Cita_dd936e5e4f3145969a8dfedbdbd0d00b">
+  <rdf:type rdf:resource="#Cita"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <tienePaciente rdf:resource="#Paciente_0550b3621b944d51923c84525919d790"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-02</fecha>
+  <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1:00 Am</hora>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paciente_0550b3621b944d51923c84525919d790">
+  <rdf:type rdf:resource="#Paciente"/>
+  <tieneConsulta rdf:resource="#Consulta_3975231f19da47f4ae8d5b892cc79e15"/>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">22</edad>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aldo Perez Mendieta</nombre>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">22 54 24 3421</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Consulta_3975231f19da47f4ae8d5b892cc79e15">
+  <rdf:type rdf:resource="#Consulta"/>
+  <tienePaciente rdf:resource="#Paciente_0550b3621b944d51923c84525919d790"/>
+  <tieneMedico rdf:resource="#JoseMedina"/>
+  <tieneDiagnostico rdf:resource="#Diagnostico_e38f221a03e147c8a3ad1c968a91cea9"/>
+  <solicitaEstudio rdf:resource="#Estudio_8719418e26d24a8a84a8262ea1bc6ee7"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2004-08-27</fecha>
+  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Presenta dolor de costilla</notasClinicas>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#JoseMedina">
+  <rdf:type rdf:resource="#Medico"/>
+  <generaReceta rdf:resource="#Receta_Consulta_3975231f19da47f4ae8d5b892cc79e15"/>
+  <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Pediatria</especialidad>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Jose Medina</nombre>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">444333222</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diagnostico_e38f221a03e147c8a3ad1c968a91cea9">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Costilla superior inferior izquierda rota</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Embarazo">
+  <rdf:type rdf:resource="#Contraindicacion"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Hipertension_No_Controlada">
+  <rdf:type rdf:resource="#Contraindicacion"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Ibuprofeno">
+  <rdf:type rdf:resource="#Medicamento"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">40mg</dosis>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ibuprofeno</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Insulina">
+  <rdf:type rdf:resource="#Medicamento"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">300mg</dosis>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Insulina</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_Consulta_3975231f19da47f4ae8d5b892cc79e15">
+  <rdf:type rdf:resource="#Receta"/>
+  <tienePaciente rdf:resource="#Paciente_0550b3621b944d51923c84525919d790"/>
+  <tieneMedico rdf:resource="#JoseMedina"/>
+  <incluyeMedicamento rdf:resource="#Ibuprofeno"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">50 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tomar 50 al dia</indicaciones>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Nauseas">
+  <rdf:type rdf:resource="#EfectoSecundario"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paciente_68f33169778247459969438463f7a821">
+  <rdf:type rdf:resource="#Paciente"/>
+  <tieneConsulta rdf:resource="#Consulta_6b645b8f6ed54ab7b4d28a5c32046cea"/>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">24</edad>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kevin David Romero Blanco</nombre>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2221452313</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paracetamol">
+  <rdf:type rdf:resource="#Medicamento"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 pastilla</dosis>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Paracetamol</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#RECETA_bee45ebb">
+  <rdf:type rdf:resource="#Receta"/>
+  <incluyeMedicamento rdf:resource="#fluoxetina"/>
+  <tieneMedico rdf:resource="#JoseMedina"/>
+  <tienePaciente rdf:resource="#ImanolRomeroBlanco"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">62 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Comer bien</indicaciones>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Reacciones_Cutaneas">
+  <rdf:type rdf:resource="#EfectoSecundario"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta001">
+  <rdf:type rdf:resource="#Receta"/>
+  <incluyeMedicamento rdf:resource="#Paracetamol"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_2">
+  <rdf:type rdf:resource="#Receta"/>
+  <incluyeMedicamento rdf:resource="#Paracetamol"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_3">
+  <rdf:type rdf:resource="#Receta"/>
+  <incluyeMedicamento rdf:resource="#Paracetamol"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_4">
+  <rdf:type rdf:resource="#Receta"/>
+  <incluyeMedicamento rdf:resource="#Paracetamol"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_5">
+  <rdf:type rdf:resource="#Receta"/>
+  <incluyeMedicamento rdf:resource="#Paracetamol"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Pomada_de_la_campana">
+  <rdf:type rdf:resource="#Medicamento"/>
+  <tieneEfectoSecundario rdf:resource="#Reacciones_Cutaneas"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Pomada de la campana</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Consulta_6b645b8f6ed54ab7b4d28a5c32046cea">
+  <rdf:type rdf:resource="#Consulta"/>
+  <tienePaciente rdf:resource="#Paciente_68f33169778247459969438463f7a821"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <tieneDiagnostico rdf:resource="#Diagnostico_5b628424d177465c92305a706dcf480a"/>
+  <solicitaEstudio rdf:resource="#Estudio_861c499bd32144dd88ff70a14bc90223"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2004-08-27</fecha>
+  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Vio un perro ponzoñoso</notasClinicas>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diagnostico_5b628424d177465c92305a706dcf480a">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ponzoña corporal</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_Consulta_6b645b8f6ed54ab7b4d28a5c32046cea">
+  <rdf:type rdf:resource="#Receta"/>
+  <tienePaciente rdf:resource="#Paciente_68f33169778247459969438463f7a821"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <incluyeMedicamento rdf:resource="#Amoxicilina"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">666 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Evitar ver la ponzoña</indicaciones>
+</owl:NamedIndividual>
+
+<rdf:Description rdf:about="http://www.w3.org/2002/07/owl#topDataProperty">
+  <rdfs:domain rdf:resource="#Medico"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
 
 
-    <!-- http://www.clinica.com/ontologia#Cefalea -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Cefalea">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#EfectoSecundario"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Cita001 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Cita001">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Cita"/>
-        <fecha>2026-05-20</fecha>
-        <hora>10:30 AM</hora>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Cita_0d298b1dfb154a6099e90ab69e80d8f7 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Cita_0d298b1dfb154a6099e90ab69e80d8f7">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Cita"/>
-        <tieneMedico rdf:resource="http://www.clinica.com/ontologia#Medico_55e5b1972a084be2bf4f561930f16916"/>
-        <tienePaciente rdf:resource="http://www.clinica.com/ontologia#ImanolRomeroBlanco"/>
-        <fecha>2026-10-28</fecha>
-        <hora>10:00 AM</hora>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Cita_bab05c7e9acb4a11bcb80188f8e23160 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Cita_bab05c7e9acb4a11bcb80188f8e23160">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Cita"/>
-        <tieneMedico rdf:resource="http://www.clinica.com/ontologia#Medico_55e5b1972a084be2bf4f561930f16916"/>
-        <tienePaciente rdf:resource="http://www.clinica.com/ontologia#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
-        <fecha>2026-11-02</fecha>
-        <hora>3:00 am</hora>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Cita_dd936e5e4f3145969a8dfedbdbd0d00b -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Cita_dd936e5e4f3145969a8dfedbdbd0d00b">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Cita"/>
-        <tieneMedico rdf:resource="http://www.clinica.com/ontologia#Medico_55e5b1972a084be2bf4f561930f16916"/>
-        <tienePaciente rdf:resource="http://www.clinica.com/ontologia#Paciente_0550b3621b944d51923c84525919d790"/>
-        <fecha>2026-11-02</fecha>
-        <hora>1:00 Am</hora>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Consulta_0fea9c6e9a3145f8b62b30e01aa26e11 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Consulta_0fea9c6e9a3145f8b62b30e01aa26e11">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Consulta"/>
-        <solicitaEstudio rdf:resource="http://www.clinica.com/ontologia#Estudio_861c499bd32144dd88ff70a14bc90223"/>
-        <solicitaEstudio rdf:resource="http://www.clinica.com/ontologia#Estudio_8719418e26d24a8a84a8262ea1bc6ee7"/>
-        <tieneDiagnostico rdf:resource="http://www.clinica.com/ontologia#Diagnostico_918608e4fbac4ef4ba3f10d7acb6b831"/>
-        <tieneMedico rdf:resource="http://www.clinica.com/ontologia#MarianaRuiz"/>
-        <tienePaciente rdf:resource="http://www.clinica.com/ontologia#ImanolRomeroBlanco"/>
-        <fecha>2026-11-02</fecha>
-        <notasClinicas>El paciente viene con fiebre, presenta dolor de garganta</notasClinicas>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Consulta_3b906d498ee54484b3b144f7ab65bccb -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Consulta_3b906d498ee54484b3b144f7ab65bccb">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Consulta"/>
-        <tieneDiagnostico rdf:resource="http://www.clinica.com/ontologia#Diagnostico_1e504806f66d448c8dd22419a59a0621"/>
-        <tieneMedico rdf:resource="http://www.clinica.com/ontologia#Medico_55e5b1972a084be2bf4f561930f16916"/>
-        <tienePaciente rdf:resource="http://www.clinica.com/ontologia#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
-        <fecha>2026-11-02</fecha>
-        <notasClinicas>El paciente esta con fiebre y se siente seco</notasClinicas>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Diagnostico_1e504806f66d448c8dd22419a59a0621 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Diagnostico_1e504806f66d448c8dd22419a59a0621">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Diagnostico"/>
-        <nombre>Tiene moquillo</nombre>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Diagnostico_918608e4fbac4ef4ba3f10d7acb6b831 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Diagnostico_918608e4fbac4ef4ba3f10d7acb6b831">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Diagnostico"/>
-        <nombre>Tiene covid</nombre>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Embarazo -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Embarazo">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Contraindicacion"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Estudio_861c499bd32144dd88ff70a14bc90223 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Estudio_861c499bd32144dd88ff70a14bc90223">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#EstudioMedico"/>
-        <nombre>Examen de la vista</nombre>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Estudio_8719418e26d24a8a84a8262ea1bc6ee7 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Estudio_8719418e26d24a8a84a8262ea1bc6ee7">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#EstudioMedico"/>
-        <nombre>Radiografia</nombre>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Hipertension_No_Controlada -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Hipertension_No_Controlada">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Contraindicacion"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Ibuprofeno -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Ibuprofeno">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <dosis>40mg</dosis>
-        <nombre>Ibuprofeno</nombre>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#ImanolRomeroBlanco -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#ImanolRomeroBlanco">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-        <tieneConsulta rdf:resource="http://www.clinica.com/ontologia#Consulta_0fea9c6e9a3145f8b62b30e01aa26e11"/>
-        <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">21</edad>
-        <nombre>Imanol Romero Blanco</nombre>
-        <telefono>2221079236</telefono>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Insuficiencia_Renal -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Insuficiencia_Renal">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Contraindicacion"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Insulina -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Insulina">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <dosis>300mg</dosis>
-        <nombre>Insulina</nombre>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#JoseMedina -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#JoseMedina">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Medico"/>
-        <especialidad>Pediatria</especialidad>
-        <nombre>Jose Medina</nombre>
-        <telefono>444333222</telefono>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Mareo -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Mareo">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#EfectoSecundario"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#MarianaRuiz -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#MarianaRuiz">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Medico"/>
-        <generaReceta rdf:resource="http://www.clinica.com/ontologia#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11"/>
-        <especialidad>Cardiologia</especialidad>
-        <nombre>Mariana Ruiz</nombre>
-        <telefono>555444333</telefono>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Medico_55e5b1972a084be2bf4f561930f16916 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Medico_55e5b1972a084be2bf4f561930f16916">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Medico"/>
-        <generaReceta rdf:resource="http://www.clinica.com/ontologia#Receta_Consulta_3b906d498ee54484b3b144f7ab65bccb"/>
-        <especialidad>Huesero</especialidad>
-        <nombre>Sergio Ramos</nombre>
-        <telefono>2224272023</telefono>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Nauseas -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Nauseas">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#EfectoSecundario"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Paciente_0550b3621b944d51923c84525919d790 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Paciente_0550b3621b944d51923c84525919d790">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-        <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">22</edad>
-        <nombre>Aldo Perez Mendieta</nombre>
-        <telefono>22 54 24 3421</telefono>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Paciente_53b7747155c5406cb89e987aa4d30b43 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Paciente_53b7747155c5406cb89e987aa4d30b43">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-        <tieneConsulta rdf:resource="http://www.clinica.com/ontologia#Consulta_3b906d498ee54484b3b144f7ab65bccb"/>
-        <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">21</edad>
-        <nombre>Rafael Vargas Alcazar</nombre>
-        <telefono>21 32 45 65 6729</telefono>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Paciente_68f33169778247459969438463f7a821 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Paciente_68f33169778247459969438463f7a821">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Paciente"/>
-        <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">24</edad>
-        <nombre>Kevin David Romero Blanco</nombre>
-        <telefono>2221452313</telefono>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Paracetamol -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Paracetamol">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <dosis>1 pastilla</dosis>
-        <nombre>Paracetamol</nombre>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Pomada_De_la_campana -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Pomada_De_la_campana">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <contraindicaciones>No embarazo</contraindicaciones>
-        <dosis>5 mg</dosis>
-        <efectosSecundarios>Irritacion en la piel</efectosSecundarios>
-        <nombre>Pomada_De_la_campana</nombre>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#RECETA_bee45ebb -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#RECETA_bee45ebb">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <incluyeMedicamento rdf:resource="http://www.clinica.com/ontologia#fluoxetina"/>
-        <tieneMedico rdf:resource="http://www.clinica.com/ontologia#JoseMedina"/>
-        <tienePaciente rdf:resource="http://www.clinica.com/ontologia#ImanolRomeroBlanco"/>
-        <dosis>62 mg</dosis>
-        <indicaciones>Comer bien</indicaciones>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Reacciones_Cutaneas -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Reacciones_Cutaneas">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#EfectoSecundario"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Receta001 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Receta001">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <incluyeMedicamento rdf:resource="http://www.clinica.com/ontologia#Paracetamol"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Receta_2 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Receta_2">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <incluyeMedicamento rdf:resource="http://www.clinica.com/ontologia#Paracetamol"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Receta_3 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Receta_3">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <incluyeMedicamento rdf:resource="http://www.clinica.com/ontologia#Paracetamol"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Receta_4 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Receta_4">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <incluyeMedicamento rdf:resource="http://www.clinica.com/ontologia#Paracetamol"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Receta_5 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Receta_5">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <incluyeMedicamento rdf:resource="http://www.clinica.com/ontologia#Paracetamol"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Receta_8a15a14c1b2b456abd35b2d58777a245 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Receta_8a15a14c1b2b456abd35b2d58777a245">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <incluyeMedicamento rdf:resource="http://www.clinica.com/ontologia#Amoxicilina"/>
-        <tieneMedico rdf:resource="http://www.clinica.com/ontologia#Medico_55e5b1972a084be2bf4f561930f16916"/>
-        <tienePaciente rdf:resource="http://www.clinica.com/ontologia#ImanolRomeroBlanco"/>
-        <dosis>500 mg</dosis>
-        <indicaciones>Dormir bien</indicaciones>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11 -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <incluyeMedicamento rdf:resource="http://www.clinica.com/ontologia#Amoxicilina"/>
-        <tieneMedico rdf:resource="http://www.clinica.com/ontologia#MarianaRuiz"/>
-        <tienePaciente rdf:resource="http://www.clinica.com/ontologia#ImanolRomeroBlanco"/>
-        <dosis>400 mg</dosis>
-        <indicaciones>Tomar en la mañana</indicaciones>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Receta_Consulta_3b906d498ee54484b3b144f7ab65bccb -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Receta_Consulta_3b906d498ee54484b3b144f7ab65bccb">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Receta"/>
-        <incluyeMedicamento rdf:resource="http://www.clinica.com/ontologia#fluoxetina"/>
-        <tieneMedico rdf:resource="http://www.clinica.com/ontologia#Medico_55e5b1972a084be2bf4f561930f16916"/>
-        <tienePaciente rdf:resource="http://www.clinica.com/ontologia#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
-        <dosis>500 mg</dosis>
-        <indicaciones>10 pastillas al dia</indicaciones>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#Somnolencia -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#Somnolencia">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#EfectoSecundario"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#agua -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#agua">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <dosis>700 litros</dosis>
-        <nombre>agua</nombre>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.clinica.com/ontologia#fluoxetina -->
-
-    <owl:NamedIndividual rdf:about="http://www.clinica.com/ontologia#fluoxetina">
-        <rdf:type rdf:resource="http://www.clinica.com/ontologia#Medicamento"/>
-        <dosis>60 mg</dosis>
-        <nombre>fluoxetina</nombre>
-    </owl:NamedIndividual>
 </rdf:RDF>
-
-
-
-<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
-

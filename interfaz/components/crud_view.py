@@ -8,7 +8,8 @@ panel de botones Agregar / Modificar / Eliminar.
 Cada vista concreta sólo declara:
   - el título,
   - las columnas y la altura de la tabla,
-  - la lista de campos del formulario (inputs, combos y combos buscables),
+  - la lista de campos del formulario (inputs, combos, combos buscables,
+    selectores múltiples y textbox),
   - opcionalmente un buscador,
   - y, tras construir el componente, sus manejadores de eventos.
 
@@ -19,6 +20,7 @@ from tkinter import END, LEFT, ttk
 
 import customtkinter as ctk
 
+from interfaz.components.multi_select import SelectorMultiple
 from interfaz.components.searchable_combobox import ComboBuscable
 from interfaz.components.table import crear_tabla
 from interfaz.components.ui import (
@@ -221,6 +223,15 @@ class VistaCRUD:
 
                     widget["values"] = campo["valores"]
 
+            elif tipo == "multiple":
+
+                widget = SelectorMultiple(
+                    self.form,
+                    opciones=campo.get("opciones", campo.get("valores", [])),
+                    height=campo.get("altura", 120),
+                    width=campo.get("ancho", 320)
+                )
+
             elif tipo == "texto":
 
                 widget = crear_textbox(
@@ -239,7 +250,7 @@ class VistaCRUD:
             sticky = campo.get("sticky")
 
             if sticky is None:
-                sticky = "ew" if (usa_grupos or tipo == "texto") else ""
+                sticky = "ew" if (usa_grupos or tipo in ("texto", "multiple")) else ""
 
             widget.grid(
                 row=fila,
@@ -391,7 +402,7 @@ class VistaCRUD:
             self._limpiar_widget(campo["clave"])
 
     def valor_campo(self, clave):
-        """Devuelve el valor actual de una entrada, combo o textbox."""
+        """Devuelve el valor actual de una entrada, combo, textbox o selector."""
 
         campo = self._campo(clave)
 
@@ -399,8 +410,12 @@ class VistaCRUD:
             return ""
 
         widget = self.widgets[clave]
+        tipo = campo.get("tipo", "input")
 
-        if campo.get("tipo", "input") == "texto":
+        if tipo == "multiple":
+            return widget.get_seleccionados()
+
+        if tipo == "texto":
             return widget.get("1.0", "end-1c")
 
         return widget.get()
@@ -414,8 +429,14 @@ class VistaCRUD:
             return
 
         widget = self.widgets[clave]
-        valor = "" if valor is None else str(valor)
         tipo = campo.get("tipo", "input")
+
+        if tipo == "multiple":
+
+            widget.set_seleccionados(valor or [])
+            return
+
+        valor = "" if valor is None else str(valor)
 
         if tipo in ("combo", "combo_buscable"):
 

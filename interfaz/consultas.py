@@ -2,6 +2,7 @@ from tkinter import END, messagebox, ttk
 
 import customtkinter as ctk
 
+from interfaz.components.alert_panel import PanelAlertasMedicamento
 from interfaz.components.searchable_combobox import ComboBuscable
 from interfaz.components.table import crear_tabla
 from interfaz.components.ui import (
@@ -20,7 +21,11 @@ from interfaz.theme.colors import BACKGROUND, BORDER, CARD, PRIMARY, TEXT
 from interfaz.theme.combobox import configurar_estilo_combobox
 from logica.consultas import crear_consulta, eliminar_consulta, listar_consultas
 from logica.estudios import listar_estudios
-from logica.medicamentos import listar_medicamentos
+from logica.medicamentos import (
+    listar_medicamentos,
+    obtener_alertas_medicamento,
+    obtener_medicamento,
+)
 from logica.medicos import listar_medicos
 from logica.pacientes import listar_pacientes
 
@@ -361,12 +366,42 @@ def mostrar_consultas(panel):
         pady=6
     )
 
+    # Panel dinámico de alertas semánticas del medicamento seleccionado.
+    panel_alerta = PanelAlertasMedicamento(seccion)
+    panel_alerta.grid(
+        row=1,
+        column=0,
+        columnspan=2,
+        sticky="ew",
+        pady=(2, 8)
+    )
+
+    def actualizar_panel_alerta(event=None):
+        """Actualiza color y detalle al cambiar el medicamento seleccionado."""
+        referencia = combo_medicamento.get().strip()
+
+        if not referencia:
+
+            panel_alerta.limpiar()
+
+            return
+
+        medicamento = obtener_medicamento(referencia)
+        panel_alerta.mostrar(
+            obtener_alertas_medicamento(medicamento)
+        )
+
+    combo_medicamento.bind(
+        "<<ComboboxSelected>>",
+        actualizar_panel_alerta
+    )
+
     etiqueta = crear_label(
         seccion,
         "Dosis"
     )
     etiqueta.grid(
-        row=1,
+        row=2,
         column=0,
         sticky="w",
         padx=(0, 12),
@@ -378,7 +413,7 @@ def mostrar_consultas(panel):
         "Ej. 500 mg cada 8 horas"
     )
     entrada_dosis.grid(
-        row=1,
+        row=2,
         column=1,
         sticky="ew",
         pady=6
@@ -389,7 +424,7 @@ def mostrar_consultas(panel):
         "Indicaciones"
     )
     etiqueta.grid(
-        row=2,
+        row=3,
         column=0,
         sticky="w",
         padx=(0, 12),
@@ -401,7 +436,7 @@ def mostrar_consultas(panel):
         "Ej. Tomar después de las comidas"
     )
     entrada_indicaciones.grid(
-        row=2,
+        row=3,
         column=1,
         sticky="ew",
         pady=6
@@ -533,6 +568,7 @@ def mostrar_consultas(panel):
         notas.delete("1.0", END)
         diagnostico.delete("1.0", END)
         combo_medicamento.set("")
+        actualizar_panel_alerta()
         entrada_dosis.delete(0, END)
         entrada_indicaciones.delete(0, END)
         combo_estudio.set("")

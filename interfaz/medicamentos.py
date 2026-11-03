@@ -6,6 +6,8 @@ from logica.medicamentos import (
     actualizar_medicamento,
     crear_medicamento,
     eliminar_medicamento,
+    listar_contraindicaciones,
+    listar_efectos_secundarios,
     listar_medicamentos,
 )
 
@@ -37,6 +39,9 @@ def mostrar_medicamentos(panel):
         for clave, etiqueta in TIPOS_MEDICAMENTO
     }
 
+    contraindicaciones = listar_contraindicaciones()
+    efectos_secundarios = listar_efectos_secundarios()
+
     # -----------------------------
     # ESTRUCTURA BASE
     # -----------------------------
@@ -67,16 +72,18 @@ def mostrar_medicamentos(panel):
             },
             {
                 "clave": "contraindicaciones",
-                "label": "Contraindicaciones",
-                "tipo": "texto",
-                "altura": 90,
+                "label": "Contraindicaciones (selección múltiple)",
+                "tipo": "multiple",
+                "opciones": contraindicaciones,
+                "altura": 130,
                 "grupo": 0
             },
             {
                 "clave": "efectos_secundarios",
-                "label": "Efectos secundarios",
-                "tipo": "texto",
-                "altura": 90,
+                "label": "Efectos secundarios (selección múltiple)",
+                "tipo": "multiple",
+                "opciones": efectos_secundarios,
+                "altura": 130,
                 "grupo": 1
             }
         ]
@@ -120,8 +127,8 @@ def mostrar_medicamentos(panel):
                 (
                     medicamento["nombre"],
                     medicamento["tipo_label"],
-                    _resumen(medicamento["contraindicaciones"]),
-                    _resumen(medicamento["efectos_secundarios"])
+                    _resumen(medicamento["contraindicaciones_texto"]),
+                    _resumen(medicamento["efectos_secundarios_texto"])
                 ),
                 iid=medicamento["id"]
             )
@@ -151,11 +158,11 @@ def mostrar_medicamentos(panel):
         vista.set_valor_campo("tipo", medicamento["tipo_label"])
         vista.set_valor_campo(
             "contraindicaciones",
-            medicamento["contraindicaciones"]
+            medicamento["contraindicaciones_ids"]
         )
         vista.set_valor_campo(
             "efectos_secundarios",
-            medicamento["efectos_secundarios"]
+            medicamento["efectos_secundarios_ids"]
         )
 
     tabla.bind(
