@@ -23,6 +23,45 @@ from logica.validaciones import texto_obligatorio, validar_dosis
 # HELPERS INTERNOS
 # -----------------------------
 
+PREFIJO_RECETA_CONSULTA = "Receta_"
+
+
+def identificador_receta_de_consulta(consulta_id):
+    """Devuelve el identificador estable de la receta de una consulta.
+
+    La ontología no define una relación directa Consulta-Receta. Para no
+    modificar su esquema, la receta creada desde una consulta usa este nombre
+    determinista; así puede recuperarse sin ambigüedad.
+    """
+    if not consulta_id:
+        raise ValueError("La consulta no tiene un identificador válido.")
+
+    return f"{PREFIJO_RECETA_CONSULTA}{consulta_id}"
+
+
+def _vincular_medico_receta(medico, receta):
+    """Añade la receta a la relación 'generaReceta' del médico."""
+    actuales = list(getattr(medico, "generaReceta", []) or [])
+
+    if receta not in actuales:
+        medico.generaReceta = actuales + [receta]
+
+
+def _desvincular_medico_receta(medico, receta):
+    """Quita la receta de la relación 'generaReceta' del médico."""
+    if medico is None:
+        return
+
+    actuales = list(getattr(medico, "generaReceta", []) or [])
+
+    if receta in actuales:
+        medico.generaReceta = [
+            item
+            for item in actuales
+            if item is not receta
+        ]
+
+
 def _buscar_receta(receta_id):
     """Devuelve la Receta cuyo nombre de individuo coincide, o None."""
     for receta in onto.Receta.instances():
@@ -142,8 +181,28 @@ def listar_recetas_por_medicamento(medicamento_ref):
         if receta["medicamento_id"] == medicamento.name
     ]
 
-def crear_receta(paciente_nombre, medico_nombre, medicamento_nombre, dosis, indicaciones):
-    """Valida datos y relaciones, crea la receta con id único y persiste."""
+def obtener_receta_de_consulta(consulta_id):
+    """Devuelve la receta vinculada a una consulta, o None."""
+    if not consulta_id:
+        return None
+
+    return _buscar_receta(identificador_receta_de_consulta(consulta_id))
+
+
+def crear_receta(
+    paciente_nombre,
+    medico_nombre,
+    medicamento_nombre,
+    dosis,
+    indicaciones,
+    guardar=True,
+    identificador=None
+):
+    """Valida datos y relaciones, crea la receta y opcionalmente la persiste.
+
+    ``guardar=False`` permite que una operación compuesta, como el registro de
+    una consulta, persista todos sus individuos una sola vez.
+    """
 
     paciente, medico, medicamento = _resolver_relaciones(
         paciente_nombre,
@@ -154,8 +213,12 @@ def crear_receta(paciente_nombre, medico_nombre, medicamento_nombre, dosis, indi
     dosis = validar_dosis(dosis)
     indicaciones = texto_obligatorio(indicaciones, "indicaciones")
 
+    if identificador is not None and _buscar_receta(identificador) is not None:
+        raise ValueError("Ya existe una receta con ese identificador.")
+
     nueva = onto.Receta(
-        generar_identificador("Receta", onto.Receta)
+        identificador
+        or generar_identificador("Receta", onto.Receta)
     )
 
     nueva.tienePaciente = [paciente]
@@ -165,7 +228,10 @@ def crear_receta(paciente_nombre, medico_nombre, medicamento_nombre, dosis, indi
     nueva.dosis = [dosis]
     nueva.indicaciones = [indicaciones]
 
-    guardar_ontologia()
+    _vincular_medico_receta(medico, nueva)
+
+    if guardar:
+        guardar_ontologia()
 
     return nueva
 
@@ -193,6 +259,14 @@ def actualizar_receta(
     dosis = validar_dosis(dosis)
     indicaciones = texto_obligatorio(indicaciones, "indicaciones")
 
+    medico_anterior = (
+        receta.tieneMedico[0] if receta.tieneMedico else None
+    )
+
+    if medico_anterior is not medico:
+        _desvincular_medico_receta(medico_anterior, receta)
+        _vincular_medico_receta(medico, receta)
+
     receta.tienePaciente = [paciente]
     receta.tieneMedico = [medico]
     receta.incluyeMedicamento = [medicamento]
@@ -211,6 +285,9 @@ def eliminar_receta(receta_id):
 
     if receta is None:
         return False
+
+    for medico in onto.Medico.instances():
+        _desvincular_medico_receta(medico, receta)
 
     destroy_entity(receta)
 

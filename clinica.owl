@@ -188,6 +188,7 @@ Embarazadas</contraindicaciones>
 
 <owl:NamedIndividual rdf:about="#MarianaRuiz">
   <rdf:type rdf:resource="#Medico"/>
+  <generaReceta rdf:resource="#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11"/>
   <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologia</especialidad>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mariana Ruiz</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">555444333</telefono>
@@ -195,6 +196,7 @@ Embarazadas</contraindicaciones>
 
 <owl:NamedIndividual rdf:about="#Medico_55e5b1972a084be2bf4f561930f16916">
   <rdf:type rdf:resource="#Medico"/>
+  <generaReceta rdf:resource="#Receta_Consulta_3b906d498ee54484b3b144f7ab65bccb"/>
   <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Huesero</especialidad>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sergio Ramos</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2224272023</telefono>
@@ -208,6 +210,7 @@ Embarazadas</contraindicaciones>
 
 <owl:NamedIndividual rdf:about="#ImanolRomeroBlanco">
   <rdf:type rdf:resource="#Paciente"/>
+  <tieneConsulta rdf:resource="#Consulta_0fea9c6e9a3145f8b62b30e01aa26e11"/>
   <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">21</edad>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Imanol Romero Blanco</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2221079236</telefono>
@@ -316,6 +319,87 @@ Embarazadas</contraindicaciones>
   <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
   <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-02</fecha>
   <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1:00 Am</hora>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paciente_53b7747155c5406cb89e987aa4d30b43">
+  <rdf:type rdf:resource="#Paciente"/>
+  <tieneConsulta rdf:resource="#Consulta_3b906d498ee54484b3b144f7ab65bccb"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rafael Vargas Alcazar</nombre>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">21</edad>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">21 32 45 65 6729</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paciente_68f33169778247459969438463f7a821">
+  <rdf:type rdf:resource="#Paciente"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kevin David Romero Blanco</nombre>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">24</edad>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2221452313</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Cita_bab05c7e9acb4a11bcb80188f8e23160">
+  <rdf:type rdf:resource="#Cita"/>
+  <tienePaciente rdf:resource="#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-02</fecha>
+  <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">3:00 am</hora>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Consulta_3b906d498ee54484b3b144f7ab65bccb">
+  <rdf:type rdf:resource="#Consulta"/>
+  <tienePaciente rdf:resource="#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <tieneDiagnostico rdf:resource="#Diagnostico_1e504806f66d448c8dd22419a59a0621"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-02</fecha>
+  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente esta con fiebre y se siente seco</notasClinicas>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diagnostico_1e504806f66d448c8dd22419a59a0621">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tiene moquillo</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_Consulta_3b906d498ee54484b3b144f7ab65bccb">
+  <rdf:type rdf:resource="#Receta"/>
+  <tienePaciente rdf:resource="#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <incluyeMedicamento rdf:resource="#fluoxetina"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">500 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">10 pastillas al dia</indicaciones>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Estudio_861c499bd32144dd88ff70a14bc90223">
+  <rdf:type rdf:resource="#EstudioMedico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Examen de la vista</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Consulta_0fea9c6e9a3145f8b62b30e01aa26e11">
+  <rdf:type rdf:resource="#Consulta"/>
+  <tienePaciente rdf:resource="#ImanolRomeroBlanco"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <tieneDiagnostico rdf:resource="#Diagnostico_918608e4fbac4ef4ba3f10d7acb6b831"/>
+  <solicitaEstudio rdf:resource="#Estudio_861c499bd32144dd88ff70a14bc90223"/>
+  <solicitaEstudio rdf:resource="#Estudio_8719418e26d24a8a84a8262ea1bc6ee7"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-02</fecha>
+  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente viene con fiebre, presenta dolor de garganta</notasClinicas>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diagnostico_918608e4fbac4ef4ba3f10d7acb6b831">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tiene covid</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11">
+  <rdf:type rdf:resource="#Receta"/>
+  <tienePaciente rdf:resource="#ImanolRomeroBlanco"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <incluyeMedicamento rdf:resource="#Amoxicilina"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">400 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tomar en la mañana</indicaciones>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Estudio_8719418e26d24a8a84a8262ea1bc6ee7">
+  <rdf:type rdf:resource="#EstudioMedico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Radiografia</nombre>
 </owl:NamedIndividual>
 
 <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#topDataProperty">

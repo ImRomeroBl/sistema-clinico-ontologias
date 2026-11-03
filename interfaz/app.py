@@ -4,6 +4,7 @@ import customtkinter as ctk
 # IMPORTAR MODULOS
 # -----------------------------
 from interfaz.citas import mostrar_citas
+from interfaz.consultas import mostrar_consultas
 from interfaz.estudios import mostrar_estudios
 from interfaz.historial import mostrar_historial
 from interfaz.medicamentos import mostrar_medicamentos
@@ -151,6 +152,11 @@ def crear_interfaz():
     crear_boton_menu(
         "📅  Citas",
         lambda: mostrar_citas(panel_principal)
+    )
+
+    crear_boton_menu(
+        "📝  Consultas",
+        lambda: mostrar_consultas(panel_principal)
     )
 
     crear_boton_menu(

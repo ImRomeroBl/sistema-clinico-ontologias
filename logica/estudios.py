@@ -154,6 +154,21 @@ def obtener_estudio(estudio_id):
     return None
 
 
+def obtener_estudio_por_nombre(nombre):
+    """Busca un estudio por su etiqueta visible, sin distinguir mayúsculas."""
+    objetivo = str(nombre or "").strip().casefold()
+
+    if not objetivo:
+        return None
+
+    for estudio in onto.EstudioMedico.instances():
+
+        if nombre_de(estudio).casefold() == objetivo:
+            return estudio
+
+    return None
+
+
 def crear_estudio(nombre, guardar=True):
     """Crea un Estudio Médico con id único. Si 'guardar' es False, no persiste."""
     nombre = texto_obligatorio(nombre, "estudio")
