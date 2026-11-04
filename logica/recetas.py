@@ -103,11 +103,29 @@ def _resolver_relaciones(paciente_ref, medico_ref, medicamento_ref):
 # OPERACIONES CRUD
 # -----------------------------
 
+def _es_encounter_centrica(receta):
+    """Indica si la receta depende de una consulta existente."""
+    nombre = str(getattr(receta, "name", "") or "")
+
+    if not nombre.startswith(PREFIJO_RECETA_CONSULTA):
+        return False
+
+    consulta_id = nombre[len(PREFIJO_RECETA_CONSULTA):]
+
+    return any(
+        consulta.name == consulta_id
+        for consulta in onto.Consulta.instances()
+    )
+
+
 def listar_recetas():
-    """Devuelve las recetas que tienen paciente, médico y medicamento."""
+    """Devuelve las recetas Encounter-Centric con paciente, médico y medicamento."""
     recetas = []
 
     for receta in onto.Receta.instances():
+
+        if not _es_encounter_centrica(receta):
+            continue
 
         if (
             not receta.tienePaciente
@@ -200,9 +218,31 @@ def crear_receta(
 ):
     """Valida datos y relaciones, crea la receta y opcionalmente la persiste.
 
+    Solo acepta identificadores Encounter-Centric (``Receta_Consulta_<id>``),
+    de modo que no puedan crearse recetas al margen de una consulta médica.
     ``guardar=False`` permite que una operación compuesta, como el registro de
     una consulta, persista todos sus individuos una sola vez.
     """
+
+    prefijo_consulta = f"{PREFIJO_RECETA_CONSULTA}Consulta_"
+
+    if (
+        not identificador
+        or not str(identificador).startswith(prefijo_consulta)
+    ):
+        raise ValueError(
+            "Las recetas solo pueden crearse desde una consulta médica."
+        )
+
+    consulta_id = str(identificador)[len(PREFIJO_RECETA_CONSULTA):]
+
+    if not any(
+        consulta.name == consulta_id
+        for consulta in onto.Consulta.instances()
+    ):
+        raise ValueError(
+            "La consulta asociada a la receta no existe."
+        )
 
     paciente, medico, medicamento = _resolver_relaciones(
         paciente_nombre,

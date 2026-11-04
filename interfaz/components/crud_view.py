@@ -135,6 +135,22 @@ class VistaCRUD:
             self._crear_buscador(buscador)
 
         # -----------------------------
+        # PANEL DE BOTONES (SE RESERVA AL FONDO)
+        # -----------------------------
+
+        self.frame_botones = ctk.CTkFrame(
+            self.card,
+            fg_color="transparent"
+        )
+
+        # Se empaqueta antes que la tabla para garantizar que los controles
+        # inferiores conserven su altura incluso en ventanas pequeñas.
+        self.frame_botones.pack(
+            side="bottom",
+            pady=(10, 20)
+        )
+
+        # -----------------------------
         # TABLA
         # -----------------------------
 
@@ -145,7 +161,8 @@ class VistaCRUD:
         )
 
         self.tabla_frame.pack(
-            fill="x",
+            fill="both",
+            expand=True,
             padx=20,
             pady=10
         )
@@ -155,15 +172,6 @@ class VistaCRUD:
         # -----------------------------
 
         self._estilizar_combos()
-
-        # -----------------------------
-        # PANEL DE BOTONES (se empaqueta al final)
-        # -----------------------------
-
-        self.frame_botones = ctk.CTkFrame(
-            self.card,
-            fg_color="transparent"
-        )
 
     # -----------------------------
     # CONSTRUCCION DE CAMPOS
@@ -363,10 +371,6 @@ class VistaCRUD:
         fuente=None,
         padding=12
     ):
-
-        self.frame_botones.pack(
-            pady=(10, 30)
-        )
 
         botones = [
             crear_boton_exito(

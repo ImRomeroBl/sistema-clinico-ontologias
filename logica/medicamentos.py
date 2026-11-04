@@ -10,22 +10,18 @@ recetas. El nombre visible se guarda en la propiedad 'nombre'. El tipo de
 fármaco se representa con las clases Analgesico, Antibiotico, Antiinflamatorio
 o Medicamento (genérico).
 
-Las contraindicaciones y los efectos secundarios se modelan como individuos de
-las clases :Contraindicacion y :EfectoSecundario, y se vinculan al medicamento
-mediante las Object Properties :tieneContraindicacion y
-:tieneEfectoSecundario. Los campos de datos históricos
-('contraindicaciones'/'efectosSecundarios') ya no se escriben: se conservan
-solo como respaldo de lectura para los medicamentos creados antes de este
-cambio.
+Las contraindicaciones y los efectos secundarios se modelan exclusivamente como
+individuos de las clases :Contraindicacion y :EfectoSecundario, vinculados al
+medicamento mediante las Object Properties :tieneContraindicacion y
+:tieneEfectoSecundario.
 
-Las alertas semánticas se calculan con obtener_alertas_medicamento(), que
-prioriza las relaciones semánticas y solo recurre a los textos históricos
-cuando el medicamento aún no tiene ninguna relación registrada. El contrato
-incluye el nivel, el color y el detalle de contraindicaciones y efectos.
+Las alertas semánticas se calculan con obtener_alertas_medicamento() a partir de
+esas relaciones. El contrato incluye el nivel, el color y el detalle de
+contraindicaciones y efectos.
 
 No se usan 'descripcion' (no existe en la ontología) ni 'dosis' (pertenece a
-Receta). Los valores históricos de dosis en medicamentos se conservan intactos,
-pero el catálogo ya no los lee ni los escribe.
+Receta). Tampoco se leen ni escriben las antiguas propiedades de texto
+'contraindicaciones' y 'efectosSecundarios'.
 """
 
 from owlready2 import destroy_entity
@@ -261,12 +257,9 @@ def _datos_relacion(medicamento, propiedad, clase):
     return items
 
 
-def _texto_relacion(items, legado=""):
+def _texto_relacion(items):
     """Convierte una lista de relaciones en texto para la tabla."""
-    if items:
-        return ", ".join(item["nombre"] for item in items)
-
-    return legado
+    return ", ".join(item["nombre"] for item in items)
 
 # -----------------------------
 # CATÁLOGOS SEMÁNTICOS
@@ -300,34 +293,6 @@ _COLORES_ALERTA = {
     ALERTA_MEDIA: COLOR_ALERTA_MEDIA,
     ALERTA_SIN: COLOR_ALERTA_SIN,
 }
-
-
-def _partir_texto_legado(texto):
-    """Divide un texto histórico en entradas legibles y sin duplicados."""
-    texto = _texto_opcional(texto)
-
-    if not texto:
-        return []
-
-    partes = []
-    vistos = set()
-
-    for linea in texto.replace(";", "\n").replace(",", "\n").splitlines():
-
-        parte = " ".join(linea.split())
-
-        if not parte:
-            continue
-
-        clave = parte.casefold()
-
-        if clave in vistos:
-            continue
-
-        vistos.add(clave)
-        partes.append(parte)
-
-    return partes
 
 
 def _normalizar_items_alerta(items):
@@ -366,19 +331,8 @@ def _normalizar_items_alerta(items):
     return normalizados
 
 
-def _items_legado(texto):
-    """Convierte texto histórico en entradas compatibles con el contrato."""
-    return [
-        {
-            "id": None,
-            "nombre": parte,
-        }
-        for parte in _partir_texto_legado(texto)
-    ]
-
-
 def _datos_alerta(medicamento_instancia):
-    """Obtiene relaciones semánticas y textos históricos de un medicamento.
+    """Obtiene las relaciones semánticas de un medicamento.
 
     Acepta un individuo de Owlready2, su identificador interno o un diccionario
     con la forma devuelta por listar_medicamentos(). Devuelve un diccionario
@@ -387,8 +341,6 @@ def _datos_alerta(medicamento_instancia):
     vacio = {
         "contraindicaciones": [],
         "efectos_secundarios": [],
-        "contraindicaciones_texto": "",
-        "efectos_secundarios_texto": "",
     }
 
     if medicamento_instancia is None:
@@ -410,12 +362,6 @@ def _datos_alerta(medicamento_instancia):
             "efectos_secundarios": _normalizar_items_alerta(
                 medicamento_instancia.get("efectos_secundarios")
             ),
-            "contraindicaciones_texto": _texto_opcional(
-                medicamento_instancia.get("contraindicaciones_texto")
-            ),
-            "efectos_secundarios_texto": _texto_opcional(
-                medicamento_instancia.get("efectos_secundarios_texto")
-            ),
         }
 
     if not hasattr(medicamento_instancia, "name"):
@@ -432,12 +378,6 @@ def _datos_alerta(medicamento_instancia):
             "tieneEfectoSecundario",
             onto.EfectoSecundario,
         ),
-        "contraindicaciones_texto": _texto_opcional(
-            _primer_valor(medicamento_instancia, "contraindicaciones")
-        ),
-        "efectos_secundarios_texto": _texto_opcional(
-            _primer_valor(medicamento_instancia, "efectosSecundarios")
-        ),
     }
 
 
@@ -447,9 +387,7 @@ def obtener_alertas_medicamento(medicamento_instancia):
     Prioridad:
       1. Si tiene relaciones :tieneContraindicacion -> "Alta" (red).
       2. Si solo tiene :tieneEfectoSecundario -> "Media" (orange).
-      3. Si no tiene relaciones semánticas, usa como respaldo temporal los
-         textos históricos 'contraindicaciones'/'efectosSecundarios'.
-      4. Sin datos -> "Sin alerta" (gray).
+      3. Sin relaciones semánticas -> "Sin alerta" (gray).
 
     Acepta un individuo de Owlready2, su identificador interno o el diccionario
     devuelto por listar_medicamentos(). Nunca modifica la ontología.
@@ -466,18 +404,6 @@ def obtener_alertas_medicamento(medicamento_instancia):
 
     contraindicaciones = datos["contraindicaciones"]
     efectos_secundarios = datos["efectos_secundarios"]
-
-    # Las relaciones semánticas son la fuente de verdad. Solo si el
-    # medicamento no tiene ninguna se consultan los textos históricos.
-    if not contraindicaciones and not efectos_secundarios:
-
-        contraindicaciones = _items_legado(
-            datos["contraindicaciones_texto"]
-        )
-
-        efectos_secundarios = _items_legado(
-            datos["efectos_secundarios_texto"]
-        )
 
     if contraindicaciones:
 
@@ -536,8 +462,7 @@ def listar_medicamentos():
       - 'contraindicaciones_ids' y 'efectos_secundarios_ids': ids para el
         formulario de selección múltiple.
       - 'contraindicaciones_texto' y 'efectos_secundarios_texto': texto para
-        la tabla, con respaldo en los campos históricos si aún no hay
-        relaciones semánticas.
+        la tabla, construido únicamente a partir de las relaciones semánticas.
     """
     medicamentos = []
 
@@ -568,8 +493,7 @@ def listar_medicamentos():
                 for item in contraindicaciones
             ],
             "contraindicaciones_texto": _texto_relacion(
-                contraindicaciones,
-                _primer_valor(medicamento, "contraindicaciones"),
+                contraindicaciones
             ),
             "efectos_secundarios": efectos_secundarios,
             "efectos_secundarios_ids": [
@@ -577,8 +501,7 @@ def listar_medicamentos():
                 for item in efectos_secundarios
             ],
             "efectos_secundarios_texto": _texto_relacion(
-                efectos_secundarios,
-                _primer_valor(medicamento, "efectosSecundarios"),
+                efectos_secundarios
             ),
         })
 
@@ -643,8 +566,8 @@ def actualizar_medicamento(
     """Actualiza un medicamento (por nombre interno) o devuelve None.
 
     Las listas de contraindicaciones y efectos secundarios reemplazan las
-    relaciones semánticas existentes. Los campos de datos históricos no se
-    modifican; la fuente de verdad son las Object Properties.
+    relaciones semánticas existentes; las Object Properties son la única
+    fuente de verdad.
     """
     medicamento = obtener_medicamento(medicamento_id)
 

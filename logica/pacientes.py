@@ -133,9 +133,76 @@ def actualizar_paciente(paciente_id, nuevo_nombre, nueva_edad, nuevo_telefono):
 
     return paciente
 
-def eliminar_paciente(paciente_id):
-    """Elimina un paciente y sus recetas/citas asociadas (borrado en cascada).
+PREFIJO_RECETA_CONSULTA = "Receta_"
 
+
+def _receta_de_consulta(consulta):
+    """Devuelve la receta determinista de una consulta, o None."""
+    objetivo = PREFIJO_RECETA_CONSULTA + consulta.name
+
+    for receta in onto.Receta.instances():
+
+        if receta.name == objetivo:
+            return receta
+
+    return None
+
+
+def _referenciada(entidad):
+    """Indica si un diagnóstico o estudio sigue vinculado a alguna consulta."""
+    for consulta in onto.Consulta.instances():
+
+        if entidad in (consulta.tieneDiagnostico or []):
+            return True
+
+        if entidad in (consulta.solicitaEstudio or []):
+            return True
+
+    return False
+
+
+def _eliminar_consulta(consulta, paciente):
+    """Elimina una consulta y los componentes clínicos que queden huérfanos."""
+    diagnosticos = list(consulta.tieneDiagnostico or [])
+    estudios = list(consulta.solicitaEstudio or [])
+    receta = _receta_de_consulta(consulta)
+
+    paciente.tieneConsulta = [
+        item
+        for item in (getattr(paciente, "tieneConsulta", []) or [])
+        if item is not consulta
+    ]
+
+    consulta.tienePaciente = []
+    destroy_entity(consulta)
+
+    if receta is not None:
+
+        for medico in onto.Medico.instances():
+
+            medico.generaReceta = [
+                item
+                for item in (getattr(medico, "generaReceta", []) or [])
+                if item is not receta
+            ]
+
+        destroy_entity(receta)
+
+    for diagnostico in diagnosticos:
+
+        if not _referenciada(diagnostico):
+            destroy_entity(diagnostico)
+
+    for estudio in estudios:
+
+        if not _referenciada(estudio):
+            destroy_entity(estudio)
+
+
+def eliminar_paciente(paciente_id):
+    """Elimina un paciente y todo su expediente clínico (borrado en cascada).
+
+    Incluye consultas, recetas, diagnósticos, estudios y citas asociadas.
     Devuelve True si el paciente existía y fue eliminado, False en caso contrario.
     """
 
@@ -145,27 +212,48 @@ def eliminar_paciente(paciente_id):
         return False
 
     # -----------------------------
-    # ELIMINAR RECETAS
+    # CONSULTAS Y SUS COMPONENTES
+    # -----------------------------
+
+    consultas = [
+        consulta
+        for consulta in onto.Consulta.instances()
+        if paciente in (consulta.tienePaciente or [])
+    ]
+
+    for consulta in consultas:
+        _eliminar_consulta(consulta, paciente)
+
+    # -----------------------------
+    # RECETAS LEGADAS RESTANTES
     # -----------------------------
 
     for receta in list(onto.Receta.instances()):
 
-        if receta.tienePaciente and receta.tienePaciente[0] == paciente:
+        if paciente not in (receta.tienePaciente or []):
+            continue
 
-            destroy_entity(receta)
+        for medico in onto.Medico.instances():
+
+            medico.generaReceta = [
+                item
+                for item in (getattr(medico, "generaReceta", []) or [])
+                if item is not receta
+            ]
+
+        destroy_entity(receta)
 
     # -----------------------------
-    # ELIMINAR CITAS
+    # CITAS
     # -----------------------------
 
     for cita in list(onto.Cita.instances()):
 
-        if cita.tienePaciente and cita.tienePaciente[0] == paciente:
-
+        if paciente in (cita.tienePaciente or []):
             destroy_entity(cita)
 
     # -----------------------------
-    # ELIMINAR PACIENTE
+    # PACIENTE
     # -----------------------------
 
     destroy_entity(paciente)

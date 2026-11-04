@@ -48,6 +48,13 @@ class SelectorMultiple(ctk.CTkScrollableFrame):
             **kwargs
         )
 
+        # El scrollbar vertical de CTkScrollableFrame trae una longitud por
+        # defecto de 200 px que impone un alto mínimo mayor al solicitado y
+        # desborda el formulario. Se ajusta a la altura real del selector.
+        self._scrollbar.configure(
+            height=max(40, height - 20)
+        )
+
         self._variables = {}
         self._etiquetas = {}
         self._checks = []

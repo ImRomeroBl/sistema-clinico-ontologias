@@ -22,6 +22,9 @@ from interfaz.theme.colors import (
     TEXT_SECONDARY,
 )
 from interfaz.theme.fonts import BUTTON_FONT, SUBTITLE, TEXT_FONT, TITLE
+from logica.citas import listar_citas
+from logica.medicos import listar_medicos
+from logica.pacientes import listar_pacientes
 
 # -----------------------------
 # CREAR INTERFAZ
@@ -301,10 +304,14 @@ def crear_interfaz():
     # CARDS
     # -----------------------------
 
+    total_pacientes = len(listar_pacientes())
+    total_medicos = len(listar_medicos())
+    total_citas = len(listar_citas())
+
     card1 = crear_card(
         contenedor_cards,
         "Pacientes",
-        "120"
+        str(total_pacientes)
     )
 
     card1.grid(
@@ -316,7 +323,7 @@ def crear_interfaz():
     card2 = crear_card(
         contenedor_cards,
         "Médicos",
-        "25"
+        str(total_medicos)
     )
 
     card2.grid(
@@ -328,7 +335,7 @@ def crear_interfaz():
     card3 = crear_card(
         contenedor_cards,
         "Citas",
-        "48"
+        str(total_citas)
     )
 
     card3.grid(

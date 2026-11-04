@@ -4,12 +4,15 @@ Lógica de negocio para la gestión de Médicos.
 Encapsula el acceso a la ontología 'clinica.owl' (a través de logica.ontologia)
 para que la capa de interfaz no dependa directamente de Owlready2.
 
-La especialidad se sigue tratando como propiedad de datos del médico
-(propiedad 'especialidad'), conservando el mismo esquema que la vista original.
+La especialidad se modela como un individuo de :Especialidad vinculado al médico
+mediante la Object Property :tieneEspecialidad. El texto introducido en la
+interfaz se reutiliza si ya existe o se registra como una nueva especialidad.
 El identificador de un médico es el nombre interno del individuo (name),
 generado con un UUID para evitar colisiones; las operaciones usan ese nombre
 interno y no el texto mostrado. Los datos se validan antes de tocar la ontología.
 """
+
+import re
 
 from owlready2 import destroy_entity
 
@@ -37,6 +40,62 @@ def _primer_valor(entidad, propiedad, defecto=""):
 def _nombre_de(medico):
     """Devuelve el nombre mostrado (propiedad 'nombre') de un médico."""
     return _primer_valor(medico, "nombre")
+
+
+def _etiqueta_especialidad(especialidad):
+    """Devuelve la etiqueta visible de un individuo :Especialidad."""
+    etiquetas = list(getattr(especialidad, "label", []) or [])
+
+    if etiquetas:
+        return str(etiquetas[0])
+
+    return str(especialidad.name).replace("_", " ").strip()
+
+
+def _especialidad_de(medico):
+    """Devuelve el texto de la primera especialidad semántica del médico."""
+    especialidades = list(getattr(medico, "tieneEspecialidad", []) or [])
+
+    if not especialidades:
+        return ""
+
+    return _etiqueta_especialidad(especialidades[0])
+
+
+def _identificador_especialidad(texto):
+    """Convierte una especialidad escrita por el usuario en un nombre interno."""
+    base = re.sub(r"[^0-9A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+", "_", str(texto).strip())
+    base = re.sub(r"_+", "_", base).strip("_")
+
+    if not base:
+        return "Especialidad"
+
+    return base[0].upper() + base[1:]
+
+
+def _resolver_especialidad(texto):
+    """Reutiliza una :Especialidad existente o crea una nueva."""
+    objetivo = str(texto).strip().casefold()
+
+    for especialidad in onto.Especialidad.instances():
+
+        if _etiqueta_especialidad(especialidad).casefold() == objetivo:
+            return especialidad
+
+        if especialidad.name.casefold() == objetivo:
+            return especialidad
+
+    interno = _identificador_especialidad(texto)
+
+    for especialidad in onto.Especialidad.instances():
+
+        if especialidad.name == interno:
+            return especialidad
+
+    nueva = onto.Especialidad(interno)
+    nueva.label = [str(texto).strip()]
+
+    return nueva
 
 
 def obtener_medico(identificador):
@@ -80,7 +139,7 @@ def listar_medicos():
         medicos.append({
             "id": medico.name,
             "nombre": _nombre_de(medico),
-            "especialidad": _primer_valor(medico, "especialidad"),
+            "especialidad": _especialidad_de(medico),
             "telefono": formatear_telefono(
                 _primer_valor(medico, "telefono")
             ),
@@ -103,7 +162,7 @@ def crear_medico(nombre, especialidad, telefono):
         nuevo = onto.Medico(generar_identificador("Medico", onto.Medico))
 
         nuevo.nombre = [nombre]
-        nuevo.especialidad = [especialidad]
+        nuevo.tieneEspecialidad = [_resolver_especialidad(especialidad)]
         nuevo.telefono = [telefono]
 
     guardar_ontologia()
@@ -128,21 +187,58 @@ def actualizar_medico(medico_id, nuevo_nombre, nueva_especialidad, nuevo_telefon
     if _existe_nombre(nuevo_nombre, excluir=medico):
         raise ValueError("Ya existe otro médico con ese nombre.")
 
-    medico.nombre = [nuevo_nombre]
-    medico.especialidad = [nueva_especialidad]
-    medico.telefono = [nuevo_telefono]
+    with onto:
+
+        medico.nombre = [nuevo_nombre]
+        medico.tieneEspecialidad = [_resolver_especialidad(nueva_especialidad)]
+        medico.telefono = [nuevo_telefono]
 
     guardar_ontologia()
 
     return medico
 
+
+def _referencias_de(medico):
+    """Cuenta las consultas, citas y recetas que dependen del médico."""
+    total = 0
+
+    for consulta in onto.Consulta.instances():
+
+        if medico in (consulta.tieneMedico or []):
+            total += 1
+
+    for cita in onto.Cita.instances():
+
+        if medico in (cita.tieneMedico or []):
+            total += 1
+
+    for receta in onto.Receta.instances():
+
+        if medico in (receta.tieneMedico or []):
+            total += 1
+
+    return total
+
+
 def eliminar_medico(medico_id):
-    """Elimina un médico existente. Devuelve True si existía, False en caso contrario."""
+    """Elimina un médico sin dejar registros clínicos huérfanos.
+
+    Devuelve True si existía y fue eliminado, False en caso contrario. Lanza
+    ValueError si todavía tiene consultas, citas o recetas asociadas.
+    """
 
     medico = obtener_medico(medico_id)
 
     if medico is None:
         return False
+
+    referencias = _referencias_de(medico)
+
+    if referencias:
+        raise ValueError(
+            "No se puede eliminar el médico: tiene "
+            f"{referencias} registro(s) clínico(s) asociado(s)."
+        )
 
     destroy_entity(medico)
 

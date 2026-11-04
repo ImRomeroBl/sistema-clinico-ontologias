@@ -55,7 +55,7 @@ def mostrar_medicamentos(panel):
             "Contraindicaciones",
             "Efectos Secundarios"
         ],
-        altura=7,
+        altura=6,
         campos=[
             {
                 "clave": "nombre",

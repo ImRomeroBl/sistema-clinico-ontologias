@@ -25,6 +25,7 @@ htmlcov/
 
 # Salidas generadas por el sistema
 reportes/
+backups/
 
 # Sistema operativo / editores
 .DS_Store

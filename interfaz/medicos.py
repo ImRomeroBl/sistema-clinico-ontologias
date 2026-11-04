@@ -226,7 +226,27 @@ def mostrar_medicos(panel):
 
             return
 
-        eliminar_medico(medico_id)
+        try:
+
+            eliminado = eliminar_medico(medico_id)
+
+        except ValueError as error:
+
+            messagebox.showwarning(
+                "No se puede eliminar",
+                str(error)
+            )
+
+            return
+
+        if not eliminado:
+
+            messagebox.showwarning(
+                "Error",
+                "No se encontró el médico seleccionado"
+            )
+
+            return
 
         cargar_medicos()
 
