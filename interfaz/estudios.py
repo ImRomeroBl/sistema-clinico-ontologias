@@ -3,6 +3,7 @@ from tkinter import LEFT, messagebox
 from interfaz.components.crud_view import VistaCRUD
 from interfaz.components.ui import crear_boton_primario, crear_label
 from interfaz.theme.colors import TEXT_SECONDARY
+from interfaz.theme.fonts import BUTTON_FONT
 from logica.consultas import listar_consultas
 from logica.estudios import (
     actualizar_estudio,
@@ -10,13 +11,18 @@ from logica.estudios import (
     crear_estudio,
     desasociar_estudio,
     eliminar_estudio,
-    listar_estudios,
+    listar_solicitudes_estudios,
 )
 from logica.pacientes import listar_pacientes
 
 # -----------------------------
 # HELPERS
 # -----------------------------
+
+# Ancho y alto comunes de los cinco botones del módulo.
+ANCHO_BOTON = 190
+ALTO_BOTON = 50
+PADDING_BOTON = 10
 
 def _texto_consulta(consulta):
     """Resume una consulta para el combo de asociación."""
@@ -57,7 +63,7 @@ def _opciones_consultas(consultas):
 def mostrar_estudios(panel):
 
     estudio_seleccionado = [None]
-    estudios_por_id = {}
+    solicitudes_por_fila = {}
 
     # -----------------------------
     # PACIENTES (FILTRO)
@@ -99,9 +105,9 @@ def mostrar_estudios(panel):
         panel,
         titulo="Gestión de Estudios Médicos",
         columnas=[
-            "Estudio",
-            "Paciente(s)",
-            "Consulta(s)",
+            "Nombre del Estudio",
+            "Paciente",
+            "Consulta / Fecha",
             "Estado"
         ],
         altura=6,
@@ -131,10 +137,34 @@ def mostrar_estudios(panel):
 
     tabla = vista.tabla
 
-    tabla.column("Estudio", width=240, anchor="w")
-    tabla.column("Paciente(s)", width=220, anchor="w")
-    tabla.column("Consulta(s)", width=300, anchor="w")
-    tabla.column("Estado", width=120, anchor="center")
+    tabla.column(
+        "Nombre del Estudio",
+        width=280,
+        minwidth=200,
+        anchor="w",
+        stretch=True
+    )
+    tabla.column(
+        "Paciente",
+        width=320,
+        minwidth=230,
+        anchor="w",
+        stretch=True
+    )
+    tabla.column(
+        "Consulta / Fecha",
+        width=280,
+        minwidth=180,
+        anchor="w",
+        stretch=True
+    )
+    tabla.column(
+        "Estado",
+        width=140,
+        minwidth=110,
+        anchor="center",
+        stretch=False
+    )
 
     vista.widgets["nombre"].configure(width=420)
 
@@ -146,7 +176,8 @@ def mostrar_estudios(panel):
 
     ayuda = crear_label(
         vista.form,
-        "Escriba para filtrar pacientes. La asociación se realiza a través de la consulta seleccionada."
+        "Cada fila representa una solicitud. Escriba para filtrar pacientes; "
+        "la asociación se realiza a través de la consulta seleccionada."
     )
 
     ayuda.configure(text_color=TEXT_SECONDARY)
@@ -195,91 +226,101 @@ def mostrar_estudios(panel):
     # -----------------------------
 
     def cargar_estudios():
+        """Inserta una fila independiente por cada solicitud de estudio."""
 
-        estudios_por_id.clear()
+        solicitudes_por_fila.clear()
         vista.limpiar_tabla()
 
-        for estudio in listar_estudios():
+        for solicitud in listar_solicitudes_estudios():
 
-            estudios_por_id[estudio["id"]] = estudio
+            solicitudes_por_fila[solicitud["id"]] = solicitud
 
-            pacientes = ", ".join(
-                paciente["nombre"]
-                for paciente in estudio["pacientes"]
-            ) or "Sin paciente"
-
-            consultas = ", ".join(
-                consulta["fecha"] or "Sin fecha"
-                for consulta in estudio["consultas"]
-            ) or "Sin consulta"
-
-            estado = "Asociado" if estudio["asociado"] else "Sin asociar"
+            consulta = (
+                solicitud["fecha"]
+                if solicitud["consulta_id"]
+                else "Sin consulta"
+            )
 
             vista.insertar_fila(
                 (
-                    estudio["nombre"],
-                    pacientes,
-                    consultas,
-                    estado
+                    solicitud["nombre"],
+                    solicitud["paciente"],
+                    consulta,
+                    solicitud["estado"]
                 ),
-                iid=estudio["id"]
+                iid=solicitud["id"]
             )
 
     # -----------------------------
     # SELECCIONAR ESTUDIO
     # -----------------------------
 
-    def seleccionar_estudio(event):
+    def seleccionar_estudio(event=None):
+        """Fija estudio, paciente y consulta desde la fila seleccionada."""
 
         seleccion = tabla.selection()
 
         if not seleccion:
             return
 
-        estudio_id = seleccion[0]
-        estudio = estudios_por_id.get(estudio_id)
+        solicitud = solicitudes_por_fila.get(seleccion[0])
 
-        if estudio is None:
+        if solicitud is None:
             return
 
-        estudio_seleccionado[0] = estudio_id
+        estudio_seleccionado[0] = solicitud["estudio_id"]
 
-        vista.set_valor_campo("nombre", estudio["nombre"])
+        vista.set_valor_campo("nombre", solicitud["nombre"])
 
-        if estudio["consultas"]:
+        combo_paciente.set(
+            opcion_por_paciente_id.get(solicitud["paciente_id"], "")
+        )
 
-            primera = estudio["consultas"][0]
+        refrescar_consultas()
 
-            combo_paciente.set(
-                opcion_por_paciente_id.get(primera["paciente_id"], "")
-            )
-
-            refrescar_consultas()
+        if solicitud["consulta_id"]:
 
             combo_consulta.set(
-                opcion_por_consulta.get(primera["id"], "")
+                opcion_por_consulta.get(solicitud["consulta_id"], "")
             )
 
         else:
 
-            combo_paciente.set("")
-            refrescar_consultas()
+            combo_consulta.set("")
 
     tabla.bind(
         "<<TreeviewSelect>>",
         seleccionar_estudio
     )
 
-    def seleccionar_estudio_por_id(estudio_id):
+    def seleccionar_fila(fila_id=None, estudio_id=None):
+        """Selecciona una fila concreta o la primera del estudio indicado."""
 
-        if not estudio_id or estudio_id not in tabla.get_children():
+        objetivo = None
+
+        if fila_id and fila_id in tabla.get_children():
+            objetivo = fila_id
+
+        elif estudio_id:
+
+            for fila in tabla.get_children():
+
+                solicitud = solicitudes_por_fila.get(fila)
+
+                if (
+                    solicitud is not None
+                    and solicitud["estudio_id"] == estudio_id
+                ):
+                    objetivo = fila
+                    break
+
+        if objetivo is None:
             return
 
-        tabla.selection_set(estudio_id)
-        tabla.focus(estudio_id)
-        tabla.see(estudio_id)
-
-        seleccionar_estudio(None)
+        tabla.selection_set(objetivo)
+        tabla.focus(objetivo)
+        tabla.see(objetivo)
+        seleccionar_estudio()
 
     # -----------------------------
     # LIMPIAR FORMULARIO
@@ -292,6 +333,10 @@ def mostrar_estudios(panel):
         combo_paciente.set("")
 
         refrescar_consultas()
+
+        if tabla.selection():
+
+            tabla.selection_remove(*tabla.selection())
 
         estudio_seleccionado[0] = None
 
@@ -341,6 +386,9 @@ def mostrar_estudios(panel):
 
             return
 
+        seleccion = tabla.selection()
+        fila_id = seleccion[0] if seleccion else None
+
         try:
 
             actualizado = actualizar_estudio(
@@ -367,7 +415,7 @@ def mostrar_estudios(panel):
             return
 
         cargar_estudios()
-        seleccionar_estudio_por_id(estudio_id)
+        seleccionar_fila(fila_id, estudio_id)
 
         messagebox.showinfo(
             "Correcto",
@@ -452,7 +500,10 @@ def mostrar_estudios(panel):
             return
 
         cargar_estudios()
-        seleccionar_estudio_por_id(estudio_id)
+        seleccionar_fila(
+            f"{estudio_id}::{consulta_id}",
+            estudio_id
+        )
 
         messagebox.showinfo(
             "Correcto",
@@ -510,7 +561,7 @@ def mostrar_estudios(panel):
             return
 
         cargar_estudios()
-        seleccionar_estudio_por_id(estudio_id)
+        seleccionar_fila(None, estudio_id)
 
         messagebox.showinfo(
             "Correcto",
@@ -527,30 +578,35 @@ def mostrar_estudios(panel):
         on_eliminar,
         etiqueta_agregar="Agregar Estudio",
         etiqueta_modificar="Modificar Estudio",
-        etiqueta_eliminar="Eliminar Estudio"
+        etiqueta_eliminar="Eliminar Estudio",
+        ancho=ANCHO_BOTON,
+        alto=ALTO_BOTON,
+        fuente=BUTTON_FONT,
+        padding=PADDING_BOTON
     )
 
-    boton_asociar = crear_boton_primario(
-        vista.frame_botones,
-        "Asociar",
-        on_asociar
-    )
+    for texto, comando in (
+        ("Asociar", on_asociar),
+        ("Desasociar", on_desasociar)
+    ):
 
-    boton_asociar.pack(
-        side=LEFT,
-        padx=10
-    )
+        boton = crear_boton_primario(
+            vista.frame_botones,
+            texto,
+            comando
+        )
 
-    boton_desasociar = crear_boton_primario(
-        vista.frame_botones,
-        "Desasociar",
-        on_desasociar
-    )
+        boton.configure(
+            width=ANCHO_BOTON,
+            height=ALTO_BOTON,
+            font=BUTTON_FONT
+        )
 
-    boton_desasociar.pack(
-        side=LEFT,
-        padx=10
-    )
+        boton.pack(
+            side=LEFT,
+            padx=PADDING_BOTON,
+            pady=4
+        )
 
     # -----------------------------
     # CARGAR DATOS

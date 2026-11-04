@@ -24,6 +24,7 @@ from interfaz.components.multi_select import SelectorMultiple
 from interfaz.components.searchable_combobox import ComboBuscable
 from interfaz.components.table import crear_tabla
 from interfaz.components.ui import (
+    bloquear_rueda,
     crear_boton_danger,
     crear_boton_exito,
     crear_boton_warning,
@@ -32,6 +33,7 @@ from interfaz.components.ui import (
     crear_label,
     crear_textbox,
     crear_titulo,
+    vincular_formato_telefono,
 )
 from interfaz.theme.colors import BACKGROUND
 from interfaz.theme.combobox import configurar_estilo_combobox
@@ -179,6 +181,10 @@ class VistaCRUD:
             self.form.grid_columnconfigure(1, weight=1)
             self.form.grid_columnconfigure(3, weight=1)
 
+        else:
+
+            self.form.grid_columnconfigure(1, weight=1, minsize=360)
+
         filas = {}
 
         for campo in self.campos:
@@ -240,17 +246,31 @@ class VistaCRUD:
                     width=campo.get("ancho", 320)
                 )
 
+            elif tipo == "telefono":
+
+                widget = crear_input(
+                    self.form,
+                    campo.get("placeholder", ""),
+                    width=campo.get("ancho", 360 if not usa_grupos else 140),
+                )
+                vincular_formato_telefono(widget)
+
             else:
 
                 widget = crear_input(
                     self.form,
-                    campo.get("placeholder", "")
+                    campo.get("placeholder", ""),
+                    width=campo.get("ancho", 360 if not usa_grupos else 140),
                 )
 
             sticky = campo.get("sticky")
 
             if sticky is None:
-                sticky = "ew" if (usa_grupos or tipo in ("texto", "multiple")) else ""
+
+                if usa_grupos or tipo in ("texto", "multiple"):
+                    sticky = "ew"
+                else:
+                    sticky = "w"
 
             widget.grid(
                 row=fila,
@@ -279,9 +299,9 @@ class VistaCRUD:
                 "combo_buscable"
             ):
 
-                self.widgets[campo["clave"]].configure(
-                    style="Dark.TCombobox"
-                )
+                widget = self.widgets[campo["clave"]]
+                widget.configure(style="Dark.TCombobox")
+                bloquear_rueda(widget)
 
     # -----------------------------
     # BUSCADOR
@@ -337,45 +357,51 @@ class VistaCRUD:
         al_eliminar,
         etiqueta_agregar="Agregar",
         etiqueta_modificar="Modificar",
-        etiqueta_eliminar="Eliminar"
+        etiqueta_eliminar="Eliminar",
+        ancho=None,
+        alto=None,
+        fuente=None,
+        padding=12
     ):
 
         self.frame_botones.pack(
-            pady=(0, 30)
+            pady=(10, 30)
         )
 
-        boton_agregar = crear_boton_exito(
-            self.frame_botones,
-            etiqueta_agregar,
-            al_agregar
-        )
+        botones = [
+            crear_boton_exito(
+                self.frame_botones,
+                etiqueta_agregar,
+                al_agregar
+            ),
+            crear_boton_warning(
+                self.frame_botones,
+                etiqueta_modificar,
+                al_modificar
+            ),
+            crear_boton_danger(
+                self.frame_botones,
+                etiqueta_eliminar,
+                al_eliminar
+            ),
+        ]
 
-        boton_agregar.pack(
-            side=LEFT,
-            padx=10
-        )
+        for boton in botones:
 
-        boton_modificar = crear_boton_warning(
-            self.frame_botones,
-            etiqueta_modificar,
-            al_modificar
-        )
+            if ancho is not None:
+                boton.configure(width=ancho)
 
-        boton_modificar.pack(
-            side=LEFT,
-            padx=10
-        )
+            if alto is not None:
+                boton.configure(height=alto)
 
-        boton_eliminar = crear_boton_danger(
-            self.frame_botones,
-            etiqueta_eliminar,
-            al_eliminar
-        )
+            if fuente is not None:
+                boton.configure(font=fuente)
 
-        boton_eliminar.pack(
-            side=LEFT,
-            padx=10
-        )
+            boton.pack(
+                side=LEFT,
+                padx=padding,
+                pady=4
+            )
 
     # -----------------------------
     # UTILIDADES DE CAMPOS

@@ -45,7 +45,12 @@ def mostrar_citas(panel):
                 "tipo": "combo_buscable",
                 "valores": pacientes
             },
-            {"clave": "medico", "label": "Médico", "tipo": "combo", "valores": medicos},
+            {
+                "clave": "medico",
+                "label": "Médico (escriba para filtrar)",
+                "tipo": "combo_buscable",
+                "valores": medicos
+            },
             {"clave": "fecha", "label": "Fecha", "placeholder": "Ingrese fecha (AAAA-MM-DD)"},
             {"clave": "hora", "label": "Hora", "placeholder": "Ingrese hora (HH:MM AM/PM)"}
         ]

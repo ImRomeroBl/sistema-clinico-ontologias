@@ -30,9 +30,25 @@ def mostrar_pacientes(panel):
             "placeholder": "Buscar paciente..."
         },
         campos=[
-            {"clave": "nombre", "label": "Nombre", "placeholder": "Ingrese nombre"},
-            {"clave": "edad", "label": "Edad", "placeholder": "Ingrese edad"},
-            {"clave": "telefono", "label": "Teléfono", "placeholder": "Ingrese teléfono"}
+            {
+                "clave": "nombre",
+                "label": "Nombre",
+                "placeholder": "Ingrese nombre",
+                "ancho": 420
+            },
+            {
+                "clave": "edad",
+                "label": "Edad",
+                "placeholder": "Ingrese edad",
+                "ancho": 420
+            },
+            {
+                "clave": "telefono",
+                "label": "Teléfono",
+                "placeholder": "Ingrese teléfono (10 dígitos)",
+                "tipo": "telefono",
+                "ancho": 420
+            }
         ]
     )
 

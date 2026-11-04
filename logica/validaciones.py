@@ -23,6 +23,7 @@ EDAD_MAXIMA = 130
 _RE_HORA_24 = re.compile(r"^([01]?\d|2[0-3]):[0-5]\d$")
 _RE_HORA_12 = re.compile(r"^(0?[1-9]|1[0-2]):[0-5]\d\s?[AaPp][Mm]$")
 _RE_NUMERO = re.compile(r"\d+(?:[.,]\d+)?")
+_RE_TELEFONO = re.compile(r"^[\d\s()+-]+$")
 
 # -----------------------------
 # VALIDACIONES
@@ -87,6 +88,40 @@ def validar_hora(valor, campo="hora"):
     raise ValueError(
         f"El campo '{campo}' debe tener el formato HH:MM o HH:MM AM/PM."
     )
+
+
+def formatear_telefono(valor):
+    """Devuelve el teléfono de 10 dígitos con formato ###-###-####.
+
+    Si el valor no contiene exactamente 10 dígitos (por ejemplo, datos
+    heredados incompletos), se devuelve el texto original recortado para no
+    ocultar información al usuario.
+    """
+    texto = "" if valor is None else str(valor).strip()
+    digitos = re.sub(r"\D", "", texto)
+
+    if len(digitos) != 10:
+        return texto
+
+    return f"{digitos[:3]}-{digitos[3:6]}-{digitos[6:]}"
+
+
+def validar_telefono(valor, campo="teléfono"):
+    """Valida un teléfono de 10 dígitos y lo normaliza a ###-###-####."""
+    texto = texto_obligatorio(valor, campo)
+
+    if not _RE_TELEFONO.match(texto):
+        raise ValueError(
+            f"El campo '{campo}' sólo admite números, espacios y los "
+            "signos + - ( )."
+        )
+
+    if len(re.sub(r"\D", "", texto)) != 10:
+        raise ValueError(
+            f"El campo '{campo}' debe contener exactamente 10 dígitos."
+        )
+
+    return formatear_telefono(texto)
 
 
 def validar_dosis(valor, campo="dosis"):

@@ -229,9 +229,10 @@ Embarazadas</contraindicaciones>
 <owl:NamedIndividual rdf:about="#Medico_55e5b1972a084be2bf4f561930f16916">
   <rdf:type rdf:resource="#Medico"/>
   <generaReceta rdf:resource="#Receta_Consulta_3b906d498ee54484b3b144f7ab65bccb"/>
-  <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Huesero</especialidad>
+  <generaReceta rdf:resource="#Receta_Consulta_1e5cbf483a3c45e8b14b236a1a42dc91"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sergio Ramos</nombre>
-  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2224272023</telefono>
+  <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coach Y psicologo</especialidad>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">222-427-2023</telefono>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#ImanolRomeroBlanco">
@@ -272,6 +273,7 @@ Embarazadas</contraindicaciones>
 <owl:NamedIndividual rdf:about="#Paciente_53b7747155c5406cb89e987aa4d30b43">
   <rdf:type rdf:resource="#Paciente"/>
   <tieneConsulta rdf:resource="#Consulta_3b906d498ee54484b3b144f7ab65bccb"/>
+  <tieneConsulta rdf:resource="#Consulta_888793991fb74ddd8b90d6db2c770843"/>
   <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">21</edad>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rafael Vargas Alcazar</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">21 32 45 65 6729</telefono>
@@ -296,6 +298,7 @@ Embarazadas</contraindicaciones>
   <rdf:type rdf:resource="#Medico"/>
   <generaReceta rdf:resource="#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11"/>
   <generaReceta rdf:resource="#Receta_Consulta_6b645b8f6ed54ab7b4d28a5c32046cea"/>
+  <generaReceta rdf:resource="#Receta_Consulta_888793991fb74ddd8b90d6db2c770843"/>
   <especialidad rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologia</especialidad>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mariana Ruiz</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">555444333</telefono>
@@ -314,6 +317,16 @@ Embarazadas</contraindicaciones>
   <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente esta con fiebre y se siente seco</notasClinicas>
 </owl:NamedIndividual>
 
+<owl:NamedIndividual rdf:about="#Consulta_888793991fb74ddd8b90d6db2c770843">
+  <rdf:type rdf:resource="#Consulta"/>
+  <tienePaciente rdf:resource="#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <tieneDiagnostico rdf:resource="#Diagnostico_2c90d39be78a451e925bd57db7f003ef"/>
+  <solicitaEstudio rdf:resource="#Estudio_e3dbd91e399c47c28e24fee97a597c97"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-03</fecha>
+  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente presenta dolor de espalda</notasClinicas>
+</owl:NamedIndividual>
+
 <owl:NamedIndividual rdf:about="#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11">
   <rdf:type rdf:resource="#Receta"/>
   <incluyeMedicamento rdf:resource="#Amoxicilina"/>
@@ -323,17 +336,43 @@ Embarazadas</contraindicaciones>
   <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tomar en la mañana</indicaciones>
 </owl:NamedIndividual>
 
+<owl:NamedIndividual rdf:about="#Receta_Consulta_6b645b8f6ed54ab7b4d28a5c32046cea">
+  <rdf:type rdf:resource="#Receta"/>
+  <tienePaciente rdf:resource="#Paciente_68f33169778247459969438463f7a821"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <incluyeMedicamento rdf:resource="#Amoxicilina"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">666 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Evitar ver la ponzoña</indicaciones>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_Consulta_888793991fb74ddd8b90d6db2c770843">
+  <rdf:type rdf:resource="#Receta"/>
+  <tienePaciente rdf:resource="#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <incluyeMedicamento rdf:resource="#Amoxicilina"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">666 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tomar 1 al dia</indicaciones>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diagnostico_1e504806f66d448c8dd22419a59a0621">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tiene moquillo</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paciente_68f33169778247459969438463f7a821">
+  <rdf:type rdf:resource="#Paciente"/>
+  <tieneConsulta rdf:resource="#Consulta_6b645b8f6ed54ab7b4d28a5c32046cea"/>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">24</edad>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kevin David Romero Blanco</nombre>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2221452313</telefono>
+</owl:NamedIndividual>
+
 <owl:NamedIndividual rdf:about="#Cita_bab05c7e9acb4a11bcb80188f8e23160">
   <rdf:type rdf:resource="#Cita"/>
   <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
   <tienePaciente rdf:resource="#Paciente_53b7747155c5406cb89e987aa4d30b43"/>
   <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-02</fecha>
   <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">3:00 am</hora>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Diagnostico_1e504806f66d448c8dd22419a59a0621">
-  <rdf:type rdf:resource="#Diagnostico"/>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tiene moquillo</nombre>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Cita_dd936e5e4f3145969a8dfedbdbd0d00b">
@@ -375,26 +414,6 @@ Embarazadas</contraindicaciones>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Costilla superior inferior izquierda rota</nombre>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#Embarazo">
-  <rdf:type rdf:resource="#Contraindicacion"/>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Hipertension_No_Controlada">
-  <rdf:type rdf:resource="#Contraindicacion"/>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Ibuprofeno">
-  <rdf:type rdf:resource="#Medicamento"/>
-  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">40mg</dosis>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ibuprofeno</nombre>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Insulina">
-  <rdf:type rdf:resource="#Medicamento"/>
-  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">300mg</dosis>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Insulina</nombre>
-</owl:NamedIndividual>
-
 <owl:NamedIndividual rdf:about="#Receta_Consulta_3975231f19da47f4ae8d5b892cc79e15">
   <rdf:type rdf:resource="#Receta"/>
   <tienePaciente rdf:resource="#Paciente_0550b3621b944d51923c84525919d790"/>
@@ -404,16 +423,43 @@ Embarazadas</contraindicaciones>
   <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tomar 50 al dia</indicaciones>
 </owl:NamedIndividual>
 
+<owl:NamedIndividual rdf:about="#Ibuprofeno">
+  <rdf:type rdf:resource="#Medicamento"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">40mg</dosis>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ibuprofeno</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Embarazo">
+  <rdf:type rdf:resource="#Contraindicacion"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Hipertension_No_Controlada">
+  <rdf:type rdf:resource="#Contraindicacion"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Insulina">
+  <rdf:type rdf:resource="#Medicamento"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">300mg</dosis>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Insulina</nombre>
+</owl:NamedIndividual>
+
 <owl:NamedIndividual rdf:about="#Nauseas">
   <rdf:type rdf:resource="#EfectoSecundario"/>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#Paciente_68f33169778247459969438463f7a821">
-  <rdf:type rdf:resource="#Paciente"/>
-  <tieneConsulta rdf:resource="#Consulta_6b645b8f6ed54ab7b4d28a5c32046cea"/>
-  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">24</edad>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kevin David Romero Blanco</nombre>
-  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2221452313</telefono>
+<owl:NamedIndividual rdf:about="#Consulta_6b645b8f6ed54ab7b4d28a5c32046cea">
+  <rdf:type rdf:resource="#Consulta"/>
+  <tienePaciente rdf:resource="#Paciente_68f33169778247459969438463f7a821"/>
+  <tieneMedico rdf:resource="#MarianaRuiz"/>
+  <tieneDiagnostico rdf:resource="#Diagnostico_5b628424d177465c92305a706dcf480a"/>
+  <solicitaEstudio rdf:resource="#Estudio_861c499bd32144dd88ff70a14bc90223"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2004-08-27</fecha>
+  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Vio un perro ponzoñoso</notasClinicas>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diagnostico_5b628424d177465c92305a706dcf480a">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ponzoña corporal</nombre>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Paracetamol">
@@ -466,28 +512,66 @@ Embarazadas</contraindicaciones>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Pomada de la campana</nombre>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#Consulta_6b645b8f6ed54ab7b4d28a5c32046cea">
-  <rdf:type rdf:resource="#Consulta"/>
-  <tienePaciente rdf:resource="#Paciente_68f33169778247459969438463f7a821"/>
-  <tieneMedico rdf:resource="#MarianaRuiz"/>
-  <tieneDiagnostico rdf:resource="#Diagnostico_5b628424d177465c92305a706dcf480a"/>
-  <solicitaEstudio rdf:resource="#Estudio_861c499bd32144dd88ff70a14bc90223"/>
-  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2004-08-27</fecha>
-  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Vio un perro ponzoñoso</notasClinicas>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Diagnostico_5b628424d177465c92305a706dcf480a">
+<owl:NamedIndividual rdf:about="#Diagnostico_2c90d39be78a451e925bd57db7f003ef">
   <rdf:type rdf:resource="#Diagnostico"/>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ponzoña corporal</nombre>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fractura de columna</nombre>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#Receta_Consulta_6b645b8f6ed54ab7b4d28a5c32046cea">
+<owl:NamedIndividual rdf:about="#Estudio_e3dbd91e399c47c28e24fee97a597c97">
+  <rdf:type rdf:resource="#EstudioMedico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Radiografia de torax</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Omeprazol">
+  <rdf:type rdf:resource="#Antiinflamatorio"/>
+  <tieneContraindicacion rdf:resource="#Embarazo"/>
+  <tieneEfectoSecundario rdf:resource="#Nauseas"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Omeprazol</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paciente_669a417e0d7d4e9c8d9f1aa55ec9d9ab">
+  <rdf:type rdf:resource="#Paciente"/>
+  <tieneConsulta rdf:resource="#Consulta_1e5cbf483a3c45e8b14b236a1a42dc91"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Marie Korbel</nombre>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</edad>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">222-428-5021</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Cita_26b181b93f384c1bbf50bff731f319dc">
+  <rdf:type rdf:resource="#Cita"/>
+  <tienePaciente rdf:resource="#Paciente_669a417e0d7d4e9c8d9f1aa55ec9d9ab"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-03</fecha>
+  <hora rdf:datatype="http://www.w3.org/2001/XMLSchema#string">6:00 PM</hora>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Consulta_1e5cbf483a3c45e8b14b236a1a42dc91">
+  <rdf:type rdf:resource="#Consulta"/>
+  <tienePaciente rdf:resource="#Paciente_669a417e0d7d4e9c8d9f1aa55ec9d9ab"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <tieneDiagnostico rdf:resource="#Diagnostico_ad68d5f6ff3e404f8219d005df3c9a75"/>
+  <solicitaEstudio rdf:resource="#Estudio_03ee02cc8d484ab6b23d88ce70abe344"/>
+  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-04</fecha>
+  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente presenta dolor de huesos y creaneo</notasClinicas>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diagnostico_ad68d5f6ff3e404f8219d005df3c9a75">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Skullgirl</nombre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Receta_Consulta_1e5cbf483a3c45e8b14b236a1a42dc91">
   <rdf:type rdf:resource="#Receta"/>
-  <tienePaciente rdf:resource="#Paciente_68f33169778247459969438463f7a821"/>
-  <tieneMedico rdf:resource="#MarianaRuiz"/>
-  <incluyeMedicamento rdf:resource="#Amoxicilina"/>
-  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">666 mg</dosis>
-  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Evitar ver la ponzoña</indicaciones>
+  <tienePaciente rdf:resource="#Paciente_669a417e0d7d4e9c8d9f1aa55ec9d9ab"/>
+  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
+  <incluyeMedicamento rdf:resource="#Pomada_de_la_campana"/>
+  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">50 mg</dosis>
+  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tomar 1 pastilla al dia</indicaciones>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Estudio_03ee02cc8d484ab6b23d88ce70abe344">
+  <rdf:type rdf:resource="#EstudioMedico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Química sanguínea</nombre>
 </owl:NamedIndividual>
 
 <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#topDataProperty">

@@ -87,6 +87,15 @@ def _datos_consulta(consulta):
 # OPERACIONES CRUD
 # -----------------------------
 
+def _consultas_del_estudio(estudio, consultas_por_estudio):
+    """Devuelve las consultas que solicitan un estudio, más recientes primero."""
+    return sorted(
+        consultas_por_estudio.get(estudio.name, []),
+        key=lambda consulta: _primer_valor(consulta, "fecha") or "",
+        reverse=True
+    )
+
+
 def listar_estudios():
     """Devuelve los estudios con sus consultas y pacientes asociados."""
     consultas_por_estudio = _consultas_por_estudio()
@@ -94,10 +103,9 @@ def listar_estudios():
 
     for estudio in onto.EstudioMedico.instances():
 
-        consultas = sorted(
-            consultas_por_estudio.get(estudio.name, []),
-            key=lambda consulta: _primer_valor(consulta, "fecha") or "",
-            reverse=True
+        consultas = _consultas_del_estudio(
+            estudio,
+            consultas_por_estudio
         )
 
         datos_consultas = [
@@ -139,6 +147,73 @@ def listar_estudios():
     estudios.sort(key=lambda item: item["nombre"].casefold())
 
     return estudios
+
+
+def listar_solicitudes_estudios():
+    """Devuelve una fila independiente por cada solicitud de estudio.
+
+    Cada consulta que solicita un estudio genera una fila con su paciente y su
+    fecha, evitando concatenar personas distintas en una misma celda. Los
+    estudios sin consultas asociadas se incluyen como una fila 'Sin asociar'
+    para que sigan siendo visibles y editables.
+    """
+    consultas_por_estudio = _consultas_por_estudio()
+    filas = []
+
+    for estudio in onto.EstudioMedico.instances():
+
+        nombre = nombre_de(estudio)
+        consultas = _consultas_del_estudio(
+            estudio,
+            consultas_por_estudio
+        )
+        consultas_vistas = set()
+
+        for consulta in consultas:
+
+            if consulta.name in consultas_vistas:
+                continue
+
+            consultas_vistas.add(consulta.name)
+            datos = _datos_consulta(consulta)
+
+            filas.append({
+                "id": f"{estudio.name}::{consulta.name}",
+                "estudio_id": estudio.name,
+                "nombre": nombre,
+                "consulta_id": datos["id"],
+                "fecha": datos["fecha"] or "Sin fecha",
+                "paciente": datos["paciente"] or "Sin paciente",
+                "paciente_id": datos["paciente_id"],
+                "medico": datos["medico"],
+                "medico_id": datos["medico_id"],
+                "estado": "Asociado",
+            })
+
+        if not consultas_vistas:
+
+            filas.append({
+                "id": f"{estudio.name}::sin_asociar",
+                "estudio_id": estudio.name,
+                "nombre": nombre,
+                "consulta_id": "",
+                "fecha": "Sin fecha",
+                "paciente": "Sin paciente",
+                "paciente_id": "",
+                "medico": "",
+                "medico_id": "",
+                "estado": "Sin asociar",
+            })
+
+    filas.sort(
+        key=lambda item: (
+            item["nombre"].casefold(),
+            item["fecha"],
+            item["id"],
+        )
+    )
+
+    return filas
 
 
 def obtener_estudio(estudio_id):

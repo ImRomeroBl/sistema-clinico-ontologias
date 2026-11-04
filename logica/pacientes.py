@@ -13,7 +13,12 @@ texto mostrado en la interfaz. Los datos se validan antes de tocar la ontología
 from owlready2 import destroy_entity
 
 from logica.ontologia import generar_identificador, guardar_ontologia, onto
-from logica.validaciones import texto_obligatorio, validar_edad
+from logica.validaciones import (
+    formatear_telefono,
+    texto_obligatorio,
+    validar_edad,
+    validar_telefono,
+)
 
 # -----------------------------
 # HELPERS INTERNOS
@@ -76,7 +81,9 @@ def listar_pacientes():
             "id": paciente.name,
             "nombre": _nombre_de(paciente),
             "edad": _primer_valor(paciente, "edad"),
-            "telefono": _primer_valor(paciente, "telefono"),
+            "telefono": formatear_telefono(
+                _primer_valor(paciente, "telefono")
+            ),
         })
 
     return pacientes
@@ -86,7 +93,7 @@ def crear_paciente(nombre, edad, telefono):
 
     nombre = texto_obligatorio(nombre, "nombre")
     edad = validar_edad(edad)
-    telefono = texto_obligatorio(telefono, "teléfono")
+    telefono = validar_telefono(telefono)
 
     if _existe_nombre(nombre):
         raise ValueError("Ya existe un paciente con ese nombre.")
@@ -113,7 +120,7 @@ def actualizar_paciente(paciente_id, nuevo_nombre, nueva_edad, nuevo_telefono):
 
     nuevo_nombre = texto_obligatorio(nuevo_nombre, "nombre")
     nueva_edad = validar_edad(nueva_edad)
-    nuevo_telefono = texto_obligatorio(nuevo_telefono, "teléfono")
+    nuevo_telefono = validar_telefono(nuevo_telefono)
 
     if _existe_nombre(nuevo_nombre, excluir=paciente):
         raise ValueError("Ya existe otro paciente con ese nombre.")

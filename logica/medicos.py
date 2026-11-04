@@ -14,7 +14,11 @@ interno y no el texto mostrado. Los datos se validan antes de tocar la ontologí
 from owlready2 import destroy_entity
 
 from logica.ontologia import generar_identificador, guardar_ontologia, onto
-from logica.validaciones import texto_obligatorio
+from logica.validaciones import (
+    formatear_telefono,
+    texto_obligatorio,
+    validar_telefono,
+)
 
 # -----------------------------
 # HELPERS INTERNOS
@@ -77,7 +81,9 @@ def listar_medicos():
             "id": medico.name,
             "nombre": _nombre_de(medico),
             "especialidad": _primer_valor(medico, "especialidad"),
-            "telefono": _primer_valor(medico, "telefono"),
+            "telefono": formatear_telefono(
+                _primer_valor(medico, "telefono")
+            ),
         })
 
     return medicos
@@ -87,7 +93,7 @@ def crear_medico(nombre, especialidad, telefono):
 
     nombre = texto_obligatorio(nombre, "nombre")
     especialidad = texto_obligatorio(especialidad, "especialidad")
-    telefono = texto_obligatorio(telefono, "teléfono")
+    telefono = validar_telefono(telefono)
 
     if _existe_nombre(nombre):
         raise ValueError("Ya existe un médico con ese nombre.")
@@ -113,8 +119,11 @@ def actualizar_medico(medico_id, nuevo_nombre, nueva_especialidad, nuevo_telefon
         return None
 
     nuevo_nombre = texto_obligatorio(nuevo_nombre, "nombre")
-    nueva_especialidad = texto_obligatorio(nueva_especialidad, "especialidad")
-    nuevo_telefono = texto_obligatorio(nuevo_telefono, "teléfono")
+    nueva_especialidad = texto_obligatorio(
+        nueva_especialidad,
+        "especialidad"
+    )
+    nuevo_telefono = validar_telefono(nuevo_telefono)
 
     if _existe_nombre(nuevo_nombre, excluir=medico):
         raise ValueError("Ya existe otro médico con ese nombre.")

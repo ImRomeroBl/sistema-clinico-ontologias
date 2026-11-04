@@ -1,3 +1,5 @@
+import re
+
 import customtkinter as ctk
 
 from interfaz.theme.colors import (
@@ -63,11 +65,12 @@ def crear_card(parent):
 # INPUT
 # -----------------------------------
 
-def crear_input(parent, placeholder=""):
+def crear_input(parent, placeholder="", width=140):
 
     entry = ctk.CTkEntry(
         parent,
         height=42,
+        width=width,
         corner_radius=10,
         border_color=BORDER,
         fg_color="#0F172A",
@@ -193,3 +196,78 @@ def crear_boton_danger(parent, texto, comando):
     )
 
     return boton
+
+# -----------------------------------
+# FORMATO VISUAL DE TELEFONO
+# -----------------------------------
+
+_TECLAS_SIN_FORMATO = frozenset({
+    "Left",
+    "Right",
+    "Up",
+    "Down",
+    "Home",
+    "End",
+    "Prior",
+    "Next",
+    "Tab",
+    "ISO_Left_Tab",
+    "Shift_L",
+    "Shift_R",
+    "Control_L",
+    "Control_R",
+    "Alt_L",
+    "Alt_R",
+    "Caps_Lock",
+    "Escape",
+})
+
+
+def formatear_telefono_visual(valor):
+    """Formatea progresivamente un teléfono de hasta 10 dígitos.
+
+    Se usa únicamente como ayuda visual mientras se escribe; la validación
+    definitiva y la normalización viven en logica/validaciones.py.
+    """
+
+    digitos = re.sub(r"\D", "", str(valor or ""))[:10]
+
+    if len(digitos) <= 3:
+        return digitos
+
+    if len(digitos) <= 6:
+        return f"{digitos[:3]}-{digitos[3:]}"
+
+    return f"{digitos[:3]}-{digitos[3:6]}-{digitos[6:]}"
+
+
+def vincular_formato_telefono(entrada):
+    """Aplica el formato 222-222-2222 mientras el usuario escribe."""
+
+    def al_escribir(event):
+
+        if getattr(event, "keysym", "") in _TECLAS_SIN_FORMATO:
+            return
+
+        actual = entrada.get()
+        formateado = formatear_telefono_visual(actual)
+
+        if formateado != actual:
+
+            entrada.delete(0, "end")
+            entrada.insert(0, formateado)
+            entrada.icursor("end")
+
+    entrada.bind("<KeyRelease>", al_escribir, add="+")
+    entrada.bind("<FocusOut>", al_escribir, add="+")
+
+
+def bloquear_rueda(widget):
+    """Evita que la rueda del ratón cambie el valor de un widget."""
+
+    def bloquear(event):
+        return "break"
+
+    widget.bind("<MouseWheel>", bloquear, add="+")
+    widget.bind("<Button-4>", bloquear, add="+")
+    widget.bind("<Button-5>", bloquear, add="+")

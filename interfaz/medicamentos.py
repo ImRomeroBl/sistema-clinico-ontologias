@@ -318,7 +318,11 @@ def mostrar_medicamentos(panel):
         on_eliminar,
         etiqueta_agregar="Agregar Medicamento",
         etiqueta_modificar="Modificar Medicamento",
-        etiqueta_eliminar="Eliminar Medicamento"
+        etiqueta_eliminar="Eliminar Medicamento",
+        ancho=240,
+        alto=50,
+        fuente=("Inter", 14, "bold"),
+        padding=14
     )
 
     # -----------------------------

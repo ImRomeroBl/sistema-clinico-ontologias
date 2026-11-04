@@ -6,6 +6,7 @@ from interfaz.components.alert_panel import PanelAlertasMedicamento
 from interfaz.components.searchable_combobox import ComboBuscable
 from interfaz.components.table import crear_tabla
 from interfaz.components.ui import (
+    bloquear_rueda,
     crear_boton_danger,
     crear_boton_exito,
     crear_boton_primario,
@@ -74,15 +75,18 @@ def _crear_seccion(parent, titulo):
 
 
 def _crear_combo(parent, valores):
-    """Crea un combobox oscuro de selección cerrada."""
+    """Crea un combobox oscuro de selección cerrada y rueda bloqueada."""
 
-    return ttk.Combobox(
+    combo = ttk.Combobox(
         parent,
         values=valores,
         state="readonly",
         style="Dark.TCombobox",
         font=("Inter", 13)
     )
+    bloquear_rueda(combo)
+
+    return combo
 
 
 # -----------------------------
@@ -234,7 +238,7 @@ def mostrar_consultas(panel):
 
     etiqueta = crear_label(
         seccion,
-        "Médico"
+        "Médico (escriba para filtrar)"
     )
     etiqueta.grid(
         row=1,
@@ -244,9 +248,11 @@ def mostrar_consultas(panel):
         pady=6
     )
 
-    combo_medico = _crear_combo(
+    combo_medico = ComboBuscable(
         seccion,
-        opciones_medicos
+        valores=opciones_medicos,
+        font=("Inter", 13),
+        width=34
     )
     combo_medico.grid(
         row=1,

@@ -30,9 +30,25 @@ def mostrar_medicos(panel):
             "placeholder": "Buscar médico..."
         },
         campos=[
-            {"clave": "nombre", "label": "Nombre", "placeholder": "Ingrese nombre"},
-            {"clave": "especialidad", "label": "Especialidad", "placeholder": "Ingrese especialidad"},
-            {"clave": "telefono", "label": "Teléfono", "placeholder": "Ingrese teléfono"}
+            {
+                "clave": "nombre",
+                "label": "Nombre",
+                "placeholder": "Ingrese nombre",
+                "ancho": 420
+            },
+            {
+                "clave": "especialidad",
+                "label": "Especialidad",
+                "placeholder": "Ingrese especialidad",
+                "ancho": 420
+            },
+            {
+                "clave": "telefono",
+                "label": "Teléfono",
+                "placeholder": "Ingrese teléfono (10 dígitos)",
+                "tipo": "telefono",
+                "ancho": 420
+            }
         ]
     )
 
