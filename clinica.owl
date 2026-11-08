@@ -211,7 +211,6 @@
 
 <owl:NamedIndividual rdf:about="#Medico_55e5b1972a084be2bf4f561930f16916">
   <rdf:type rdf:resource="#Medico"/>
-  <generaReceta rdf:resource="#Receta_Consulta_1e5cbf483a3c45e8b14b236a1a42dc91"/>
   <tieneEspecialidad rdf:resource="#Coach_Y_psicologo"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sergio Ramos</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">222-427-2026</telefono>
@@ -223,15 +222,6 @@
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Imanol Romero Blanco</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">222-107-9236</telefono>
   <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">22</edad>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Receta_Consulta_1e5cbf483a3c45e8b14b236a1a42dc91">
-  <rdf:type rdf:resource="#Receta"/>
-  <tienePaciente rdf:resource="#Paciente_669a417e0d7d4e9c8d9f1aa55ec9d9ab"/>
-  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
-  <incluyeMedicamento rdf:resource="#Pomada_de_la_campana"/>
-  <dosis rdf:datatype="http://www.w3.org/2001/XMLSchema#string">50 mg</dosis>
-  <indicaciones rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tomar 1 pastilla al dia</indicaciones>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Coach_Y_psicologo">
@@ -252,16 +242,9 @@
 
 <owl:NamedIndividual rdf:about="#Paciente_669a417e0d7d4e9c8d9f1aa55ec9d9ab">
   <rdf:type rdf:resource="#Paciente"/>
-  <tieneConsulta rdf:resource="#Consulta_1e5cbf483a3c45e8b14b236a1a42dc91"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Marie Korbel</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">222-428-5021</telefono>
   <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">32</edad>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Pomada_de_la_campana">
-  <rdf:type rdf:resource="#Medicamento"/>
-  <tieneEfectoSecundario rdf:resource="#Reacciones_Cutaneas"/>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Pomada de la campana</nombre>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Estudio_861c499bd32144dd88ff70a14bc90223">
@@ -287,16 +270,6 @@
   <tieneEspecialidad rdf:resource="#Cardiologia"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mariana Ruiz</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">555-444-3666</telefono>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Consulta_1e5cbf483a3c45e8b14b236a1a42dc91">
-  <rdf:type rdf:resource="#Consulta"/>
-  <tienePaciente rdf:resource="#Paciente_669a417e0d7d4e9c8d9f1aa55ec9d9ab"/>
-  <tieneMedico rdf:resource="#Medico_55e5b1972a084be2bf4f561930f16916"/>
-  <tieneDiagnostico rdf:resource="#Diagnostico_ad68d5f6ff3e404f8219d005df3c9a75"/>
-  <solicitaEstudio rdf:resource="#Estudio_03ee02cc8d484ab6b23d88ce70abe344"/>
-  <fecha rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2026-11-04</fecha>
-  <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente presenta dolor de huesos y creaneo</notasClinicas>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11">
@@ -329,16 +302,6 @@
 <owl:NamedIndividual rdf:about="#Cardiologia">
   <rdf:type rdf:resource="#Especialidad"/>
   <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologia</rdfs:label>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Diagnostico_ad68d5f6ff3e404f8219d005df3c9a75">
-  <rdf:type rdf:resource="#Diagnostico"/>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Skullgirl</nombre>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Estudio_03ee02cc8d484ab6b23d88ce70abe344">
-  <rdf:type rdf:resource="#EstudioMedico"/>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Química sanguínea</nombre>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Paciente_68f33169778247459969438463f7a821">
@@ -377,14 +340,9 @@
   <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente presenta dolor de espalda</notasClinicas>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#fluoxetina">
-  <rdf:type rdf:resource="#Medicamento"/>
-  <tieneEfectoSecundario rdf:resource="#Somnolencia"/>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fluoxetina</nombre>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Somnolencia">
-  <rdf:type rdf:resource="#EfectoSecundario"/>
+<owl:NamedIndividual rdf:about="#Diagnostico_5b628424d177465c92305a706dcf480a">
+  <rdf:type rdf:resource="#Diagnostico"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ponzoña corporal</nombre>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Diagnostico_2c90d39be78a451e925bd57db7f003ef">
@@ -397,9 +355,8 @@
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Radiografia de torax</nombre>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#Diagnostico_5b628424d177465c92305a706dcf480a">
-  <rdf:type rdf:resource="#Diagnostico"/>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ponzoña corporal</nombre>
+<owl:NamedIndividual rdf:about="#Somnolencia">
+  <rdf:type rdf:resource="#EfectoSecundario"/>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Cita_bab05c7e9acb4a11bcb80188f8e23160">
@@ -464,8 +421,8 @@
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Ibuprofeno">
-  <rdf:type rdf:resource="#Medicamento"/>
   <tieneEfectoSecundario rdf:resource="#Mareo"/>
+  <rdf:type rdf:resource="#Antiinflamatorio"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ibuprofeno</nombre>
 </owl:NamedIndividual>
 
@@ -474,8 +431,8 @@
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Paracetamol">
-  <rdf:type rdf:resource="#Medicamento"/>
   <tieneEfectoSecundario rdf:resource="#Mareo"/>
+  <rdf:type rdf:resource="#Analgesico"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Paracetamol</nombre>
 </owl:NamedIndividual>
 
