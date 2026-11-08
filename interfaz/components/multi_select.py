@@ -17,6 +17,7 @@ from interfaz.theme.colors import (
     TEXT,
     TEXT_SECONDARY,
 )
+from logica.language_manager import t
 
 # -----------------------------
 # SELECTOR MÚLTIPLE
@@ -161,7 +162,7 @@ class SelectorMultiple(ctk.CTkScrollableFrame):
 
             self._etiqueta_vacio = ctk.CTkLabel(
                 self,
-                text="Sin opciones disponibles",
+                text=t("common.no_options"),
                 font=("Inter", 12),
                 text_color=TEXT_SECONDARY,
                 anchor="w",
@@ -200,3 +201,11 @@ class SelectorMultiple(ctk.CTkScrollableFrame):
     def limpiar(self):
         """Desmarca todas las opciones."""
         self.set_seleccionados([])
+
+    def actualizar_textos(self):
+        """Actualiza los textos propios del componente al idioma activo."""
+        if (
+            self._etiqueta_vacio is not None
+            and self._etiqueta_vacio.winfo_exists()
+        ):
+            self._etiqueta_vacio.configure(text=t("common.no_options"))

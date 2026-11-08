@@ -13,6 +13,7 @@ from logica.estudios import (
     eliminar_estudio,
     listar_solicitudes_estudios,
 )
+from logica.language_manager import language_manager, t
 from logica.pacientes import listar_pacientes
 
 # -----------------------------
@@ -26,9 +27,9 @@ PADDING_BOTON = 10
 
 def _texto_consulta(consulta):
     """Resume una consulta para el combo de asociación."""
-    fecha = consulta["fecha"] or "Sin fecha"
-    paciente = consulta["paciente"] or "Sin paciente"
-    medico = consulta["medico"] or "Sin médico"
+    fecha = consulta["fecha"] or t("common.no_date")
+    paciente = consulta["paciente"] or t("common.no_patient")
+    medico = consulta["medico"] or t("common.no_doctor")
 
     return f"{fecha} · {paciente} · {medico}"
 
@@ -103,7 +104,7 @@ def mostrar_estudios(panel):
 
     vista = VistaCRUD(
         panel,
-        titulo="Gestión de Estudios Médicos",
+        titulo=t("estudios.title"),
         columnas=[
             "Nombre del Estudio",
             "Paciente",
@@ -114,20 +115,20 @@ def mostrar_estudios(panel):
         campos=[
             {
                 "clave": "nombre",
-                "label": "Nombre del estudio",
-                "placeholder": "Ej. Radiografía de tórax",
+                "label": t("estudios.fields.study.label"),
+                "placeholder": t("estudios.fields.study.placeholder"),
                 "sticky": "w"
             },
             {
                 "clave": "paciente",
-                "label": "Paciente (escriba para filtrar)",
+                "label": t("estudios.fields.patient.label"),
                 "tipo": "combo_buscable",
                 "valores": opciones_pacientes,
                 "sticky": "w"
             },
             {
                 "clave": "consulta",
-                "label": "Consulta (asociar)",
+                "label": t("estudios.fields.consultation.label"),
                 "tipo": "combo",
                 "valores": opciones_consultas,
                 "sticky": "w"
@@ -166,6 +167,14 @@ def mostrar_estudios(panel):
         stretch=False
     )
 
+    for columna, clave in (
+        ("Nombre del Estudio", "estudios.columns.study"),
+        ("Paciente", "estudios.columns.patient"),
+        ("Consulta / Fecha", "estudios.columns.consultation_date"),
+        ("Estado", "estudios.columns.status"),
+    ):
+        tabla.heading(columna, text=t(clave))
+
     vista.widgets["nombre"].configure(width=420)
 
     combo_paciente = vista.widgets["paciente"]
@@ -176,8 +185,7 @@ def mostrar_estudios(panel):
 
     ayuda = crear_label(
         vista.form,
-        "Cada fila representa una solicitud. Escriba para filtrar pacientes; "
-        "la asociación se realiza a través de la consulta seleccionada."
+        t("estudios.help")
     )
 
     ayuda.configure(text_color=TEXT_SECONDARY)
@@ -238,15 +246,22 @@ def mostrar_estudios(panel):
             consulta = (
                 solicitud["fecha"]
                 if solicitud["consulta_id"]
-                else "Sin consulta"
+                else t("estudios.state.without_consultation")
             )
+
+            estado = solicitud["estado"]
+
+            if estado == "Asociado":
+                estado = t("estudios.state.associated")
+            elif estado == "Sin asociar":
+                estado = t("estudios.state.unassociated")
 
             vista.insertar_fila(
                 (
                     solicitud["nombre"],
                     solicitud["paciente"],
                     consulta,
-                    solicitud["estado"]
+                    estado
                 ),
                 iid=solicitud["id"]
             )
@@ -355,7 +370,7 @@ def mostrar_estudios(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -365,8 +380,8 @@ def mostrar_estudios(panel):
         limpiar_formulario()
 
         messagebox.showinfo(
-            "Correcto",
-            "Estudio agregado correctamente"
+            t("common.correct"),
+            t("estudios.messages.added")
         )
 
     # -----------------------------
@@ -380,8 +395,8 @@ def mostrar_estudios(panel):
         if estudio_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un estudio"
+                t("common.error"),
+                t("estudios.errors.select_study")
             )
 
             return
@@ -399,7 +414,7 @@ def mostrar_estudios(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -408,8 +423,8 @@ def mostrar_estudios(panel):
         if actualizado is None:
 
             messagebox.showwarning(
-                "Error",
-                "No se encontró el estudio seleccionado"
+                t("common.error"),
+                t("estudios.errors.not_found")
             )
 
             return
@@ -418,8 +433,8 @@ def mostrar_estudios(panel):
         seleccionar_fila(fila_id, estudio_id)
 
         messagebox.showinfo(
-            "Correcto",
-            "Estudio modificado correctamente"
+            t("common.correct"),
+            t("estudios.messages.updated")
         )
 
     # -----------------------------
@@ -433,8 +448,8 @@ def mostrar_estudios(panel):
         if estudio_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un estudio"
+                t("common.error"),
+                t("estudios.errors.select_study")
             )
 
             return
@@ -444,8 +459,8 @@ def mostrar_estudios(panel):
         if not eliminado:
 
             messagebox.showwarning(
-                "Error",
-                "No se encontró el estudio seleccionado"
+                t("common.error"),
+                t("estudios.errors.not_found")
             )
 
             return
@@ -454,8 +469,8 @@ def mostrar_estudios(panel):
         limpiar_formulario()
 
         messagebox.showinfo(
-            "Correcto",
-            "Estudio eliminado correctamente"
+            t("common.correct"),
+            t("estudios.messages.deleted")
         )
 
     # -----------------------------
@@ -469,8 +484,8 @@ def mostrar_estudios(panel):
         if estudio_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un estudio"
+                t("common.error"),
+                t("estudios.errors.select_study")
             )
 
             return
@@ -480,8 +495,8 @@ def mostrar_estudios(panel):
         if not consulta_id:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione una consulta para asociar"
+                t("common.error"),
+                t("estudios.errors.select_consultation_to_associate")
             )
 
             return
@@ -493,7 +508,7 @@ def mostrar_estudios(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "No se puede asociar",
+                t("estudios.errors.cannot_associate"),
                 str(error)
             )
 
@@ -506,8 +521,8 @@ def mostrar_estudios(panel):
         )
 
         messagebox.showinfo(
-            "Correcto",
-            "Estudio asociado a la consulta correctamente"
+            t("common.correct"),
+            t("estudios.messages.associated")
         )
 
     # -----------------------------
@@ -521,8 +536,8 @@ def mostrar_estudios(panel):
         if estudio_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un estudio"
+                t("common.error"),
+                t("estudios.errors.select_study")
             )
 
             return
@@ -532,8 +547,8 @@ def mostrar_estudios(panel):
         if not consulta_id:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione la consulta de la que desea desasociar"
+                t("common.error"),
+                t("estudios.errors.select_consultation_to_dissociate")
             )
 
             return
@@ -545,7 +560,7 @@ def mostrar_estudios(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "No se puede desasociar",
+                t("estudios.errors.cannot_dissociate"),
                 str(error)
             )
 
@@ -554,8 +569,8 @@ def mostrar_estudios(panel):
         if not desasociado:
 
             messagebox.showwarning(
-                "Sin cambios",
-                "El estudio no está asociado a esa consulta."
+                t("estudios.messages.no_changes"),
+                t("estudios.messages.not_associated")
             )
 
             return
@@ -564,8 +579,8 @@ def mostrar_estudios(panel):
         seleccionar_fila(None, estudio_id)
 
         messagebox.showinfo(
-            "Correcto",
-            "Estudio desasociado correctamente"
+            t("common.correct"),
+            t("estudios.messages.dissociated")
         )
 
     # -----------------------------
@@ -576,23 +591,25 @@ def mostrar_estudios(panel):
         on_agregar,
         on_modificar,
         on_eliminar,
-        etiqueta_agregar="Agregar Estudio",
-        etiqueta_modificar="Modificar Estudio",
-        etiqueta_eliminar="Eliminar Estudio",
+        etiqueta_agregar=t("estudios.buttons.add"),
+        etiqueta_modificar=t("estudios.buttons.modify"),
+        etiqueta_eliminar=t("estudios.buttons.delete"),
         ancho=ANCHO_BOTON,
         alto=ALTO_BOTON,
         fuente=BUTTON_FONT,
         padding=PADDING_BOTON
     )
 
-    for texto, comando in (
-        ("Asociar", on_asociar),
-        ("Desasociar", on_desasociar)
+    botones_extra = []
+
+    for clave, comando in (
+        ("estudios.buttons.associate", on_asociar),
+        ("estudios.buttons.dissociate", on_desasociar)
     ):
 
         boton = crear_boton_primario(
             vista.frame_botones,
-            texto,
+            t(clave),
             comando
         )
 
@@ -608,9 +625,64 @@ def mostrar_estudios(panel):
             pady=4
         )
 
+        botones_extra.append((boton, clave))
+
+    # -----------------------------
+    # ACTUALIZACION DE IDIOMA
+    # -----------------------------
+
+    def update_ui_strings(lang=None):
+
+        ayuda.configure(text=t("estudios.help"))
+
+        vista.actualizar_textos(
+            titulo=t("estudios.title"),
+            encabezados={
+                "Nombre del Estudio": t("estudios.columns.study"),
+                "Paciente": t("estudios.columns.patient"),
+                "Consulta / Fecha": t(
+                    "estudios.columns.consultation_date"
+                ),
+                "Estado": t("estudios.columns.status"),
+            },
+            etiquetas={
+                "nombre": t("estudios.fields.study.label"),
+                "paciente": t("estudios.fields.patient.label"),
+                "consulta": t("estudios.fields.consultation.label"),
+            },
+            placeholders={
+                "nombre": t("estudios.fields.study.placeholder"),
+            }
+        )
+
+        vista.actualizar_botones(
+            t("estudios.buttons.add"),
+            t("estudios.buttons.modify"),
+            t("estudios.buttons.delete")
+        )
+
+        for boton, clave in botones_extra:
+            boton.configure(text=t(clave))
+
+        seleccion = tabla.selection()
+        fila_id = seleccion[0] if seleccion else None
+        estudio_id = estudio_seleccionado[0]
+
+        refrescar_consultas()
+        cargar_estudios()
+
+        if fila_id and fila_id in tabla.get_children():
+            seleccionar_fila(fila_id, estudio_id)
+        elif estudio_id:
+            seleccionar_fila(None, estudio_id)
+
+    language_manager.add_listener(update_ui_strings)
+
     # -----------------------------
     # CARGAR DATOS
     # -----------------------------
 
     limpiar_formulario()
     cargar_estudios()
+
+    return lambda: language_manager.remove_listener(update_ui_strings)

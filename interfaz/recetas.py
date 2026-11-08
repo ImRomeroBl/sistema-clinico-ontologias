@@ -22,6 +22,7 @@ from interfaz.components.ui import (
     crear_titulo,
 )
 from interfaz.theme.colors import BACKGROUND, TEXT
+from logica.language_manager import language_manager, t
 from logica.medicamentos import (
     obtener_alertas_medicamento,
     obtener_medicamento,
@@ -44,14 +45,6 @@ ANCHOS_COLUMNA = {
     "Indicaciones": 220,
 }
 
-MENSAJE_SIN_RECETA = (
-    "Seleccione una receta del historial para ver su detalle."
-)
-
-MENSAJE_ALERTA_SIN_RECETA = (
-    "Seleccione una receta para auditar el medicamento."
-)
-
 # -----------------------------
 # HELPERS DE PRESENTACIÓN
 # -----------------------------
@@ -59,11 +52,16 @@ MENSAJE_ALERTA_SIN_RECETA = (
 def _formatear_detalle_receta(receta):
     """Devuelve el detalle legible de una receta."""
     return (
-        f"Paciente: {receta['paciente'] or 'Sin paciente'}\n"
-        f"Médico: {receta['medico'] or 'Sin médico'}\n"
-        f"Medicamento: {receta['medicamento'] or 'Sin medicamento'}\n"
-        f"Dosis: {receta['dosis'] or 'Sin dosis'}\n"
-        f"Indicaciones: {receta['indicaciones'] or 'Sin indicaciones'}"
+        f"{t('recetas.detail.patient')} "
+        f"{receta['paciente'] or t('common.no_patient')}\n"
+        f"{t('recetas.detail.doctor')} "
+        f"{receta['medico'] or t('common.no_doctor')}\n"
+        f"{t('recetas.detail.medication')} "
+        f"{receta['medicamento'] or t('common.no_medication')}\n"
+        f"{t('recetas.detail.dose')} "
+        f"{receta['dosis'] or t('common.no_dose')}\n"
+        f"{t('recetas.detail.indications')} "
+        f"{receta['indicaciones'] or t('common.no_indications')}"
     )
 
 # -----------------------------
@@ -97,14 +95,13 @@ def mostrar_recetas(panel):
 
     titulo = crear_titulo(
         contenedor,
-        "Auditoría de Recetas"
+        t("recetas.title")
     )
     titulo.pack(anchor="w")
 
     subtitulo = crear_subtitulo(
         contenedor,
-        "Visor histórico de solo lectura. Seleccione una receta para "
-        "consultar las alertas semánticas de su medicamento."
+        t("recetas.subtitle")
     )
     subtitulo.pack(
         anchor="w",
@@ -150,7 +147,7 @@ def mostrar_recetas(panel):
 
     etiqueta_historial = crear_label(
         panel_izq,
-        "Historial global de recetas"
+        t("recetas.history_title")
     )
     etiqueta_historial.configure(
         font=("Inter", 16, "bold"),
@@ -182,6 +179,15 @@ def mostrar_recetas(panel):
             anchor="center" if columna == "Dosis" else "w"
         )
 
+    for columna, clave in (
+        ("Paciente", "recetas.columns.patient"),
+        ("Médico", "recetas.columns.doctor"),
+        ("Medicamento", "recetas.columns.medication"),
+        ("Dosis", "recetas.columns.dose"),
+        ("Indicaciones", "recetas.columns.indications"),
+    ):
+        tabla.heading(columna, text=t(clave))
+
     # -----------------------------
     # AUDITORÍA DE LA RECETA SELECCIONADA
     # -----------------------------
@@ -200,7 +206,7 @@ def mostrar_recetas(panel):
 
     etiqueta_auditoria = crear_label(
         panel_der,
-        "Auditoría de la receta seleccionada"
+        t("recetas.audit_title")
     )
     etiqueta_auditoria.configure(
         font=("Inter", 16, "bold"),
@@ -213,10 +219,7 @@ def mostrar_recetas(panel):
         pady=(0, 10)
     )
 
-    panel_alerta = PanelAlertasMedicamento(
-        panel_der,
-        mensaje_sin_seleccion=MENSAJE_ALERTA_SIN_RECETA
-    )
+    panel_alerta = PanelAlertasMedicamento(panel_der)
     panel_alerta.grid(
         row=1,
         column=0,
@@ -226,7 +229,7 @@ def mostrar_recetas(panel):
 
     etiqueta_detalle = crear_label(
         panel_der,
-        "Datos de la prescripción"
+        t("recetas.prescription_title")
     )
     etiqueta_detalle.configure(
         font=("Inter", 13, "bold"),
@@ -269,7 +272,7 @@ def mostrar_recetas(panel):
     def limpiar_seleccion():
         """Restablece el detalle y el panel de alertas."""
 
-        mostrar_detalle(MENSAJE_SIN_RECETA)
+        mostrar_detalle(t("recetas.messages.empty_selection"))
         panel_alerta.limpiar()
 
     def seleccionar_receta(event=None):
@@ -337,7 +340,37 @@ def mostrar_recetas(panel):
         limpiar_seleccion()
 
     # -----------------------------
+    # ACTUALIZACION DE IDIOMA
+    # -----------------------------
+
+    def update_ui_strings(lang=None):
+
+        titulo.configure(text=t("recetas.title"))
+        subtitulo.configure(text=t("recetas.subtitle"))
+        etiqueta_historial.configure(text=t("recetas.history_title"))
+        etiqueta_auditoria.configure(text=t("recetas.audit_title"))
+        etiqueta_detalle.configure(text=t("recetas.prescription_title"))
+
+        for columna, clave in (
+            ("Paciente", "recetas.columns.patient"),
+            ("Médico", "recetas.columns.doctor"),
+            ("Medicamento", "recetas.columns.medication"),
+            ("Dosis", "recetas.columns.dose"),
+            ("Indicaciones", "recetas.columns.indications"),
+        ):
+            tabla.heading(columna, text=t(clave))
+
+        if tabla.selection():
+            seleccionar_receta()
+        else:
+            limpiar_seleccion()
+
+    language_manager.add_listener(update_ui_strings)
+
+    # -----------------------------
     # CARGA INICIAL
     # -----------------------------
 
     cargar_recetas()
+
+    return lambda: language_manager.remove_listener(update_ui_strings)

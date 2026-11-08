@@ -167,13 +167,12 @@
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Amoxicilina">
-  <rdf:type rdf:resource="#Antibiotico"/>
   <tieneContraindicacion rdf:resource="#Insuficiencia_Renal"/>
   <tieneEfectoSecundario rdf:resource="#Mareo"/>
   <tieneEfectoSecundario rdf:resource="#Nauseas"/>
   <tieneContraindicacion rdf:resource="#Alergia_Penicilina"/>
   <tieneContraindicacion rdf:resource="#Embarazo"/>
-  <tieneEfectoSecundario rdf:resource="#Reacciones_Cutaneas"/>
+  <rdf:type rdf:resource="#Medicamento"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amoxicilina</nombre>
 </owl:NamedIndividual>
 
@@ -240,13 +239,6 @@
   <notasClinicas rdf:datatype="http://www.w3.org/2001/XMLSchema#string">El paciente viene con fiebre, presenta dolor de garganta</notasClinicas>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#Paciente_669a417e0d7d4e9c8d9f1aa55ec9d9ab">
-  <rdf:type rdf:resource="#Paciente"/>
-  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Marie Korbel</nombre>
-  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">222-428-5021</telefono>
-  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">32</edad>
-</owl:NamedIndividual>
-
 <owl:NamedIndividual rdf:about="#Estudio_861c499bd32144dd88ff70a14bc90223">
   <rdf:type rdf:resource="#EstudioMedico"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Examen de la vista</nombre>
@@ -270,6 +262,13 @@
   <tieneEspecialidad rdf:resource="#Cardiologia"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mariana Ruiz</nombre>
   <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">555-444-3666</telefono>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Paciente_669a417e0d7d4e9c8d9f1aa55ec9d9ab">
+  <rdf:type rdf:resource="#Paciente"/>
+  <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Marie Korbel</nombre>
+  <telefono rdf:datatype="http://www.w3.org/2001/XMLSchema#string">222-428-5021</telefono>
+  <edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">32</edad>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#Receta_Consulta_0fea9c6e9a3145f8b62b30e01aa26e11">
