@@ -1,6 +1,7 @@
 from tkinter import messagebox
 
 from interfaz.components.crud_view import VistaCRUD
+from logica.language_manager import language_manager, t
 from logica.medicos import (
     actualizar_medico,
     crear_medico,
@@ -22,30 +23,30 @@ def mostrar_medicos(panel):
 
     vista = VistaCRUD(
         panel,
-        titulo="Gestión de Médicos",
+        titulo=t("medicos.title"),
         columnas=["Nombre", "Especialidad", "Teléfono"],
         altura=6,
         buscador={
-            "label": "Buscar Médico",
-            "placeholder": "Buscar médico..."
+            "label": t("medicos.search.label"),
+            "placeholder": t("medicos.search.placeholder")
         },
         campos=[
             {
                 "clave": "nombre",
-                "label": "Nombre",
-                "placeholder": "Ingrese nombre",
+                "label": t("medicos.fields.name.label"),
+                "placeholder": t("medicos.fields.name.placeholder"),
                 "ancho": 420
             },
             {
                 "clave": "especialidad",
-                "label": "Especialidad",
-                "placeholder": "Ingrese especialidad",
+                "label": t("medicos.fields.specialty.label"),
+                "placeholder": t("medicos.fields.specialty.placeholder"),
                 "ancho": 420
             },
             {
                 "clave": "telefono",
-                "label": "Teléfono",
-                "placeholder": "Ingrese teléfono (10 dígitos)",
+                "label": t("medicos.fields.phone.label"),
+                "placeholder": t("medicos.fields.phone.placeholder"),
                 "tipo": "telefono",
                 "ancho": 420
             }
@@ -139,7 +140,7 @@ def mostrar_medicos(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -150,8 +151,8 @@ def mostrar_medicos(panel):
         vista.limpiar_campos()
 
         messagebox.showinfo(
-            "Éxito",
-            "Médico agregado correctamente"
+            t("common.success"),
+            t("medicos.messages.added")
         )
 
     # -----------------------------
@@ -165,8 +166,8 @@ def mostrar_medicos(panel):
         if medico_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un médico"
+                t("common.error"),
+                t("medicos.messages.select")
             )
 
             return
@@ -183,7 +184,7 @@ def mostrar_medicos(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -192,8 +193,8 @@ def mostrar_medicos(panel):
         if actualizado is None:
 
             messagebox.showwarning(
-                "Error",
-                "No se encontró el médico seleccionado"
+                t("common.error"),
+                t("medicos.messages.not_found")
             )
 
             return
@@ -205,8 +206,8 @@ def mostrar_medicos(panel):
         vista.limpiar_campos()
 
         messagebox.showinfo(
-            "Éxito",
-            "Médico modificado correctamente"
+            t("common.success"),
+            t("medicos.messages.updated")
         )
 
     # -----------------------------
@@ -220,8 +221,8 @@ def mostrar_medicos(panel):
         if medico_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un médico"
+                t("common.error"),
+                t("medicos.messages.select")
             )
 
             return
@@ -233,7 +234,7 @@ def mostrar_medicos(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "No se puede eliminar",
+                t("medicos.messages.cannot_delete"),
                 str(error)
             )
 
@@ -242,8 +243,8 @@ def mostrar_medicos(panel):
         if not eliminado:
 
             messagebox.showwarning(
-                "Error",
-                "No se encontró el médico seleccionado"
+                t("common.error"),
+                t("medicos.messages.not_found")
             )
 
             return
@@ -255,8 +256,8 @@ def mostrar_medicos(panel):
         medico_seleccionado[0] = None
 
         messagebox.showinfo(
-            "Éxito",
-            "Médico eliminado correctamente"
+            t("common.success"),
+            t("medicos.messages.deleted")
         )
 
     # -----------------------------
@@ -267,13 +268,54 @@ def mostrar_medicos(panel):
         on_agregar,
         on_modificar,
         on_eliminar,
-        etiqueta_agregar="Agregar Médico",
-        etiqueta_modificar="Modificar Médico",
-        etiqueta_eliminar="Eliminar Médico"
+        etiqueta_agregar=t("medicos.buttons.add"),
+        etiqueta_modificar=t("medicos.buttons.modify"),
+        etiqueta_eliminar=t("medicos.buttons.delete")
     )
+
+    # -----------------------------
+    # ACTUALIZACION DE IDIOMA
+    # -----------------------------
+
+    def update_ui_strings(lang=None):
+
+        vista.actualizar_textos(
+            titulo=t("medicos.title"),
+            encabezados={
+                "Nombre": t("medicos.columns.name"),
+                "Especialidad": t("medicos.columns.specialty"),
+                "Teléfono": t("medicos.columns.phone"),
+            },
+            etiquetas={
+                "nombre": t("medicos.fields.name.label"),
+                "especialidad": t("medicos.fields.specialty.label"),
+                "telefono": t("medicos.fields.phone.label"),
+            },
+            placeholders={
+                "nombre": t("medicos.fields.name.placeholder"),
+                "especialidad": t("medicos.fields.specialty.placeholder"),
+                "telefono": t("medicos.fields.phone.placeholder"),
+            },
+            buscador={
+                "label": t("medicos.search.label"),
+                "placeholder": t("medicos.search.placeholder"),
+            }
+        )
+
+        vista.actualizar_botones(
+            t("medicos.buttons.add"),
+            t("medicos.buttons.modify"),
+            t("medicos.buttons.delete")
+        )
+
+        cargar_medicos(vista.buscador.get())
+
+    language_manager.add_listener(update_ui_strings)
 
     # -----------------------------
     # CARGAR DATOS
     # -----------------------------
 
     cargar_medicos()
+
+    return lambda: language_manager.remove_listener(update_ui_strings)

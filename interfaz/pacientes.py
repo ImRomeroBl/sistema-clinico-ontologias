@@ -1,6 +1,7 @@
 from tkinter import messagebox
 
 from interfaz.components.crud_view import VistaCRUD
+from logica.language_manager import language_manager, t
 from logica.pacientes import (
     actualizar_paciente,
     crear_paciente,
@@ -22,30 +23,30 @@ def mostrar_pacientes(panel):
 
     vista = VistaCRUD(
         panel,
-        titulo="Gestión de Pacientes",
+        titulo=t("pacientes.title"),
         columnas=["Nombre", "Edad", "Teléfono"],
         altura=6,
         buscador={
-            "label": "Buscar Paciente",
-            "placeholder": "Buscar paciente..."
+            "label": t("pacientes.search.label"),
+            "placeholder": t("pacientes.search.placeholder")
         },
         campos=[
             {
                 "clave": "nombre",
-                "label": "Nombre",
-                "placeholder": "Ingrese nombre",
+                "label": t("pacientes.fields.name.label"),
+                "placeholder": t("pacientes.fields.name.placeholder"),
                 "ancho": 420
             },
             {
                 "clave": "edad",
-                "label": "Edad",
-                "placeholder": "Ingrese edad",
+                "label": t("pacientes.fields.age.label"),
+                "placeholder": t("pacientes.fields.age.placeholder"),
                 "ancho": 420
             },
             {
                 "clave": "telefono",
-                "label": "Teléfono",
-                "placeholder": "Ingrese teléfono (10 dígitos)",
+                "label": t("pacientes.fields.phone.label"),
+                "placeholder": t("pacientes.fields.phone.placeholder"),
                 "tipo": "telefono",
                 "ancho": 420
             }
@@ -139,7 +140,7 @@ def mostrar_pacientes(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -150,8 +151,8 @@ def mostrar_pacientes(panel):
         vista.limpiar_campos()
 
         messagebox.showinfo(
-            "Éxito",
-            "Paciente agregado correctamente"
+            t("common.success"),
+            t("pacientes.messages.added")
         )
 
     # -----------------------------
@@ -165,8 +166,8 @@ def mostrar_pacientes(panel):
         if paciente_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un paciente"
+                t("common.error"),
+                t("pacientes.messages.select")
             )
 
             return
@@ -183,7 +184,7 @@ def mostrar_pacientes(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -192,8 +193,8 @@ def mostrar_pacientes(panel):
         if actualizado is None:
 
             messagebox.showwarning(
-                "Error",
-                "No se encontró el paciente seleccionado"
+                t("common.error"),
+                t("pacientes.messages.not_found")
             )
 
             return
@@ -205,8 +206,8 @@ def mostrar_pacientes(panel):
         vista.limpiar_campos()
 
         messagebox.showinfo(
-            "Éxito",
-            "Paciente modificado correctamente"
+            t("common.success"),
+            t("pacientes.messages.updated")
         )
 
     # -----------------------------
@@ -220,8 +221,8 @@ def mostrar_pacientes(panel):
         if paciente_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un paciente"
+                t("common.error"),
+                t("pacientes.messages.select")
             )
 
             return
@@ -235,8 +236,8 @@ def mostrar_pacientes(panel):
         paciente_seleccionado[0] = None
 
         messagebox.showinfo(
-            "Éxito",
-            "Paciente eliminado correctamente"
+            t("common.success"),
+            t("pacientes.messages.deleted")
         )
 
     # -----------------------------
@@ -247,13 +248,54 @@ def mostrar_pacientes(panel):
         on_agregar,
         on_modificar,
         on_eliminar,
-        etiqueta_agregar="Agregar Paciente",
-        etiqueta_modificar="Modificar Paciente",
-        etiqueta_eliminar="Eliminar Paciente"
+        etiqueta_agregar=t("pacientes.buttons.add"),
+        etiqueta_modificar=t("pacientes.buttons.modify"),
+        etiqueta_eliminar=t("pacientes.buttons.delete")
     )
+
+    # -----------------------------
+    # ACTUALIZACION DE IDIOMA
+    # -----------------------------
+
+    def update_ui_strings(lang=None):
+
+        vista.actualizar_textos(
+            titulo=t("pacientes.title"),
+            encabezados={
+                "Nombre": t("pacientes.columns.name"),
+                "Edad": t("pacientes.columns.age"),
+                "Teléfono": t("pacientes.columns.phone"),
+            },
+            etiquetas={
+                "nombre": t("pacientes.fields.name.label"),
+                "edad": t("pacientes.fields.age.label"),
+                "telefono": t("pacientes.fields.phone.label"),
+            },
+            placeholders={
+                "nombre": t("pacientes.fields.name.placeholder"),
+                "edad": t("pacientes.fields.age.placeholder"),
+                "telefono": t("pacientes.fields.phone.placeholder"),
+            },
+            buscador={
+                "label": t("pacientes.search.label"),
+                "placeholder": t("pacientes.search.placeholder"),
+            }
+        )
+
+        vista.actualizar_botones(
+            t("pacientes.buttons.add"),
+            t("pacientes.buttons.modify"),
+            t("pacientes.buttons.delete")
+        )
+
+        cargar_pacientes(vista.buscador.get())
+
+    language_manager.add_listener(update_ui_strings)
 
     # -----------------------------
     # CARGAR DATOS
     # -----------------------------
 
     cargar_pacientes()
+
+    return lambda: language_manager.remove_listener(update_ui_strings)

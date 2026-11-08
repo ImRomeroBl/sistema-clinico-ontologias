@@ -22,6 +22,7 @@ from interfaz.theme.colors import BACKGROUND, BORDER, CARD, PRIMARY, TEXT
 from interfaz.theme.combobox import configurar_estilo_combobox
 from logica.consultas import crear_consulta, eliminar_consulta, listar_consultas
 from logica.estudios import listar_estudios
+from logica.language_manager import language_manager, t
 from logica.medicamentos import (
     listar_medicamentos,
     obtener_alertas_medicamento,
@@ -71,7 +72,7 @@ def _crear_seccion(parent, titulo):
         pady=(0, 14)
     )
 
-    return contenido
+    return contenido, etiqueta
 
 
 def _crear_combo(parent, valores):
@@ -125,6 +126,13 @@ def mostrar_consultas(panel):
 
     consultas_por_id = {}
     estudios_seleccionados = []
+    etiquetas_texto = []
+
+    def etiqueta_i18n(parent, clave):
+        """Crea una etiqueta y registra su clave para el refresco en caliente."""
+        etiqueta = crear_label(parent, t(clave))
+        etiquetas_texto.append((etiqueta, clave))
+        return etiqueta
 
     # -----------------------------
     # CONTENEDOR
@@ -143,13 +151,13 @@ def mostrar_consultas(panel):
 
     titulo = crear_titulo(
         contenedor,
-        "Consultas Médicas"
+        t("consultas.title")
     )
     titulo.pack(anchor="w")
 
     subtitulo = crear_subtitulo(
         contenedor,
-        "Registre el acto médico: diagnóstico, prescripción y estudios solicitados."
+        t("consultas.subtitle")
     )
     subtitulo.pack(
         anchor="w",
@@ -205,15 +213,16 @@ def mostrar_consultas(panel):
     # 1. PACIENTE Y PROFESIONAL
     # -----------------------------
 
-    seccion = _crear_seccion(
+    seccion, etiqueta_seccion = _crear_seccion(
         formulario,
-        "1. Paciente y profesional"
+        t("consultas.sections.patient")
     )
+    etiquetas_texto.append((etiqueta_seccion, "consultas.sections.patient"))
     seccion.grid_columnconfigure(1, weight=1)
 
-    etiqueta = crear_label(
+    etiqueta = etiqueta_i18n(
         seccion,
-        "Paciente (escriba para filtrar)"
+        "consultas.fields.patient.label"
     )
     etiqueta.grid(
         row=0,
@@ -236,9 +245,9 @@ def mostrar_consultas(panel):
         pady=6
     )
 
-    etiqueta = crear_label(
+    etiqueta = etiqueta_i18n(
         seccion,
-        "Médico (escriba para filtrar)"
+        "consultas.fields.doctor.label"
     )
     etiqueta.grid(
         row=1,
@@ -265,15 +274,16 @@ def mostrar_consultas(panel):
     # 2. DATOS DE LA CONSULTA
     # -----------------------------
 
-    seccion = _crear_seccion(
+    seccion, etiqueta_seccion = _crear_seccion(
         formulario,
-        "2. Datos de la consulta"
+        t("consultas.sections.data")
     )
+    etiquetas_texto.append((etiqueta_seccion, "consultas.sections.data"))
     seccion.grid_columnconfigure(1, weight=1)
 
-    etiqueta = crear_label(
+    etiqueta = etiqueta_i18n(
         seccion,
-        "Fecha"
+        "consultas.fields.date.label"
     )
     etiqueta.grid(
         row=0,
@@ -285,7 +295,7 @@ def mostrar_consultas(panel):
 
     entrada_fecha = crear_input(
         seccion,
-        "AAAA-MM-DD"
+        t("consultas.fields.date.placeholder")
     )
     entrada_fecha.grid(
         row=0,
@@ -294,9 +304,9 @@ def mostrar_consultas(panel):
         pady=6
     )
 
-    etiqueta = crear_label(
+    etiqueta = etiqueta_i18n(
         seccion,
-        "Notas clínicas"
+        "consultas.fields.notes.label"
     )
     etiqueta.grid(
         row=1,
@@ -322,10 +332,11 @@ def mostrar_consultas(panel):
     # 3. DIAGNÓSTICO
     # -----------------------------
 
-    seccion = _crear_seccion(
+    seccion, etiqueta_seccion = _crear_seccion(
         formulario,
-        "3. Diagnóstico de la visita"
+        t("consultas.sections.diagnosis")
     )
+    etiquetas_texto.append((etiqueta_seccion, "consultas.sections.diagnosis"))
     seccion.grid_columnconfigure(0, weight=1)
 
     diagnostico = crear_textbox(
@@ -343,15 +354,16 @@ def mostrar_consultas(panel):
     # 4. PRESCRIPCIÓN
     # -----------------------------
 
-    seccion = _crear_seccion(
+    seccion, etiqueta_seccion = _crear_seccion(
         formulario,
-        "4. Prescripción"
+        t("consultas.sections.prescription")
     )
+    etiquetas_texto.append((etiqueta_seccion, "consultas.sections.prescription"))
     seccion.grid_columnconfigure(1, weight=1)
 
-    etiqueta = crear_label(
+    etiqueta = etiqueta_i18n(
         seccion,
-        "Medicamento"
+        "consultas.fields.medication.label"
     )
     etiqueta.grid(
         row=0,
@@ -402,9 +414,9 @@ def mostrar_consultas(panel):
         actualizar_panel_alerta
     )
 
-    etiqueta = crear_label(
+    etiqueta = etiqueta_i18n(
         seccion,
-        "Dosis"
+        "consultas.fields.dose.label"
     )
     etiqueta.grid(
         row=2,
@@ -416,7 +428,7 @@ def mostrar_consultas(panel):
 
     entrada_dosis = crear_input(
         seccion,
-        "Ej. 500 mg cada 8 horas"
+        t("consultas.fields.dose.placeholder")
     )
     entrada_dosis.grid(
         row=2,
@@ -425,9 +437,9 @@ def mostrar_consultas(panel):
         pady=6
     )
 
-    etiqueta = crear_label(
+    etiqueta = etiqueta_i18n(
         seccion,
-        "Indicaciones"
+        "consultas.fields.indications.label"
     )
     etiqueta.grid(
         row=3,
@@ -439,7 +451,7 @@ def mostrar_consultas(panel):
 
     entrada_indicaciones = crear_input(
         seccion,
-        "Ej. Tomar después de las comidas"
+        t("consultas.fields.indications.placeholder")
     )
     entrada_indicaciones.grid(
         row=3,
@@ -452,15 +464,16 @@ def mostrar_consultas(panel):
     # 5. ESTUDIOS SOLICITADOS
     # -----------------------------
 
-    seccion = _crear_seccion(
+    seccion, etiqueta_seccion = _crear_seccion(
         formulario,
-        "5. Estudios solicitados"
+        t("consultas.sections.studies")
     )
+    etiquetas_texto.append((etiqueta_seccion, "consultas.sections.studies"))
     seccion.grid_columnconfigure(1, weight=1)
 
-    etiqueta = crear_label(
+    etiqueta = etiqueta_i18n(
         seccion,
-        "Estudio (seleccione o escriba uno nuevo)"
+        "consultas.fields.study.label"
     )
     etiqueta.grid(
         row=0,
@@ -516,7 +529,7 @@ def mostrar_consultas(panel):
 
             lista_estudios.insert(
                 "1.0",
-                "Aún no hay estudios añadidos."
+                t("consultas.messages.no_studies_added")
             )
 
         lista_estudios.configure(state="disabled")
@@ -528,8 +541,8 @@ def mostrar_consultas(panel):
         if not nombre:
 
             messagebox.showwarning(
-                "Estudio requerido",
-                "Seleccione o escriba un estudio médico."
+                t("consultas.errors.study_required_title"),
+                t("consultas.errors.study_required")
             )
 
             return
@@ -540,8 +553,8 @@ def mostrar_consultas(panel):
         ):
 
             messagebox.showwarning(
-                "Estudio duplicado",
-                "Ese estudio ya está en la solicitud."
+                t("consultas.errors.study_duplicate_title"),
+                t("consultas.errors.study_duplicate")
             )
 
             return
@@ -552,7 +565,7 @@ def mostrar_consultas(panel):
 
     boton_agregar = crear_boton_primario(
         seccion,
-        "Añadir estudio",
+        t("consultas.buttons.add_study"),
         agregar_estudio
     )
     boton_agregar.grid(
@@ -600,7 +613,7 @@ def mostrar_consultas(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -609,8 +622,8 @@ def mostrar_consultas(panel):
         except Exception as error:  # noqa: BLE001 - frontera de interfaz.
 
             messagebox.showerror(
-                "Error inesperado",
-                f"No se pudo registrar la consulta:\n{error}"
+                t("common.unexpected_error"),
+                f"{t('consultas.errors.register')}\n{error}"
             )
 
             return
@@ -619,8 +632,8 @@ def mostrar_consultas(panel):
         limpiar_formulario()
 
         messagebox.showinfo(
-            "Correcto",
-            "Consulta registrada correctamente."
+            t("common.correct"),
+            t("consultas.messages.registered")
         )
 
     acciones = ctk.CTkFrame(
@@ -636,7 +649,7 @@ def mostrar_consultas(panel):
 
     boton_registrar = crear_boton_exito(
         acciones,
-        "Registrar Consulta",
+        t("consultas.buttons.register"),
         on_registrar
     )
     boton_registrar.pack(
@@ -646,7 +659,7 @@ def mostrar_consultas(panel):
 
     boton_limpiar = crear_boton_warning(
         acciones,
-        "Limpiar",
+        t("consultas.buttons.clear"),
         limpiar_formulario
     )
     boton_limpiar.pack(side="left")
@@ -669,7 +682,7 @@ def mostrar_consultas(panel):
 
     etiqueta_tabla = crear_label(
         panel_der,
-        "Consultas recientes"
+        t("consultas.recent_title")
     )
     etiqueta_tabla.configure(
         font=("Inter", 16, "bold"),
@@ -696,6 +709,13 @@ def mostrar_consultas(panel):
     tabla.column("Paciente", width=120, anchor="w")
     tabla.column("Fecha", width=90, anchor="center")
     tabla.column("Diagnóstico", width=180, anchor="w")
+
+    for columna, clave in (
+        ("Paciente", "consultas.columns.patient"),
+        ("Fecha", "consultas.columns.date"),
+        ("Diagnóstico", "consultas.columns.diagnosis"),
+    ):
+        tabla.heading(columna, text=t(clave))
 
     detalle = crear_textbox(
         panel_der,
@@ -734,15 +754,15 @@ def mostrar_consultas(panel):
             diagnostico = ", ".join(
                 item["nombre"]
                 for item in consulta["diagnosticos"]
-            ) or "Sin diagnóstico"
+            ) or t("common.no_diagnosis")
 
             tabla.insert(
                 "",
                 END,
                 iid=consulta["id"],
                 values=(
-                    consulta["paciente"] or "Sin paciente",
-                    consulta["fecha"] or "Sin fecha",
+                    consulta["paciente"] or t("common.no_patient"),
+                    consulta["fecha"] or t("common.no_date"),
                     diagnostico
                 )
             )
@@ -765,22 +785,28 @@ def mostrar_consultas(panel):
         diagnosticos = ", ".join(
             item["nombre"]
             for item in consulta["diagnosticos"]
-        ) or "Sin diagnóstico"
+        ) or t("common.no_diagnosis")
         estudios_texto = ", ".join(
             item["nombre"]
             for item in consulta["estudios"]
-        ) or "Sin estudios"
+        ) or t("common.no_studies")
 
         mostrar_detalle(
-            f"Paciente: {consulta['paciente'] or 'Sin paciente'}\n"
-            f"Médico: {consulta['medico'] or 'Sin médico'}\n"
-            f"Fecha: {consulta['fecha'] or 'Sin fecha'}\n"
-            f"Diagnóstico: {diagnosticos}\n"
-            f"Receta: {receta.get('medicamento', 'Sin receta')} "
+            f"{t('consultas.detail.patient')} "
+            f"{consulta['paciente'] or t('common.no_patient')}\n"
+            f"{t('consultas.detail.doctor')} "
+            f"{consulta['medico'] or t('common.no_doctor')}\n"
+            f"{t('consultas.detail.date')} "
+            f"{consulta['fecha'] or t('common.no_date')}\n"
+            f"{t('consultas.detail.diagnosis')} {diagnosticos}\n"
+            f"{t('consultas.detail.prescription')} "
+            f"{receta.get('medicamento') or t('common.no_prescription')} "
             f"— {receta.get('dosis', '')}\n"
-            f"Indicaciones: {receta.get('indicaciones', 'Sin indicaciones')}\n"
-            f"Estudios: {estudios_texto}\n"
-            f"Notas: {consulta['notas'] or 'Sin notas'}"
+            f"{t('consultas.detail.indications')} "
+            f"{receta.get('indicaciones') or t('common.no_indications')}\n"
+            f"{t('consultas.detail.studies')} {estudios_texto}\n"
+            f"{t('consultas.detail.notes')} "
+            f"{consulta['notas'] or t('common.no_notes')}"
         )
 
     tabla.bind(
@@ -795,15 +821,15 @@ def mostrar_consultas(panel):
         if not seleccion:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione una consulta de la tabla."
+                t("common.error"),
+                t("consultas.messages.select")
             )
 
             return
 
         if not messagebox.askyesno(
-            "Confirmar eliminación",
-            "¿Eliminar la consulta seleccionada y su receta asociada?"
+            t("consultas.confirm.title"),
+            t("consultas.confirm.delete")
         ):
             return
 
@@ -814,8 +840,8 @@ def mostrar_consultas(panel):
         except Exception as error:  # noqa: BLE001 - frontera de interfaz.
 
             messagebox.showerror(
-                "Error inesperado",
-                f"No se pudo eliminar la consulta:\n{error}"
+                t("common.unexpected_error"),
+                f"{t('consultas.errors.delete')}\n{error}"
             )
 
             return
@@ -823,8 +849,8 @@ def mostrar_consultas(panel):
         if not eliminada:
 
             messagebox.showwarning(
-                "Error",
-                "No se encontró la consulta seleccionada."
+                t("common.error"),
+                t("consultas.messages.not_found")
             )
 
             return
@@ -833,13 +859,13 @@ def mostrar_consultas(panel):
         limpiar_formulario()
 
         messagebox.showinfo(
-            "Correcto",
-            "Consulta eliminada correctamente."
+            t("common.correct"),
+            t("consultas.messages.deleted")
         )
 
     boton_eliminar = crear_boton_danger(
         panel_der,
-        "Eliminar seleccionada",
+        t("consultas.buttons.delete_selected"),
         on_eliminar
     )
     boton_eliminar.grid(
@@ -849,9 +875,67 @@ def mostrar_consultas(panel):
     )
 
     # -----------------------------
+    # ACTUALIZACION DE IDIOMA
+    # -----------------------------
+
+    def update_ui_strings(lang=None):
+
+        titulo.configure(text=t("consultas.title"))
+        subtitulo.configure(text=t("consultas.subtitle"))
+        etiqueta_tabla.configure(text=t("consultas.recent_title"))
+
+        for etiqueta, clave in etiquetas_texto:
+            etiqueta.configure(text=t(clave))
+
+        for columna, clave in (
+            ("Paciente", "consultas.columns.patient"),
+            ("Fecha", "consultas.columns.date"),
+            ("Diagnóstico", "consultas.columns.diagnosis"),
+        ):
+            tabla.heading(columna, text=t(clave))
+
+        entrada_fecha.configure(
+            placeholder_text=t("consultas.fields.date.placeholder")
+        )
+        entrada_dosis.configure(
+            placeholder_text=t("consultas.fields.dose.placeholder")
+        )
+        entrada_indicaciones.configure(
+            placeholder_text=t("consultas.fields.indications.placeholder")
+        )
+
+        boton_agregar.configure(text=t("consultas.buttons.add_study"))
+        boton_registrar.configure(text=t("consultas.buttons.register"))
+        boton_limpiar.configure(text=t("consultas.buttons.clear"))
+        boton_eliminar.configure(
+            text=t("consultas.buttons.delete_selected")
+        )
+
+        if combo_medicamento.get().strip():
+            actualizar_panel_alerta()
+        else:
+            panel_alerta.limpiar()
+
+        seleccion = tabla.selection()
+        seleccionada = seleccion[0] if seleccion else None
+
+        cargar_consultas()
+
+        if seleccionada and seleccionada in tabla.get_children():
+            tabla.selection_set(seleccionada)
+            tabla.focus(seleccionada)
+            seleccionar_consulta()
+
+        actualizar_lista_estudios()
+
+    language_manager.add_listener(update_ui_strings)
+
+    # -----------------------------
     # CARGA INICIAL
     # -----------------------------
 
     actualizar_lista_estudios()
     cargar_consultas()
     limpiar_formulario()
+
+    return lambda: language_manager.remove_listener(update_ui_strings)

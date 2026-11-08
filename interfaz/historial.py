@@ -32,7 +32,35 @@ from interfaz.theme.colors import (
 )
 from interfaz.theme.fonts import TEXT_FONT
 from logica.historial import obtener_historial
+from logica.language_manager import language_manager, t
 from logica.pacientes import listar_pacientes
+
+# -----------------------------
+# CLAVES DE COLUMNAS
+# -----------------------------
+
+CLAVES_COLUMNAS = {
+    "Fecha": "historial.columns.date",
+    "Médico": "historial.columns.doctor",
+    "Notas": "historial.columns.notes",
+    "Diagnósticos": "historial.columns.diagnoses",
+    "Medicamento": "historial.columns.medication",
+    "Dosis": "historial.columns.dose",
+    "Indicaciones": "historial.columns.indications",
+    "Hora": "historial.columns.time",
+    "Tipo": "historial.columns.type",
+    "Descripción": "historial.columns.description",
+    "Consulta (fecha)": "historial.columns.consultation_date",
+}
+
+
+def _actualizar_encabezados(tabla):
+    """Traduce los encabezados de una tabla conservando sus identificadores."""
+    for columna in tabla["columns"]:
+        clave = CLAVES_COLUMNAS.get(columna)
+        if clave:
+            tabla.heading(columna, text=t(clave))
+
 
 # -----------------------------
 # FUNCION PRINCIPAL
@@ -68,7 +96,7 @@ def mostrar_historial(panel):
 
     titulo = crear_titulo(
         contenedor,
-        "Historial Clínico"
+        t("historial.title")
     )
 
     titulo.pack(
@@ -78,7 +106,7 @@ def mostrar_historial(panel):
 
     subtitulo = crear_subtitulo(
         contenedor,
-        "Consulta el expediente clínico completo del paciente"
+        t("historial.subtitle")
     )
 
     subtitulo.pack(
@@ -110,7 +138,7 @@ def mostrar_historial(panel):
 
     etiqueta_paciente = crear_label(
         frame_selector,
-        "Paciente (escriba para filtrar)"
+        t("historial.fields.patient.label")
     )
 
     etiqueta_paciente.pack(
@@ -131,7 +159,7 @@ def mostrar_historial(panel):
 
     estado = ctk.CTkLabel(
         contenedor,
-        text="Seleccione un paciente para cargar su historial.",
+        text=t("historial.messages.empty_selection"),
         font=TEXT_FONT,
         text_color=TEXT_SECONDARY,
         anchor="w",
@@ -188,11 +216,16 @@ def mostrar_historial(panel):
         corner_radius=0
     )
 
-    notebook.add(tab_resumen, text="Resumen")
-    notebook.add(tab_consultas, text="Consultas")
-    notebook.add(tab_recetas, text="Recetas")
-    notebook.add(tab_citas, text="Citas")
-    notebook.add(tab_registros, text="Estudios y diagnósticos")
+    tabs = (
+        (tab_resumen, "historial.tabs.summary"),
+        (tab_consultas, "historial.tabs.consultations"),
+        (tab_recetas, "historial.tabs.prescriptions"),
+        (tab_citas, "historial.tabs.appointments"),
+        (tab_registros, "historial.tabs.studies_diagnoses"),
+    )
+
+    for tab, clave in tabs:
+        notebook.add(tab, text=t(clave))
 
     # -----------------------------
     # PESTAÑA RESUMEN
@@ -212,7 +245,7 @@ def mostrar_historial(panel):
 
     resumen_nombre = ctk.CTkLabel(
         contenido_resumen,
-        text="Sin paciente seleccionado",
+        text=t("historial.labels.no_patient_selected"),
         font=("Inter", 26, "bold"),
         text_color=TEXT,
         anchor="w"
@@ -224,7 +257,10 @@ def mostrar_historial(panel):
 
     resumen_detalle = ctk.CTkLabel(
         contenido_resumen,
-        text="Edad: —    Teléfono: —",
+        text=(
+            f"{t('historial.labels.age')} —    "
+            f"{t('historial.labels.phone')} —"
+        ),
         font=TEXT_FONT,
         text_color=TEXT_SECONDARY,
         anchor="w"
@@ -281,21 +317,25 @@ def mostrar_historial(panel):
             pady=(0, 15)
         )
 
-        return tile, valor
+        return tile, valor, titulo_tile
 
     tiles = {}
+    tiles_titulos = {}
 
     definicion_tiles = [
-        ("consultas", "Consultas"),
-        ("recetas", "Recetas"),
-        ("citas", "Citas"),
-        ("diagnosticos", "Diagnósticos"),
-        ("estudios", "Estudios")
+        ("consultas", "historial.tabs.consultations"),
+        ("recetas", "historial.tabs.prescriptions"),
+        ("citas", "historial.tabs.appointments"),
+        ("diagnosticos", "historial.records.diagnosis"),
+        ("estudios", "historial.records.study")
     ]
 
-    for indice, (clave, etiqueta) in enumerate(definicion_tiles):
+    for indice, (clave, clave_texto) in enumerate(definicion_tiles):
 
-        tile, valor = crear_tile(frame_tiles, etiqueta)
+        tile, valor, titulo_tile = crear_tile(
+            frame_tiles,
+            t(clave_texto)
+        )
 
         tile.grid(
             row=0,
@@ -305,10 +345,11 @@ def mostrar_historial(panel):
         )
 
         tiles[clave] = valor
+        tiles_titulos[clave] = (titulo_tile, clave_texto)
 
     resumen_ultima = ctk.CTkLabel(
         contenido_resumen,
-        text="Sin consultas registradas.",
+        text=t("historial.empty.consultations_short"),
         font=TEXT_FONT,
         text_color=TEXT_SECONDARY,
         anchor="w",
@@ -341,7 +382,7 @@ def mostrar_historial(panel):
 
         estado_tabla = ctk.CTkLabel(
             contenido,
-            text="Sin datos cargados.",
+            text=t("historial.labels.no_data_loaded"),
             font=TEXT_FONT,
             text_color=TEXT_SECONDARY,
             anchor="w",
@@ -359,6 +400,8 @@ def mostrar_historial(panel):
             columnas=columnas,
             altura=altura
         )
+
+        _actualizar_encabezados(tabla)
 
         frame_tabla.pack(
             fill="both",
@@ -478,6 +521,7 @@ def mostrar_historial(panel):
     pacientes_por_opcion = {}
     opciones = []
     error_pacientes = None
+    historial_actual = [None]
 
     try:
 
@@ -493,7 +537,11 @@ def mostrar_historial(panel):
 
     for paciente in pacientes:
 
-        base = paciente.get("nombre") or paciente.get("id") or "Sin nombre"
+        base = (
+            paciente.get("nombre")
+            or paciente.get("id")
+            or t("common.no_name")
+        )
 
         vistos[base] = vistos.get(base, 0) + 1
 
@@ -515,7 +563,10 @@ def mostrar_historial(panel):
         combo_paciente.configure(state="disabled")
 
         estado.configure(
-            text=f"No se pudieron cargar los pacientes: {error_pacientes}"
+            text=(
+                f"{t('historial.messages.load_patients_error')} "
+                f"{error_pacientes}"
+            )
         )
 
     elif not opciones:
@@ -523,7 +574,7 @@ def mostrar_historial(panel):
         combo_paciente.configure(state="disabled")
 
         estado.configure(
-            text="No hay pacientes registrados."
+            text=t("historial.messages.no_patients")
         )
 
     # -----------------------------
@@ -536,8 +587,11 @@ def mostrar_historial(panel):
         for item in tabla.get_children():
             tabla.delete(item)
 
-    def texto(valor, defecto="Sin registro"):
+    def texto(valor, defecto=None):
         """Normaliza un valor para mostrarlo en la interfaz."""
+
+        if defecto is None:
+            defecto = t("common.no_registration")
 
         if valor is None:
             return defecto
@@ -553,13 +607,18 @@ def mostrar_historial(panel):
         conteos = historial["conteos"]
 
         resumen_nombre.configure(
-            text=texto(datos.get("nombre"), "Paciente sin nombre")
+            text=texto(
+                datos.get("nombre"),
+                t("historial.labels.patient_without_name")
+            )
         )
 
         resumen_detalle.configure(
             text=(
-                f"Edad: {texto(datos.get('edad'), 'No registrada')}    "
-                f"Teléfono: {texto(datos.get('telefono'), 'No registrado')}"
+                f"{t('historial.labels.age')} "
+                f"{texto(datos.get('edad'), t('historial.labels.not_recorded'))}"
+                f"    {t('historial.labels.phone')} "
+                f"{texto(datos.get('telefono'), t('historial.labels.not_recorded_m'))}"
             )
         )
 
@@ -573,14 +632,20 @@ def mostrar_historial(panel):
         if ultima is None:
 
             resumen_ultima.configure(
-                text="Sin consultas registradas."
+                text=t("historial.empty.consultations_short")
             )
 
             return
 
         partes = [
-            f"Última consulta: {texto(ultima.get('fecha'), 'Sin fecha')}",
-            f"Médico: {texto(ultima.get('medico'), 'Sin médico')}"
+            (
+                f"{t('historial.labels.last_consultation')} "
+                f"{texto(ultima.get('fecha'), t('common.no_date'))}"
+            ),
+            (
+                f"{t('historial.labels.doctor')} "
+                f"{texto(ultima.get('medico'), t('common.no_doctor'))}"
+            ),
         ]
 
         diagnosticos = ultima.get("diagnosticos") or []
@@ -588,11 +653,16 @@ def mostrar_historial(panel):
         if diagnosticos:
 
             nombres = ", ".join(
-                texto(diagnostico.get("nombre"), "Sin diagnóstico")
+                texto(
+                    diagnostico.get("nombre"),
+                    t("common.no_diagnosis")
+                )
                 for diagnostico in diagnosticos
             )
 
-            partes.append(f"Diagnóstico: {nombres}")
+            partes.append(
+                f"{t('historial.labels.diagnosis')} {nombres}"
+            )
 
         resumen_ultima.configure(
             text="    ·    ".join(partes)
@@ -619,23 +689,26 @@ def mostrar_historial(panel):
         for consulta in consultas:
 
             diagnosticos = ", ".join(
-                texto(diagnostico.get("nombre"), "Sin diagnóstico")
+                texto(
+                    diagnostico.get("nombre"),
+                    t("common.no_diagnosis")
+                )
                 for diagnostico in (consulta.get("diagnosticos") or [])
             )
 
             filas.append((
-                texto(consulta.get("fecha"), "Sin fecha"),
-                texto(consulta.get("medico"), "Sin médico"),
-                texto(consulta.get("notas"), "Sin notas"),
-                diagnosticos or "Sin diagnóstico"
+                texto(consulta.get("fecha"), t("common.no_date")),
+                texto(consulta.get("medico"), t("common.no_doctor")),
+                texto(consulta.get("notas"), t("common.no_notes")),
+                diagnosticos or t("common.no_diagnosis")
             ))
 
         cargar_tabla(
             tabla_consultas,
             estado_consultas,
             filas,
-            "Sin consultas registradas para este paciente.",
-            f"{len(filas)} consulta(s) registrada(s)."
+            t("historial.empty.consultations"),
+            f"{len(filas)} {t('historial.counts.consultations')}"
         )
 
     def cargar_recetas(historial):
@@ -647,21 +720,24 @@ def mostrar_historial(panel):
         for receta in recetas:
 
             filas.append((
-                texto(receta.get("medico"), "Sin médico"),
-                texto(receta.get("medicamento"), "Sin medicamento"),
-                texto(receta.get("dosis"), "Sin dosis"),
-                texto(receta.get("indicaciones"), "Sin indicaciones")
+                texto(receta.get("medico"), t("common.no_doctor")),
+                texto(
+                    receta.get("medicamento"),
+                    t("common.no_medication")
+                ),
+                texto(receta.get("dosis"), t("common.no_dose")),
+                texto(
+                    receta.get("indicaciones"),
+                    t("common.no_indications")
+                )
             ))
 
         cargar_tabla(
             tabla_recetas,
             estado_recetas,
             filas,
-            "Sin recetas registradas para este paciente.",
-            (
-                f"{len(filas)} receta(s) registrada(s). "
-                "La ontología no almacena fecha en las recetas."
-            )
+            t("historial.empty.prescriptions"),
+            f"{len(filas)} {t('historial.counts.prescriptions')}"
         )
 
     def cargar_citas(historial):
@@ -673,17 +749,17 @@ def mostrar_historial(panel):
         for cita in citas:
 
             filas.append((
-                texto(cita.get("fecha"), "Sin fecha"),
-                texto(cita.get("hora"), "Sin hora"),
-                texto(cita.get("medico"), "Sin médico")
+                texto(cita.get("fecha"), t("common.no_date")),
+                texto(cita.get("hora"), t("common.no_time")),
+                texto(cita.get("medico"), t("common.no_doctor"))
             ))
 
         cargar_tabla(
             tabla_citas,
             estado_citas,
             filas,
-            "Sin citas registradas para este paciente.",
-            f"{len(filas)} cita(s) registrada(s)."
+            t("historial.empty.appointments"),
+            f"{len(filas)} {t('historial.counts.appointments')}"
         )
 
     def cargar_registros(historial):
@@ -694,19 +770,26 @@ def mostrar_historial(panel):
 
         for registro in registros:
 
+            tipo = registro.get("tipo")
+
+            if tipo == "Diagnóstico":
+                tipo = t("historial.records.diagnosis")
+            elif tipo == "Estudio":
+                tipo = t("historial.records.study")
+
             filas.append((
-                texto(registro.get("tipo"), "Sin tipo"),
-                texto(registro.get("nombre"), "Sin descripción"),
-                texto(registro.get("fecha"), "Sin fecha"),
-                texto(registro.get("medico"), "Sin médico")
+                texto(tipo, t("common.no_type")),
+                texto(registro.get("nombre"), t("common.no_description")),
+                texto(registro.get("fecha"), t("common.no_date")),
+                texto(registro.get("medico"), t("common.no_doctor"))
             ))
 
         cargar_tabla(
             tabla_registros,
             estado_registros,
             filas,
-            "Sin diagnósticos ni estudios registrados.",
-            f"{len(filas)} registro(s) clínico(s)."
+            t("historial.empty.records"),
+            f"{len(filas)} {t('historial.counts.clinical_records')}"
         )
 
     def renderizar(historial):
@@ -723,10 +806,14 @@ def mostrar_historial(panel):
 
         estado.configure(
             text=(
-                f"Paciente: {texto(datos.get('nombre'), 'Sin nombre')}  ·  "
-                f"Consultas: {conteos.get('consultas', 0)}  ·  "
-                f"Recetas: {conteos.get('recetas', 0)}  ·  "
-                f"Citas: {conteos.get('citas', 0)}"
+                f"{t('historial.labels.patient')} "
+                f"{texto(datos.get('nombre'), t('common.no_name'))}  ·  "
+                f"{t('historial.tabs.consultations')}: "
+                f"{conteos.get('consultas', 0)}  ·  "
+                f"{t('historial.tabs.prescriptions')}: "
+                f"{conteos.get('recetas', 0)}  ·  "
+                f"{t('historial.tabs.appointments')}: "
+                f"{conteos.get('citas', 0)}"
             )
         )
 
@@ -745,8 +832,8 @@ def mostrar_historial(panel):
             if opcion:
 
                 messagebox.showwarning(
-                    "Paciente no válido",
-                    "Seleccione un paciente de la lista."
+                    t("historial.messages.invalid_patient_title"),
+                    t("historial.messages.select_patient")
                 )
 
             return
@@ -758,29 +845,35 @@ def mostrar_historial(panel):
         # Frontera de interfaz: se informa el error sin cerrar la aplicación.
         except Exception as error:  # noqa: BLE001
 
+            historial_actual[0] = None
+
             messagebox.showerror(
-                "Error",
-                f"No se pudo cargar el historial:\n{error}"
+                t("common.error"),
+                f"{t('historial.messages.load_error')}\n{error}"
             )
 
             estado.configure(
-                text="No se pudo cargar el historial."
+                text=t("historial.messages.load_error_short")
             )
 
             return
 
         if historial is None:
 
+            historial_actual[0] = None
+
             messagebox.showwarning(
-                "Sin datos",
-                "El paciente seleccionado no existe."
+                t("historial.messages.no_data_title"),
+                t("historial.messages.patient_not_found")
             )
 
             estado.configure(
-                text="El paciente seleccionado no existe."
+                text=t("historial.messages.patient_not_found")
             )
 
             return
+
+        historial_actual[0] = historial
 
         try:
 
@@ -790,15 +883,87 @@ def mostrar_historial(panel):
         except Exception as error:  # noqa: BLE001
 
             messagebox.showerror(
-                "Error",
-                f"No se pudo mostrar el historial:\n{error}"
+                t("common.error"),
+                f"{t('historial.messages.display_error')}\n{error}"
             )
 
             estado.configure(
-                text="No se pudo mostrar el historial."
+                text=t("historial.messages.display_error_short")
             )
 
     combo_paciente.bind(
         "<<ComboboxSelected>>",
         cargar_historial
     )
+
+    # -----------------------------
+    # ACTUALIZACION DE IDIOMA
+    # -----------------------------
+
+    def update_ui_strings(lang=None):
+
+        titulo.configure(text=t("historial.title"))
+        subtitulo.configure(text=t("historial.subtitle"))
+        etiqueta_paciente.configure(
+            text=t("historial.fields.patient.label")
+        )
+
+        for tab, clave in tabs:
+            notebook.tab(tab, text=t(clave))
+
+        for titulo_tile, clave in tiles_titulos.values():
+            titulo_tile.configure(text=t(clave))
+
+        for tabla in (
+            tabla_consultas,
+            tabla_recetas,
+            tabla_citas,
+            tabla_registros,
+        ):
+            _actualizar_encabezados(tabla)
+
+        if historial_actual[0] is not None:
+
+            renderizar(historial_actual[0])
+            return
+
+        for estado_tabla in (
+            estado_consultas,
+            estado_recetas,
+            estado_citas,
+            estado_registros,
+        ):
+            estado_tabla.configure(
+                text=t("historial.labels.no_data_loaded")
+            )
+
+        resumen_nombre.configure(
+            text=t("historial.labels.no_patient_selected")
+        )
+        resumen_detalle.configure(
+            text=(
+                f"{t('historial.labels.age')} —    "
+                f"{t('historial.labels.phone')} —"
+            )
+        )
+        resumen_ultima.configure(
+            text=t("historial.empty.consultations_short")
+        )
+
+        if error_pacientes is not None:
+            estado.configure(
+                text=(
+                    f"{t('historial.messages.load_patients_error')} "
+                    f"{error_pacientes}"
+                )
+            )
+        elif not opciones:
+            estado.configure(text=t("historial.messages.no_patients"))
+        else:
+            estado.configure(
+                text=t("historial.messages.empty_selection")
+            )
+
+    language_manager.add_listener(update_ui_strings)
+
+    return lambda: language_manager.remove_listener(update_ui_strings)

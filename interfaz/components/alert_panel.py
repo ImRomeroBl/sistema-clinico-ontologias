@@ -7,6 +7,7 @@ color, título y detalle. No accede a la ontología ni contiene lógica de negoc
 import customtkinter as ctk
 
 from interfaz.theme.colors import BACKGROUND, DANGER, TEXT, WARNING
+from logica.language_manager import t
 
 # -----------------------------
 # CONTRATO VISUAL
@@ -24,13 +25,16 @@ COLORES_TEXTO = {
     "gray": TEXT,
 }
 
-TITULOS = {
-    "Alta": "● ALERTA ALTA",
-    "Media": "● ALERTA MEDIA",
-    "Sin alerta": "● SIN ALERTA",
+CLAVES_TITULO = {
+    "Alta": "common.alert.high",
+    "Media": "common.alert.medium",
+    "Sin alerta": "common.alert.none",
 }
 
-MENSAJE_SIN_SELECCION = "Seleccione un medicamento para ver sus alertas."
+
+def _titulo_alerta(nivel):
+    """Devuelve el título traducido del nivel de alerta."""
+    return t(CLAVES_TITULO.get(nivel, "common.alert.none"))
 
 
 def formatear_detalle_alerta(alerta):
@@ -42,20 +46,20 @@ def formatear_detalle_alerta(alerta):
 
     if contraindicaciones:
         lineas.append(
-            "Contraindicaciones: "
+            t("common.alert.contraindications")
+            + " "
             + ", ".join(str(item) for item in contraindicaciones)
         )
 
     if efectos_secundarios:
         lineas.append(
-            "Efectos secundarios: "
+            t("common.alert.side_effects")
+            + " "
             + ", ".join(str(item) for item in efectos_secundarios)
         )
 
     if not lineas:
-        lineas.append(
-            "No se registraron contraindicaciones ni efectos secundarios."
-        )
+        lineas.append(t("common.alert.no_alerts"))
 
     return "\n".join(lineas)
 
@@ -66,7 +70,7 @@ class PanelAlertasMedicamento(ctk.CTkFrame):
     def __init__(
         self,
         parent,
-        mensaje_sin_seleccion=MENSAJE_SIN_SELECCION,
+        mensaje_sin_seleccion=None,
         **kwargs
     ):
 
@@ -81,7 +85,7 @@ class PanelAlertasMedicamento(ctk.CTkFrame):
 
         self.titulo = ctk.CTkLabel(
             self,
-            text=TITULOS["Sin alerta"],
+            text=_titulo_alerta("Sin alerta"),
             font=("Inter", 13, "bold"),
             text_color=TEXT,
             anchor="w"
@@ -96,7 +100,7 @@ class PanelAlertasMedicamento(ctk.CTkFrame):
 
         self.detalle = ctk.CTkLabel(
             self,
-            text=self._mensaje_sin_seleccion,
+            text=self._mensaje_sin_seleccion or t("common.select_medication_alert"),
             font=("Inter", 12),
             text_color=TEXT,
             anchor="w",
@@ -131,7 +135,7 @@ class PanelAlertasMedicamento(ctk.CTkFrame):
         color_texto = COLORES_TEXTO.get(color, TEXT)
 
         self.titulo.configure(
-            text=TITULOS.get(nivel, TITULOS["Sin alerta"]),
+            text=_titulo_alerta(nivel),
             text_color=color_texto
         )
         self.detalle.configure(
@@ -143,10 +147,10 @@ class PanelAlertasMedicamento(ctk.CTkFrame):
         """Restablece el panel al estado sin selección."""
         self.configure(fg_color=COLORES_FONDO["gray"])
         self.titulo.configure(
-            text=TITULOS["Sin alerta"],
+            text=_titulo_alerta("Sin alerta"),
             text_color=TEXT
         )
         self.detalle.configure(
-            text=mensaje or self._mensaje_sin_seleccion,
+            text=mensaje or self._mensaje_sin_seleccion or t("common.select_medication_alert"),
             text_color=TEXT
         )

@@ -1,6 +1,7 @@
 from tkinter import messagebox
 
 from interfaz.components.crud_view import VistaCRUD
+from logica.language_manager import language_manager, t
 from logica.medicamentos import (
     TIPOS_MEDICAMENTO,
     actualizar_medicamento,
@@ -14,6 +15,22 @@ from logica.medicamentos import (
 # --------------------------------
 # HELPERS
 # --------------------------------
+
+CLAVES_TIPO = {
+    "generico": "medicamentos.types.generic",
+    "analgesico": "medicamentos.types.analgesic",
+    "antibiotico": "medicamentos.types.antibiotic",
+    "antiinflamatorio": "medicamentos.types.antiinflammatory",
+}
+
+
+def _etiquetas_tipo():
+    """Devuelve el mapa clave interna -> etiqueta traducida del tipo."""
+    return {
+        clave: t(CLAVES_TIPO.get(clave, CLAVES_TIPO["generico"]))
+        for clave, _ in TIPOS_MEDICAMENTO
+    }
+
 
 def _resumen(texto, limite=35):
     """Convierte un texto multilínea en una vista previa breve de una línea."""
@@ -33,11 +50,12 @@ def mostrar_medicamentos(panel):
     medicamento_seleccionado = [None]
     medicamentos_por_id = {}
 
-    tipos = [etiqueta for _, etiqueta in TIPOS_MEDICAMENTO]
+    etiquetas_tipo = _etiquetas_tipo()
     tipo_por_etiqueta = {
         etiqueta: clave
-        for clave, etiqueta in TIPOS_MEDICAMENTO
+        for clave, etiqueta in etiquetas_tipo.items()
     }
+    tipos = list(etiquetas_tipo.values())
 
     contraindicaciones = listar_contraindicaciones()
     efectos_secundarios = listar_efectos_secundarios()
@@ -48,7 +66,7 @@ def mostrar_medicamentos(panel):
 
     vista = VistaCRUD(
         panel,
-        titulo="Gestión de Medicamentos",
+        titulo=t("medicamentos.title"),
         columnas=[
             "Nombre",
             "Tipo",
@@ -59,20 +77,20 @@ def mostrar_medicamentos(panel):
         campos=[
             {
                 "clave": "nombre",
-                "label": "Nombre",
-                "placeholder": "Ingrese nombre del medicamento",
+                "label": t("medicamentos.fields.name.label"),
+                "placeholder": t("medicamentos.fields.name.placeholder"),
                 "grupo": 0
             },
             {
                 "clave": "tipo",
-                "label": "Tipo",
+                "label": t("medicamentos.fields.type.label"),
                 "tipo": "combo",
                 "valores": tipos,
                 "grupo": 1
             },
             {
                 "clave": "contraindicaciones",
-                "label": "Contraindicaciones (selección múltiple)",
+                "label": t("medicamentos.fields.contraindications.label"),
                 "tipo": "multiple",
                 "opciones": contraindicaciones,
                 "altura": 130,
@@ -80,7 +98,7 @@ def mostrar_medicamentos(panel):
             },
             {
                 "clave": "efectos_secundarios",
-                "label": "Efectos secundarios (selección múltiple)",
+                "label": t("medicamentos.fields.side_effects.label"),
                 "tipo": "multiple",
                 "opciones": efectos_secundarios,
                 "altura": 130,
@@ -96,6 +114,14 @@ def mostrar_medicamentos(panel):
     tabla.column("Contraindicaciones", width=330, anchor="w")
     tabla.column("Efectos Secundarios", width=330, anchor="w")
 
+    for columna, clave in (
+        ("Nombre", "medicamentos.columns.name"),
+        ("Tipo", "medicamentos.columns.type"),
+        ("Contraindicaciones", "medicamentos.columns.contraindications"),
+        ("Efectos Secundarios", "medicamentos.columns.side_effects"),
+    ):
+        tabla.heading(columna, text=t(clave))
+
     combo_tipo = vista.widgets["tipo"]
     combo_tipo.configure(state="readonly")
 
@@ -108,7 +134,7 @@ def mostrar_medicamentos(panel):
 
     def limpiar_formulario():
         vista.limpiar_campos()
-        combo_tipo.set("Genérico")
+        combo_tipo.set(etiquetas_tipo["generico"])
 
     # -----------------------------
     # CARGAR MEDICAMENTOS
@@ -126,7 +152,10 @@ def mostrar_medicamentos(panel):
             vista.insertar_fila(
                 (
                     medicamento["nombre"],
-                    medicamento["tipo_label"],
+                    etiquetas_tipo.get(
+                        medicamento["tipo"],
+                        medicamento["tipo_label"]
+                    ),
                     _resumen(medicamento["contraindicaciones_texto"]),
                     _resumen(medicamento["efectos_secundarios_texto"])
                 ),
@@ -188,7 +217,7 @@ def mostrar_medicamentos(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -200,8 +229,8 @@ def mostrar_medicamentos(panel):
         medicamento_seleccionado[0] = None
 
         messagebox.showinfo(
-            "Correcto",
-            "Medicamento agregado correctamente"
+            t("common.correct"),
+            t("medicamentos.messages.added")
         )
 
     # -----------------------------
@@ -215,8 +244,8 @@ def mostrar_medicamentos(panel):
         if medicamento_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un medicamento"
+                t("common.error"),
+                t("medicamentos.messages.select")
             )
 
             return
@@ -234,7 +263,7 @@ def mostrar_medicamentos(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -243,8 +272,8 @@ def mostrar_medicamentos(panel):
         if actualizado is None:
 
             messagebox.showwarning(
-                "Error",
-                "No se encontró el medicamento seleccionado"
+                t("common.error"),
+                t("medicamentos.messages.not_found")
             )
 
             return
@@ -255,8 +284,8 @@ def mostrar_medicamentos(panel):
         medicamento_seleccionado[0] = None
 
         messagebox.showinfo(
-            "Correcto",
-            "Medicamento modificado correctamente"
+            t("common.correct"),
+            t("medicamentos.messages.updated")
         )
 
     # -----------------------------
@@ -270,8 +299,8 @@ def mostrar_medicamentos(panel):
         if medicamento_id is None:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione un medicamento"
+                t("common.error"),
+                t("medicamentos.messages.select")
             )
 
             return
@@ -283,7 +312,7 @@ def mostrar_medicamentos(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "No se puede eliminar",
+                t("medicamentos.messages.cannot_delete"),
                 str(error)
             )
 
@@ -292,8 +321,8 @@ def mostrar_medicamentos(panel):
         if not eliminado:
 
             messagebox.showwarning(
-                "Error",
-                "No se encontró el medicamento seleccionado"
+                t("common.error"),
+                t("medicamentos.messages.not_found")
             )
 
             return
@@ -304,8 +333,8 @@ def mostrar_medicamentos(panel):
         medicamento_seleccionado[0] = None
 
         messagebox.showinfo(
-            "Correcto",
-            "Medicamento eliminado correctamente"
+            t("common.correct"),
+            t("medicamentos.messages.deleted")
         )
 
     # -----------------------------
@@ -316,9 +345,9 @@ def mostrar_medicamentos(panel):
         on_agregar,
         on_modificar,
         on_eliminar,
-        etiqueta_agregar="Agregar Medicamento",
-        etiqueta_modificar="Modificar Medicamento",
-        etiqueta_eliminar="Eliminar Medicamento",
+        etiqueta_agregar=t("medicamentos.buttons.add"),
+        etiqueta_modificar=t("medicamentos.buttons.modify"),
+        etiqueta_eliminar=t("medicamentos.buttons.delete"),
         ancho=240,
         alto=50,
         fuente=("Inter", 14, "bold"),
@@ -326,8 +355,85 @@ def mostrar_medicamentos(panel):
     )
 
     # -----------------------------
+    # ACTUALIZACION DE IDIOMA
+    # -----------------------------
+
+    def actualizar_combo_tipos():
+        """Traduce las opciones del combo conservando el tipo elegido."""
+
+        seleccionado = tipo_seleccionado()
+        nuevas = _etiquetas_tipo()
+
+        etiquetas_tipo.clear()
+        etiquetas_tipo.update(nuevas)
+
+        tipo_por_etiqueta.clear()
+        tipo_por_etiqueta.update({
+            etiqueta: clave
+            for clave, etiqueta in etiquetas_tipo.items()
+        })
+
+        combo_tipo.configure(values=list(etiquetas_tipo.values()))
+        combo_tipo.set(
+            etiquetas_tipo.get(seleccionado, etiquetas_tipo["generico"])
+        )
+
+    def update_ui_strings(lang=None):
+
+        actualizar_combo_tipos()
+
+        vista.actualizar_textos(
+            titulo=t("medicamentos.title"),
+            encabezados={
+                "Nombre": t("medicamentos.columns.name"),
+                "Tipo": t("medicamentos.columns.type"),
+                "Contraindicaciones": t(
+                    "medicamentos.columns.contraindications"
+                ),
+                "Efectos Secundarios": t(
+                    "medicamentos.columns.side_effects"
+                ),
+            },
+            etiquetas={
+                "nombre": t("medicamentos.fields.name.label"),
+                "tipo": t("medicamentos.fields.type.label"),
+                "contraindicaciones": t(
+                    "medicamentos.fields.contraindications.label"
+                ),
+                "efectos_secundarios": t(
+                    "medicamentos.fields.side_effects.label"
+                ),
+            },
+            placeholders={
+                "nombre": t("medicamentos.fields.name.placeholder"),
+            }
+        )
+
+        vista.actualizar_botones(
+            t("medicamentos.buttons.add"),
+            t("medicamentos.buttons.modify"),
+            t("medicamentos.buttons.delete")
+        )
+
+        for clave in ("contraindicaciones", "efectos_secundarios"):
+            widget = vista.widgets.get(clave)
+            if hasattr(widget, "actualizar_textos"):
+                widget.actualizar_textos()
+
+        seleccionado = medicamento_seleccionado[0]
+        cargar_medicamentos()
+
+        if seleccionado and seleccionado in tabla.get_children():
+            tabla.selection_set(seleccionado)
+            tabla.focus(seleccionado)
+
+    language_manager.add_listener(update_ui_strings)
+
+    # -----------------------------
     # CARGAR DATOS
     # -----------------------------
 
     limpiar_formulario()
     cargar_medicamentos()
+
+    return lambda: language_manager.remove_listener(update_ui_strings)

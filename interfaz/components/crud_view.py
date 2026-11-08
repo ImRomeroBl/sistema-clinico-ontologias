@@ -37,6 +37,7 @@ from interfaz.components.ui import (
 )
 from interfaz.theme.colors import BACKGROUND
 from interfaz.theme.combobox import configurar_estilo_combobox
+from logica.language_manager import t
 
 # -----------------------------
 # COMPONENTE VISTA CRUD
@@ -57,6 +58,9 @@ class VistaCRUD:
         self.panel = panel
         self.campos = campos
         self.widgets = {}
+        self.etiquetas = {}
+        self.buscador_label = None
+        self.botones = {}
 
         # -----------------------------
         # LIMPIAR PANEL
@@ -206,6 +210,8 @@ class VistaCRUD:
                 campo["label"]
             )
 
+            self.etiquetas[campo["clave"]] = etiqueta
+
             etiqueta.grid(
                 row=fila,
                 column=grupo * 2,
@@ -333,6 +339,8 @@ class VistaCRUD:
             buscador["label"]
         )
 
+        self.buscador_label = etiqueta
+
         etiqueta.pack(
             anchor="w",
             pady=(0, 10)
@@ -363,14 +371,18 @@ class VistaCRUD:
         al_agregar,
         al_modificar,
         al_eliminar,
-        etiqueta_agregar="Agregar",
-        etiqueta_modificar="Modificar",
-        etiqueta_eliminar="Eliminar",
+        etiqueta_agregar=None,
+        etiqueta_modificar=None,
+        etiqueta_eliminar=None,
         ancho=None,
         alto=None,
         fuente=None,
         padding=12
     ):
+
+        etiqueta_agregar = etiqueta_agregar or t("common.add")
+        etiqueta_modificar = etiqueta_modificar or t("common.modify")
+        etiqueta_eliminar = etiqueta_eliminar or t("common.delete")
 
         botones = [
             crear_boton_exito(
@@ -390,6 +402,12 @@ class VistaCRUD:
             ),
         ]
 
+        self.botones = {
+            "agregar": botones[0],
+            "modificar": botones[1],
+            "eliminar": botones[2],
+        }
+
         for boton in botones:
 
             if ancho is not None:
@@ -406,6 +424,70 @@ class VistaCRUD:
                 padx=padding,
                 pady=4
             )
+
+    # -----------------------------
+    # ACTUALIZACION DE TEXTOS (i18n)
+    # -----------------------------
+
+    def actualizar_textos(
+        self,
+        titulo=None,
+        encabezados=None,
+        etiquetas=None,
+        placeholders=None,
+        buscador=None
+    ):
+        """Actualiza los textos visibles sin reconstruir la vista.
+
+        ``encabezados`` usa como clave el identificador estable de columna
+        (el texto original con el que se creó la tabla), no la traducción.
+        """
+
+        if titulo is not None:
+            self.titulo.configure(text=titulo)
+
+        for columna, texto in (encabezados or {}).items():
+            self.tabla.heading(columna, text=texto)
+
+        for clave, texto in (etiquetas or {}).items():
+            etiqueta = self.etiquetas.get(clave)
+
+            if etiqueta is not None:
+                etiqueta.configure(text=texto)
+
+        for clave, texto in (placeholders or {}).items():
+            campo = self._campo(clave)
+
+            if campo is None:
+                continue
+
+            if campo.get("tipo", "input") in ("input", "telefono"):
+                self.widgets[clave].configure(placeholder_text=texto)
+
+        if buscador is not None:
+            if self.buscador_label is not None:
+                self.buscador_label.configure(text=buscador.get("label", ""))
+
+            if self.buscador is not None:
+                self.buscador.configure(
+                    placeholder_text=buscador.get("placeholder", "")
+                )
+
+    def actualizar_botones(
+        self,
+        etiqueta_agregar=None,
+        etiqueta_modificar=None,
+        etiqueta_eliminar=None
+    ):
+        """Actualiza las etiquetas de los botones Agregar/Modificar/Eliminar."""
+
+        for clave, texto in (
+            ("agregar", etiqueta_agregar),
+            ("modificar", etiqueta_modificar),
+            ("eliminar", etiqueta_eliminar),
+        ):
+            if texto is not None and clave in self.botones:
+                self.botones[clave].configure(text=texto)
 
     # -----------------------------
     # UTILIDADES DE CAMPOS

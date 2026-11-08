@@ -2,6 +2,7 @@ from tkinter import messagebox
 
 from interfaz.components.crud_view import VistaCRUD
 from logica.citas import actualizar_cita, crear_cita, eliminar_cita, listar_citas
+from logica.language_manager import language_manager, t
 from logica.medicos import listar_medicos
 from logica.pacientes import listar_pacientes
 
@@ -35,24 +36,32 @@ def mostrar_citas(panel):
 
     vista = VistaCRUD(
         panel,
-        titulo="Gestión de Citas",
+        titulo=t("citas.title"),
         columnas=["Paciente", "Médico", "Fecha", "Hora"],
         altura=7,
         campos=[
             {
                 "clave": "paciente",
-                "label": "Paciente (escriba para filtrar)",
+                "label": t("citas.fields.patient.label"),
                 "tipo": "combo_buscable",
                 "valores": pacientes
             },
             {
                 "clave": "medico",
-                "label": "Médico (escriba para filtrar)",
+                "label": t("citas.fields.doctor.label"),
                 "tipo": "combo_buscable",
                 "valores": medicos
             },
-            {"clave": "fecha", "label": "Fecha", "placeholder": "Ingrese fecha (AAAA-MM-DD)"},
-            {"clave": "hora", "label": "Hora", "placeholder": "Ingrese hora (HH:MM AM/PM)"}
+            {
+                "clave": "fecha",
+                "label": t("citas.fields.date.label"),
+                "placeholder": t("citas.fields.date.placeholder")
+            },
+            {
+                "clave": "hora",
+                "label": t("citas.fields.time.label"),
+                "placeholder": t("citas.fields.time.placeholder")
+            }
         ]
     )
 
@@ -131,7 +140,7 @@ def mostrar_citas(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -144,8 +153,8 @@ def mostrar_citas(panel):
         cita_seleccionada[0] = None
 
         messagebox.showinfo(
-            "Correcto",
-            "Cita agregada correctamente"
+            t("common.correct"),
+            t("citas.messages.added")
         )
 
     # -----------------------------
@@ -157,8 +166,8 @@ def mostrar_citas(panel):
         if not cita_seleccionada[0]:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione una cita"
+                t("common.error"),
+                t("citas.messages.select")
             )
 
             return
@@ -176,7 +185,7 @@ def mostrar_citas(panel):
         except ValueError as error:
 
             messagebox.showwarning(
-                "Datos inválidos",
+                t("common.invalid_data"),
                 str(error)
             )
 
@@ -185,8 +194,8 @@ def mostrar_citas(panel):
         if actualizado is None:
 
             messagebox.showwarning(
-                "Error",
-                "No se encontró la cita seleccionada"
+                t("common.error"),
+                t("citas.messages.not_found")
             )
 
             return
@@ -198,8 +207,8 @@ def mostrar_citas(panel):
         cita_seleccionada[0] = None
 
         messagebox.showinfo(
-            "Correcto",
-            "Cita modificada correctamente"
+            t("common.correct"),
+            t("citas.messages.updated")
         )
 
     # -----------------------------
@@ -211,8 +220,8 @@ def mostrar_citas(panel):
         if not cita_seleccionada[0]:
 
             messagebox.showwarning(
-                "Error",
-                "Seleccione una cita"
+                t("common.error"),
+                t("citas.messages.select")
             )
 
             return
@@ -226,8 +235,8 @@ def mostrar_citas(panel):
         cita_seleccionada[0] = None
 
         messagebox.showinfo(
-            "Correcto",
-            "Cita eliminada correctamente"
+            t("common.correct"),
+            t("citas.messages.deleted")
         )
 
     # -----------------------------
@@ -238,13 +247,49 @@ def mostrar_citas(panel):
         on_agregar,
         on_modificar,
         on_eliminar,
-        etiqueta_agregar="Agregar Cita",
-        etiqueta_modificar="Modificar Cita",
-        etiqueta_eliminar="Eliminar Cita"
+        etiqueta_agregar=t("citas.buttons.add"),
+        etiqueta_modificar=t("citas.buttons.modify"),
+        etiqueta_eliminar=t("citas.buttons.delete")
     )
+
+    # -----------------------------
+    # ACTUALIZACION DE IDIOMA
+    # -----------------------------
+
+    def update_ui_strings(lang=None):
+
+        vista.actualizar_textos(
+            titulo=t("citas.title"),
+            encabezados={
+                "Paciente": t("citas.columns.patient"),
+                "Médico": t("citas.columns.doctor"),
+                "Fecha": t("citas.columns.date"),
+                "Hora": t("citas.columns.time"),
+            },
+            etiquetas={
+                "paciente": t("citas.fields.patient.label"),
+                "medico": t("citas.fields.doctor.label"),
+                "fecha": t("citas.fields.date.label"),
+                "hora": t("citas.fields.time.label"),
+            },
+            placeholders={
+                "fecha": t("citas.fields.date.placeholder"),
+                "hora": t("citas.fields.time.placeholder"),
+            }
+        )
+
+        vista.actualizar_botones(
+            t("citas.buttons.add"),
+            t("citas.buttons.modify"),
+            t("citas.buttons.delete")
+        )
+
+    language_manager.add_listener(update_ui_strings)
 
     # -----------------------------
     # CARGAR DATOS
     # -----------------------------
 
     cargar_citas()
+
+    return lambda: language_manager.remove_listener(update_ui_strings)
